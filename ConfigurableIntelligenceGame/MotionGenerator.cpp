@@ -1,6 +1,6 @@
 //#include "stdafx.h"
 #include "MotionGenerator.h"
-#include "ChessmanGroup.h"
+#include "Array.h"
 #include "Chessboard.h"
 #include "Player.h"
 #include "Chessman.h"
@@ -72,7 +72,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 	CIGRuleConfig::OPERATIONS s = statusStack.top();
 	Operation op;
 
-	Chessman* chess = chessBoard[c->coordinate];
+	Chessman* chess = &(chessBoard.players[c->chessmanLocation.player].ownedChessmans[c->chessmanLocation.index]);
 	bool result = false;
 
 	switch (s)

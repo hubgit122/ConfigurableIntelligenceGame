@@ -16,6 +16,7 @@ namespace CIG
 			ChessmanGroup(const ChessmanGroup& c);
 			ChessmanGroup(const string& str);
 			virtual ~ChessmanGroup();
+			void operator = (const ChessmanGroup& cg);
 	};
 }
 

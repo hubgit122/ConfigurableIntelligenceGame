@@ -14,7 +14,8 @@ namespace CIG
 		public:
 			MotionGenerator(const Chessboard& cb);
 			virtual ~MotionGenerator();
-			
+			//void operator=(const MotionGenerator&mg);
+
 			Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK, OperationStack, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> chessmanActionStack;
 			ChessboardStack chessboardStack;
 			const Chessboard& chessBoard;				//每个ChesssBoard有一个MotionGenerator实例.

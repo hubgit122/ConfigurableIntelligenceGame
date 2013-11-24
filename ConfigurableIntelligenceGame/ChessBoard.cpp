@@ -3,14 +3,16 @@
 #include "Player.h"
 #include "Array.h"
 #include "Chessman.h"
+#include "ChessmanLocation.h"
 
 namespace CIG
 {
-	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessman("PickedChessman"), currentBannedMotions("currentBannedMotions")
+	// 按配置初始化很少执行, 所以可以速度慢一点. 
+	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByLocation("PickedChessman"), currentBannedMotions("currentBannedMotions")
 	{
 		players[0] = Player(CIGRuleConfig::HUMAN,this);
 		players[1] = Player(CIGRuleConfig::COMPUTER,this);			// TO-DO  应该是智能引擎实例而不是player类实例. 
-		memset(mChessmanBoard,-1,sizeof(ChessmanLocation)<<(CIGRuleConfig::INI_BOARD_WIDTH_LOG2+CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));			//如果指针不清空初始值根本不是0 
+		memset(chessmanLocationBoard,-1,sizeof(ChessmanLocation)<<(CIGRuleConfig::INI_BOARD_WIDTH_LOG2+CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));			//如果指针不清空初始值根本不是0 
 
 		for (int k = 0; k < CIGRuleConfig::PLAYER_NUM; ++k)
 		{
@@ -23,12 +25,13 @@ namespace CIG
 
 					if (t != CIGRuleConfig::NOCHESSMAN)
 					{
-						players[k].ownedChessmans.push(
+						Chessman c = Chessman(/*string("test"), */t, PointOrVector(j, i), (CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size, CIGRuleConfig::ON_BOARD, CIGRuleConfig::ALL);
+						players[k].ownedChessmans.push(c
 							// const string& str, CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v
-							Chessman(/*string("test"), */t, PointOrVector(j, i), (CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size, CIGRuleConfig::ON_BOARD, CIGRuleConfig::ALL)			// TO-DO
+							//Chessman(/*string("test"), */t, PointOrVector(j, i), (CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size, CIGRuleConfig::ON_BOARD, CIGRuleConfig::ALL)			// TO-DO
 							);
 						
-						mChessmanBoard[i][j] = ChessmanLocation((CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size-1);
+						chessmanLocationBoard[i][j] = ChessmanLocation((CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size-1);
 						evaluations[k] += CIGRuleConfig::EVALUATIONS[k][players[k].ownedChessmans.top().chessmanType][i][j];
 					}
 				}
@@ -38,36 +41,34 @@ namespace CIG
 
 	CIG::Chessboard::Chessboard( const Chessboard& cb ):
 		currentBannedMotions(cb.currentBannedMotions),
-		pickedChessman(cb.pickedChessman),
+		pickedChessmanByLocation(cb.pickedChessmanByLocation),
 		nowRound(cb.nowRound), nowTurn(cb.nowTurn)
 	{
 		//一定不要破坏底层封装, 这样极大地影响了系统的可移植性. 应该调用成员的响应函数, 如何操作数据由成员决定. 
-		memcpy(this->mChessmanBoard,cb.mChessmanBoard,sizeof(mChessmanBoard));
-		memcpy(this->players,cb.players, sizeof(players));
+		memcpy(this->chessmanLocationBoard,cb.chessmanLocationBoard,sizeof(ChessmanLocation)<<(CIGRuleConfig::INI_BOARD_WIDTH_LOG2+CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));
 		memcpy(this->evaluations, cb.evaluations, sizeof(evaluations));
 
-		for (int i =0; i<CIGRuleConfig::PLAYER_NUM; ++i)
+		for (int i = 0; i<CIGRuleConfig::PLAYER_NUM; ++i)
 		{
+			players[i] = cb.players[i];
 			players[i].chessboard = this;
 		}
-
 	}
 
 	void CIG::Chessboard::operator=( const Chessboard& cb )
 	{
-		//这个函数没写完
-		GUI::inform("还没写完呢. ");
+		//memcpy(this,&cb,4);
 		currentBannedMotions = cb.currentBannedMotions;
-		pickedChessman = cb.pickedChessman;
+		pickedChessmanByLocation = cb.pickedChessmanByLocation;
 		nowRound=cb.nowRound;
 		nowTurn=cb.nowTurn;
 
-		memcpy(this->mChessmanBoard,cb.mChessmanBoard,sizeof(mChessmanBoard));
-		memcpy(this->players,cb.players, sizeof(players));
+		memcpy(this->chessmanLocationBoard,cb.chessmanLocationBoard,sizeof(ChessmanLocation)<<(CIGRuleConfig::INI_BOARD_WIDTH_LOG2+CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));
 		memcpy(this->evaluations, cb.evaluations, sizeof(evaluations));
 
-		for (int i =0; i<CIGRuleConfig::PLAYER_NUM; ++i)
+		for (int i = 0; i<CIGRuleConfig::PLAYER_NUM; ++i)
 		{
+			players[i] = cb.players[i];
 			players[i].chessboard = this;
 		}
 	}
@@ -102,10 +103,10 @@ namespace CIG
 
 	bool CIG::Chessboard::onPickIntent( Chessman* c , PointOrVector p)
 	{
-		if ((c->chessmanLocation.player == nowTurn) && (pickedChessman.size == 0) && (c->onPickIntent()))
+		if ((c->chessmanLocation.player == nowTurn) && (pickedChessmanByLocation.size == 0) && (c->onPickIntent()))
 		{
-			pickedChessman.add(c->chessmanLocation);
-			mChessmanBoard[p.x[1]][p.x[0]].clear();
+			pickedChessmanByLocation.add(c->chessmanLocation);
+			chessmanLocationBoard[p.x[1]][p.x[0]].clear();
 			evaluations[nowTurn] -= CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][p.x[1]][p.x[0]];
 			return true;
 		}
@@ -128,11 +129,11 @@ namespace CIG
 		{
 			return false;
 		}
-		else if ((pickedChessman[0] == c->chessmanLocation) && (c->onPutIntent(p)))
+		else if ((pickedChessmanByLocation[0] == c->chessmanLocation) && (c->onPutIntent(p)))
 		{
-			mChessmanBoard[p.x[1]][p.x[0]] = c->chessmanLocation;
+			chessmanLocationBoard[p.x[1]][p.x[0]] = c->chessmanLocation;
 			evaluations[nowTurn] += CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][p.x[1]][p.x[0]];
-			pickedChessman.deleteAt(0);
+			pickedChessmanByLocation.deleteAt(0);
 			return true;
 		}
 
@@ -158,12 +159,12 @@ namespace CIG
 			{
 				return false;
 			}
-			else if (pickedChessman[0] == c->chessmanLocation)
+			else if (pickedChessmanByLocation[0] == c->chessmanLocation)
 			{
 				if (testC->onCapturedIntent())
 				{
 					c->onCaptureIntent(testC);
-					mChessmanBoard[p.x[1]][p.x[0]].clear();
+					chessmanLocationBoard[p.x[1]][p.x[0]].clear();
 					evaluations[testC->chessmanLocation.player] -= CIGRuleConfig::EVALUATIONS[testC->chessmanLocation.player][testC->chessmanType][p.x[1]][p.x[0]];
 					return true;
 				}
@@ -204,8 +205,8 @@ namespace CIG
 	//************************************
 	CIG::Chessman* CIG::Chessboard::operator []( PointOrVector p ) const
 	{
-		ChessmanLocation cl = mChessmanBoard[p.x[1]][p.x[0]];
-		return (Chessman*)&(players[cl.player].ownedChessmans[cl.index]);
+		ChessmanLocation cl = chessmanLocationBoard[p.x[1]][p.x[0]];
+		return (cl.player==-1)?NULL:(Chessman*)(&(players[cl.player].ownedChessmans[cl.index]));
 	}
 
 	int CIG::Chessboard::getEvaluation( CIGRuleConfig::PLAYER_NAMES p ) const
@@ -266,7 +267,7 @@ namespace CIG
 			return true;
 		}
 
-		result &= (this->pickedChessman.size == 0);
+		result &= (this->pickedChessmanByLocation.size == 0);
 		return result;
 	}
 
@@ -279,6 +280,13 @@ namespace CIG
 
 	CIG::Chessboard::~Chessboard()
 	{
+	}
+
+
+	void Chessboard::valify()
+	{
+		this->currentBannedMotions.valify();
+		this->pickedChessmanByLocation.valify();
 	}
 
 }

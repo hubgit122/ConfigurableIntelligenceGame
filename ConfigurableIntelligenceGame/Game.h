@@ -14,6 +14,7 @@ namespace CIG
 		public:
 			Game();
 			virtual ~Game();
+			void operator = (const Game& g);
 			Chessboard chessBoard;
 			CIG::Stack<CIGRuleConfig::CHESSBOARD_STACK, Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> history;
 

@@ -25,7 +25,9 @@ namespace CIG
 			CIGRuleConfig::VISIBILITIES visibility[CIGRuleConfig::PLAYER_NUM];
 			//static const HBITMAP bitMap[CIGRuleConfig::CHESSMAN_NUM];
 			//ChessmanGroup& chessmanGroup;
-			
+			void operator = (const Chessman& c);
+			void valify();
+
 			friend std::ostringstream& operator<<(std::ostringstream& oss, const Chessman& c)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
 				oss << "Chessman::\n" <<"\tchessmanType: "<<c.chessmanType<<"\n\tcoordinate: ";

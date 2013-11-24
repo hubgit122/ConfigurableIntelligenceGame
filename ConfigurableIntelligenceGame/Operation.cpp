@@ -20,3 +20,13 @@ CIG::Operation::~Operation()
 {
 
 }
+
+void CIG::Operation::operator=( const Operation&op )
+{
+	memcpy(this,&op,sizeof(Operation));
+}
+
+void CIG::Operation::valify()
+{
+
+}

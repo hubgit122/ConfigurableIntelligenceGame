@@ -74,3 +74,13 @@ bool CIG::Chessman::onCaptureIntent(Chessman* c)
 CIG::Chessman::~Chessman()
 {
 }
+
+void CIG::Chessman::operator=( const Chessman& c )
+{
+	memcpy(this,&c,sizeof(Chessman));
+}
+
+void CIG::Chessman::valify()
+{
+
+}

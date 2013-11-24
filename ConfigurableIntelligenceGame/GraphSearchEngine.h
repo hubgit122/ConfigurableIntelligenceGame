@@ -13,7 +13,7 @@ namespace CIG
 		public:
 			GraphSearchEngine();
 			virtual ~GraphSearchEngine();
-
+			void operator = (const GraphSearchEngine& gse);
 			//HashTable<Motion> historyList;
 			Stack<Motion> currentSearchedMotionStack;
 			int MAX_DEPTH;

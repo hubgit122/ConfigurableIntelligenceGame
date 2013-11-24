@@ -16,3 +16,8 @@ CIG::ChessmanGroup::~ChessmanGroup()
 {
 
 }
+
+void CIG::ChessmanGroup::operator=( const ChessmanGroup& cg )
+{
+	(Array*)this
+}

@@ -45,9 +45,6 @@
     <ClInclude Include="Chessman.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ChessmanGroup.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CIG.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -114,9 +111,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Chessman.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ChessmanGroup.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CIGRuleConfig.cpp">

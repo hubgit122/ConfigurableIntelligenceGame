@@ -27,8 +27,8 @@ namespace CIG
 			CIGRuleConfig::PLAYER_NAMES nowTurn;
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<CIGRuleConfig::CHESSMAN_OPERATIONS, Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
-			Array<CIGRuleConfig::CHESSMAN, ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessman;
-			ChessmanLocation mChessmanBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
+			Array<CIGRuleConfig::CHESSMAN, ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
+			ChessmanLocation chessmanLocationBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
 			//Array<CIGRuleConfig::Players, Player*, 10, 0>winners("Winners");
 			//Array<CIGRuleConfig::Players, Player*, 10, 0>losers("Losers");
 
@@ -79,7 +79,7 @@ namespace CIG
 				oss<<'}\n';
 				return oss;
 			}
-
+			void valify();
 			//static Array<CIGRuleConfig::Points, PointOrVector, CIGRuleConfig::INT_MARKED_POINTS_SIZE, 0> markedPoints;
 			//static const Array<CIGRuleConfig::Lines, Line, CIGRuleConfig::INT_MARKED_POINTS_SIZE, 0> additionalLines;
 			//static const bool CHESSMANES_ON_CROSS_NOT_IN_HOLES;

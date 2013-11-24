@@ -351,6 +351,7 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CClientDC memDC(this);
 	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
 	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman)?IDB_CHESSMAN_ROUND:IDB_CHESSMAN_RECTANGLE);
+
 	return 0;
 }
 
@@ -361,9 +362,21 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 
 #ifdef DEBUG_GENERATOR
 	PointOrVector lp = GUI::getLogicalCoordination(point.x,point.y);
+
 	MotionGenerator mg(nowBoard);
 	mg.generateMotionsAndBoards();
+
+	for (int i=0; i< mg.chessboardStack.size ; ++i)
+	{
+		nowBoard = mg.chessboardStack[i];
+		PostMessage(WM_PAINT,0,0);
+		GUI::drawComplete.Lock();
+		MessageBox(_T("ok?"));
+	}
+
 #endif // DEBUG_GENERATOR
+
+
 	if (getAction)
 	{
 

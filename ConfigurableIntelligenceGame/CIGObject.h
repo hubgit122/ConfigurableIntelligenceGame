@@ -16,6 +16,7 @@ namespace CIG
 			CIGObject();
 			CIGObject(const CIGObject<TYPE_ID>& o);
 			virtual ~CIGObject();
+			void operator = (const CIGObject& o);
 
 			virtual void informError(const string& str)const;
 
@@ -33,6 +34,12 @@ namespace CIG
 				return oss;
 			}
 	};
+
+	template<CIGRuleConfig::CLASS_TYPES TYPE_ID>
+	void CIG::CIGObject<TYPE_ID>::operator=( const CIGObject& o )
+	{
+		memcpy(this,&o,sizeof(CIG::CIGObject<TYPE_ID>));
+	}
 
 	template<CIGRuleConfig::CLASS_TYPES TYPE_ID>
 	CIG::CIGObject<TYPE_ID>::CIGObject( const CIGObject<TYPE_ID>& o )

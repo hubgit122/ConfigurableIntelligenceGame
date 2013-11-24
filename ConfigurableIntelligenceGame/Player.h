@@ -3,7 +3,7 @@
 #define __PLAYER_H__
 #include "utilities.h"
 #include "CIGNamedObject.h"
-#include "ChessmanGroup.h"
+#include "Array.h"
 #include "Stack.h"
 
 namespace CIG
@@ -18,6 +18,8 @@ namespace CIG
 			Player(CIGRuleConfig::PLAYER_NAMES p, Chessboard* cb=NULL);
 			Player(const Player& p, Chessboard* cb=NULL);
 			virtual ~Player();
+
+			void operator = (const Player& p);
 
 			CIGRuleConfig::PLAYER_NAMES NAME;
 			Stack<CIGRuleConfig::CHESSMAN_GROUP,Chessman,CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE,0> ownedChessmans;

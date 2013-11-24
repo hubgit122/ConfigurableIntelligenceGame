@@ -18,8 +18,8 @@ namespace CIG
 		public:
 			Stack(const string& str);
 			Stack(const Stack& s);
-			virtual ~Stack() {}
-			
+			virtual ~Stack();
+
 			void push(const T& E);
 			T pop();
 			T& top()const;
@@ -38,6 +38,11 @@ namespace CIG
 				return oss;
 			}
 	};
+
+	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::~Stack()
+	{
+	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	T& CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::top() const

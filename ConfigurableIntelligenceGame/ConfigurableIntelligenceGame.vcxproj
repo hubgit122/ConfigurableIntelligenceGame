@@ -105,7 +105,6 @@
     <ClInclude Include="CConfigurableIntelligenceGameView.h" />
     <ClInclude Include="ChessBoard.h" />
     <ClInclude Include="Chessman.h" />
-    <ClInclude Include="ChessmanGroup.h" />
     <ClInclude Include="ChessmanLocation.h" />
     <ClInclude Include="CIG.h" />
     <ClInclude Include="CIGNamedObject.h" />
@@ -132,7 +131,6 @@
     </ClCompile>
     <ClCompile Include="ChessBoard.cpp" />
     <ClCompile Include="Chessman.cpp" />
-    <ClCompile Include="ChessmanGroup.cpp" />
     <ClCompile Include="ChessmanLocation.cpp" />
     <ClCompile Include="CIGRuleConfig.cpp" />
     <ClCompile Include="ConfigurableIntelligenceGame.cpp" />

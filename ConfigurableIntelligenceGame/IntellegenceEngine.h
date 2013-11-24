@@ -11,6 +11,7 @@ namespace CIG
 		public:
 			IntellegenceEngine(int POWER_ );
 			virtual ~IntellegenceEngine();
+			void operator = (const IntellegenceEngine& ie);
 			int POWER;											//一种能力设定.
 			static const float MAX_SEARCH_TIME;
 	};

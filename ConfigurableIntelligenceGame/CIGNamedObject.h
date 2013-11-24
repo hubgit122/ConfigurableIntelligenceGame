@@ -18,6 +18,7 @@ namespace CIG
 			CIGNamedObject(const string& str);
 			CIGNamedObject(const CIGNamedObject<TYPE_ID>& o);
 			virtual ~CIGNamedObject();
+			void operator = (const CIGNamedObject& o);
 
 			static unsigned short entityNumOfType;
 			static stack<unsigned short> deprecatedIDs;
@@ -43,6 +44,12 @@ namespace CIG
 				return oss;
 			}
 	};
+
+	template <CIGRuleConfig::CLASS_TYPES TYPE_ID>
+	void CIG::CIGNamedObject<TYPE_ID>::operator=( const CIGNamedObject& o )
+	{
+		memcpy(this,&o,sizeof(CIG::CIGNamedObject<TYPE_ID>));
+	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID>
 	stack<unsigned short> CIG::CIGNamedObject<TYPE_ID>::deprecatedIDs = stack<unsigned short>();
