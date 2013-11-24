@@ -7,7 +7,7 @@
 
 void CIG::MotionGenerator::generateMotionsAndBoards()
 {
-	const Stack<CIGRuleConfig::CHESSMAN_GROUP,Chessman,CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE,0>& cg = chessBoard.players[chessBoard.nowTurn].ownedChessmans;
+	const Stack<CIGRuleConfig::CHESSMAN_GROUP, Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessBoard.players[chessBoard.nowTurn].ownedChessmans;
 
 	for (unsigned i = 0; i < cg.size; ++i)
 	{
@@ -68,7 +68,7 @@ void CIG::MotionGenerator::generateForOneChessman( Chessman* c , OperationStack&
 
 void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusStack, ChessboardStack& logChessboardStack, OperationStack& logOperationStack, ChessboardStack& runningChessboardStack, OperationStack& runningOperationStack )
 {
-	Chessboard chessBoard = logChessboardStack.size==0?this->chessBoard:logChessboardStack.top();
+	Chessboard chessBoard = logChessboardStack.size == 0 ? this->chessBoard : logChessboardStack.top();
 	CIGRuleConfig::OPERATIONS s = statusStack.top();
 	Operation op;
 
@@ -77,179 +77,311 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 	switch (s)
 	{
-	case CIGRuleConfig::BEGIN:
-		break;
+		case CIGRuleConfig::BEGIN:
+			break;
 
-	case CIGRuleConfig::PICK:
-		result = chessBoard.onPickIntent(chess);
+		case CIGRuleConfig::PICK:
+			result = chessBoard.onPickIntent(chess);
 
-		if (result)
-		{
-			op.operation = CIGRuleConfig::PICK;
-			op.chessmanLocation = chess->chessmanLocation;
-			runningChessboardStack.push(chessBoard);
-			runningOperationStack.push(op);
-		}
-
-		break;
-
-	case CIGRuleConfig::PUT:
-	case CIGRuleConfig::CAPTURE:
-		switch (chess->chessmanType)				//生成象棋走法, 改变棋子的坐标.
-		{
-		case CIGRuleConfig::KING:
-			for (int i = 0; i < 4; ++i)
+			if (result)
 			{
-				PointOrVector dist = chess->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -1 : 1) : 0, (i & 1) ? ((i & 2) ? -1 : 1) : 0 );
-				PointOrVector offset = dist - PointOrVector(7, (chess->chessmanLocation.player) ? 11 : 4);
-
-				if (abs(offset.x[0]) & (-2) || abs(offset.x[1]) & (-2))
-				{
-					continue;
-				}
-
-				Operation optemp(chess->chessmanLocation, s);
-
-				if (s == CIGRuleConfig::CAPTURE)
-				{
-					result = chessBoard.onCaptureIntent(chess, dist);
-				}
-				else
-				{
-					result = chessBoard.onPutIntent(chess);
-				}
-
-				if (result)
-				{
-					runningChessboardStack.push(chessBoard);
-					runningOperationStack.push(optemp);
-				}
+				op.operation = CIGRuleConfig::PICK;
+				op.chessmanLocation = chess->chessmanLocation;
+				runningChessboardStack.push(chessBoard);
+				runningOperationStack.push(op);
 			}
 
 			break;
 
-		case CIGRuleConfig::ADVISOR:
-			for (int i = 0; i < 4; ++i)
+		case CIGRuleConfig::PUT:
+		case CIGRuleConfig::CAPTURE:
+			if (logOperationStack.top().operation==CIGRuleConfig::CAPTURE)
 			{
-				PointOrVector dist = chess->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
 				Operation optemp(chess->chessmanLocation, s);
-				PointOrVector offset = dist - PointOrVector(7, (chess->chessmanLocation.player) ? 11 : 4);
 
-				if (abs(offset.x[0]) & (-2) || abs(offset.x[1]) & (-2))
-				{
-					continue;
-				}
-
-				if (s == CIGRuleConfig::CAPTURE)
-				{
-					result = chessBoard.onCaptureIntent(chess, dist);
-				}
-				else
-				{
-					result = chessBoard.onPutIntent(chess);
-				}
-
-				if (result)
+				if (chessBoard.onPutIntent(chess, logOperationStack.top().extra))
 				{
 					runningChessboardStack.push(chessBoard);
 					runningOperationStack.push(optemp);
 				}
+				break;
 			}
 
-			break;
-
-		case CIGRuleConfig::ELEPHANT:
-			for (int i = 0; i < 4; ++i)
+			switch (chess->chessmanType)				//生成象棋走法, 改变棋子的坐标.
 			{
-				PointOrVector dist = chess->coordinate + PointOrVector( (i & 1) ? -2 : 2, (i & 2) ? -2 : 2 );
-				PointOrVector eye = chess->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
-
-				if (!chessBoard.onSelfHalfOfBoard(dist) || chessBoard[eye] != NULL)
-				{
-					continue;
-				}
-
-				Operation optemp(chess->chessmanLocation, s);
-
-				if (s == CIGRuleConfig::CAPTURE)
-				{
-					result = chessBoard.onCaptureIntent(chess, dist);
-				}
-				else
-				{
-					result = chessBoard.onPutIntent(chess);
-				}
-
-				if (result)
-				{
-					runningChessboardStack.push(chessBoard);
-					runningOperationStack.push(optemp);
-				}
-			}
-
-			break;
-
-		case CIGRuleConfig::HORSE:
-			for (int i = 0; i < 8; ++i)
-			{
-				PointOrVector dist = chess->coordinate + PointOrVector( ((i & 1) ? -1 : 1) << ((i & 4) ? 1 : 0), ((i & 2) ? -1 : 1) << ((i & 4) ? 0 : 1) );
-				PointOrVector eye = chess->coordinate + PointOrVector( (i & 4) ? ((i & 1) ? -1 : 1) : 0, (i & 4) ? 0 : ((i & 2) ? -1 : 1) );
-
-				if (chessBoard.beyondBoardRange(dist) || chessBoard[eye] != NULL)
-				{
-					continue;
-				}
-
-				Operation optemp(chess->chessmanLocation, s);
-
-				if (s == CIGRuleConfig::CAPTURE)
-				{
-					result = chessBoard.onCaptureIntent(chess, dist);
-				}
-				else
-				{
-					result = chessBoard.onPutIntent(chess);
-				}
-
-				if (result)
-				{
-					runningChessboardStack.push(chessBoard);
-					runningOperationStack.push(optemp);
-				}
-			}
-
-			break;
-
-		case CIGRuleConfig::CHAROIT:
-			for (int i = 0; i < 4; ++i)
-			{
-				for (int j = 1;; ++j)
-				{
-					PointOrVector dist =  chess->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -j : j) : 0, (i & 1) ? ((i & 2) ? -j : j) : 0 );
-
-					if (chessBoard.beyondBoardRange(dist))
+				case CIGRuleConfig::KING:
+					for (int i = 0; i < 4; ++i)
 					{
-						break;
+						Chessboard tempBoard(chessBoard);
+						Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
+
+						PointOrVector dist = chess->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -1 : 1) : 0, (i & 1) ? ((i & 2) ? -1 : 1) : 0 );
+						PointOrVector offset = dist - PointOrVector(7, (chess->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 4 : 11);
+
+						if (abs(offset.x[0]) & (-2) || abs(offset.x[1]) & (-2))
+						{
+							continue;
+						}
+
+						Operation optemp(tempChess->chessmanLocation, s);
+
+						if (s == CIGRuleConfig::CAPTURE)
+						{
+							optemp.extra = *((DWORD*)dist.x);
+							result = tempBoard.onCaptureIntent(tempChess, dist);
+						}
+						else
+						{
+							result = tempBoard.onPutIntent(tempChess, dist);
+						}
+
+						if (result)
+						{
+							runningChessboardStack.push(tempBoard);
+							runningOperationStack.push(optemp);
+						}
 					}
-					else if (chessBoard[dist] == NULL)
+
+					break;
+
+				case CIGRuleConfig::ADVISOR:
+					for (int i = 0; i < 4; ++i)
 					{
-						continue;
+						Chessboard tempBoard(chessBoard);
+						Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
+						
+						PointOrVector dist = tempChess->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
+						Operation optemp(tempChess->chessmanLocation, s);
+						PointOrVector offset = dist - PointOrVector(7, (tempChess->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 4 : 11);
+
+						if (abs(offset.x[0]) & (-2) || abs(offset.x[1]) & (-2))
+						{
+							continue;
+						}
+
+						if (s == CIGRuleConfig::CAPTURE)
+						{
+							optemp.extra = *((DWORD*)dist.x);
+							result = tempBoard.onCaptureIntent(tempChess, dist);
+						}
+						else
+						{
+							result = tempBoard.onPutIntent(tempChess, dist);
+						}
+
+						if (result)
+						{
+							runningChessboardStack.push(tempBoard);
+							runningOperationStack.push(optemp);
+						}
 					}
-					else if (chessBoard[dist]->chessmanLocation.player == chess->chessmanLocation.player)
+
+					break;
+
+				case CIGRuleConfig::ELEPHANT:
+					for (int i = 0; i < 4; ++i)
 					{
-						break;
+						Chessboard tempBoard(chessBoard);
+						Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
+
+						PointOrVector dist = tempChess->coordinate + PointOrVector( (i & 1) ? -2 : 2, (i & 2) ? -2 : 2 );
+						PointOrVector eye = tempChess->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
+
+						if (!tempBoard.onSelfHalfOfBoard(dist) || tempBoard[eye] != NULL)
+						{
+							continue;
+						}
+
+						Operation optemp(tempChess->chessmanLocation, s);
+
+						if (s == CIGRuleConfig::CAPTURE)
+						{
+							optemp.extra = *((DWORD*)dist.x);
+							result = tempBoard.onCaptureIntent(tempChess, dist);
+						}
+						else
+						{
+							result = tempBoard.onPutIntent(tempChess, dist);
+						}
+
+						if (result)
+						{
+							runningChessboardStack.push(tempBoard);
+							runningOperationStack.push(optemp);
+						}
 					}
-					else
+
+					break;
+
+				case CIGRuleConfig::HORSE:
+					for (int i = 0; i < 8; ++i)
 					{
+						Chessboard tempBoard(chessBoard);
+						Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
+
+						PointOrVector dist = tempChess->coordinate + PointOrVector( ((i & 1) ? -1 : 1) << ((i & 4) ? 1 : 0), ((i & 2) ? -1 : 1) << ((i & 4) ? 0 : 1) );
+						PointOrVector eye = tempChess->coordinate + PointOrVector( (i & 4) ? ((i & 1) ? -1 : 1) : 0, (i & 4) ? 0 : ((i & 2) ? -1 : 1) );
+
+						if (tempBoard.beyondBoardRange(dist) || tempBoard[eye] != NULL)
+						{
+							continue;
+						}
+
+						Operation optemp(tempChess->chessmanLocation, s);
+
+						if (s == CIGRuleConfig::CAPTURE)
+						{
+							optemp.extra = *((DWORD*)dist.x);
+							result = tempBoard.onCaptureIntent(tempChess, dist);
+						}
+						else
+						{
+							result = tempBoard.onPutIntent(tempChess, dist);
+						}
+
+						if (result)
+						{
+							runningChessboardStack.push(tempBoard);
+							runningOperationStack.push(optemp);
+						}
+					}
+
+					break;
+
+				case CIGRuleConfig::CHAROIT:
+					for (int i = 0; i < 4; ++i)
+					{
+						for (int j = 1;; ++j)
+						{
+							Chessboard tempBoard(chessBoard);
+							Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
+
+							PointOrVector dist =  chess->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -j : j) : 0, (i & 1) ? ((i & 2) ? -j : j) : 0 );
+
+							if (tempBoard.beyondBoardRange(dist))
+							{
+								break;
+							}
+							else /*if (tempBoard[dist] == NULL)
+							{
+								continue;
+							}
+							else */if ((tempBoard[dist]) && (tempBoard[dist]->chessmanLocation.player == tempChess->chessmanLocation.player))
+							{
+								break;
+							}
+							else
+							{
+								Operation optemp(tempChess->chessmanLocation, s);
+
+								if (s == CIGRuleConfig::CAPTURE)
+								{
+									optemp.extra = *((DWORD*)dist.x);
+									result = tempBoard.onCaptureIntent(tempChess, dist);
+									
+									if (result)
+									{
+										runningChessboardStack.push(tempBoard);
+										runningOperationStack.push(optemp);
+										break;
+									}
+								}
+								else
+								{
+									result = tempBoard.onPutIntent(tempChess, dist);
+									if (result)
+									{
+										runningChessboardStack.push(tempBoard);
+										runningOperationStack.push(optemp);
+									}
+									else
+									{
+										break;
+									}
+								}
+							}
+						}
+					}
+
+					break;
+
+				case CIGRuleConfig::CANNON:
+					for (int i = 0; i < 4; ++i)
+					{
+						bool haveEmplacement = false;
+
+						for (int j = 1;; ++j)
+						{
+							Chessboard tempBoard(chessBoard);
+							Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
+
+							PointOrVector dist =  chess->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -j : j) : 0, (i & 1) ? ((i & 2) ? -j : j) : 0 );
+
+							if (tempBoard.beyondBoardRange(dist))
+							{
+								break;
+							}
+							else if (tempBoard[dist] == NULL)
+							{
+								if ((s == CIGRuleConfig::PUT) && (!haveEmplacement))
+								{
+									Operation optemp(tempChess->chessmanLocation, s);
+
+									result = tempBoard.onPutIntent(tempChess, dist);
+
+									if (result)
+									{
+										runningChessboardStack.push(tempBoard);
+										runningOperationStack.push(optemp);
+									}
+								}
+							}
+							else if (haveEmplacement)
+							{
+								Operation optemp(tempChess->chessmanLocation, s);
+
+								result = tempBoard.onCaptureIntent(tempChess, dist);
+
+								if (result)
+								{
+									optemp.extra = *((DWORD*)dist.x);
+									runningChessboardStack.push(tempBoard);
+									runningOperationStack.push(optemp);
+								}
+
+								break;
+							}
+							else
+							{
+								if (s == CIGRuleConfig::CAPTURE)
+								{
+									haveEmplacement = true;
+								}
+								else
+								{
+									break;
+								}
+							}
+						}
+					}
+
+					break;
+
+				case CIGRuleConfig::PAWN:
+				{
+					if (chessBoard.onSelfHalfOfBoard(chess->coordinate))
+					{
+						PointOrVector dist = chess->coordinate + PointOrVector(0, (chess->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 1 : -1);
 						Operation optemp(chess->chessmanLocation, s);
 
 						if (s == CIGRuleConfig::CAPTURE)
 						{
+							optemp.extra = *((DWORD*)dist.x);
 							result = chessBoard.onCaptureIntent(chess, dist);
 						}
 						else
 						{
-							result = chessBoard.onPutIntent(chess);
+							result = chessBoard.onPutIntent(chess, dist);
 						}
 
 						if (result)
@@ -257,130 +389,51 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							runningChessboardStack.push(chessBoard);
 							runningOperationStack.push(optemp);
 						}
-
-						break;
 					}
-
-				}
-			}
-
-			break;
-
-		case CIGRuleConfig::CANNON:
-			for (int i = 0; i < 4; ++i)
-			{
-				bool haveEmplacement = false;
-
-				for (int j = 1;; ++j)
-				{
-					PointOrVector dist =  chess->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -j : j) : 0, (i & 1) ? ((i & 2) ? -j : j) : 0 );
-
-					if (chessBoard.beyondBoardRange(dist))
+					else
 					{
-						break;
-					}
-					else if (chessBoard[dist] == NULL)
-					{
-						if ((s == CIGRuleConfig::PUT) && (!haveEmplacement))
+						for (int i = -1; i < 2; i += 1)
 						{
-							Operation optemp(chess->chessmanLocation, s);
+							Chessboard tempBoard(chessBoard);
+							Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
 
-							result = chessBoard.onCaptureIntent(chess, dist);
+							PointOrVector dist = tempChess->coordinate + PointOrVector( i, (tempChess->chessmanLocation.player==CIGRuleConfig::COMPUTER)?(!i):(-!i) );
+							Operation optemp(tempChess->chessmanLocation, s);
+							
+							if (s == CIGRuleConfig::CAPTURE)
+							{
+								optemp.extra = *((DWORD*)dist.x);
+								result = tempBoard.onCaptureIntent(tempChess, dist);
+							}
+							else
+							{
+								result = tempBoard.onPutIntent(tempChess, dist);
+							}
 
 							if (result)
 							{
-								runningChessboardStack.push(chessBoard);
+								runningChessboardStack.push(tempBoard);
 								runningOperationStack.push(optemp);
 							}
 						}
 					}
-					else if (haveEmplacement)
-					{
-						Operation optemp(chess->chessmanLocation, s);
-
-						result = chessBoard.onCaptureIntent(chess, dist);
-
-						if (result)
-						{
-							runningChessboardStack.push(chessBoard);
-							runningOperationStack.push(optemp);
-						}
-
-						break;
-					}
-					else
-					{
-						if (s == CIGRuleConfig::CAPTURE)
-						{
-							haveEmplacement = true;
-						}
-						else
-						{
-							break;
-						}
-					}
-
 				}
+				break;
+
+				default:
+					break;
 			}
 
 			break;
 
-		case CIGRuleConfig::PAWN:
-			{
-				PointOrVector dist = chess->coordinate + PointOrVector(0, 1);
-				Operation optemp(chess->chessmanLocation, s);
+		case CIGRuleConfig::END:
 
-				if (s == CIGRuleConfig::CAPTURE)
-				{
-					result = chessBoard.onCaptureIntent(chess, dist);
-				}
-				else
-				{
-					result = chessBoard.onPutIntent(chess,dist);
-				}
-
-				if (result)
-				{
-					runningChessboardStack.push(chessBoard);
-					runningOperationStack.push(optemp);
-				}
-
-				if (chessBoard.onSelfHalfOfBoard(chess->coordinate))
-				{
-					break;
-				}
-				else
-				{
-					for (int i = -1; i < 2; i += 2)
-					{
-						PointOrVector dist = chess->coordinate + PointOrVector( i, 0 );
-
-						result = chessBoard.onCaptureIntent(chess, dist);
-
-						if (result)
-						{
-							runningChessboardStack.push(chessBoard);
-							runningOperationStack.push(optemp);
-						}
-					}
-				}
-			}
+			chessboardStack.push(logChessboardStack.top());
+			chessmanActionStack.push(logOperationStack);
 			break;
 
 		default:
 			break;
-		}
-
-		break;
-
-	case CIGRuleConfig::END:
-
-		chessboardStack.push(logChessboardStack.top());
-		chessmanActionStack.push(logOperationStack);
-		break;
-
-	default:
-		break;
 	}
 }
 

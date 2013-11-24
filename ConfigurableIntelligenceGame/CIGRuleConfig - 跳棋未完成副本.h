@@ -13,12 +13,12 @@ namespace CIG
 		public:
 			static bool checkConstrains();
 
-			
+
 			/*************************************************************************
 				初始化参数
 			**************************************************************************/
-			private:
-				static int getChessmanNum();
+		private:
+			static int getChessmanNum();
 
 			/*************************************************************************
 				管理全局类型id及名字
@@ -46,7 +46,7 @@ namespace CIG
 			{
 				HUMAN,
 				COMPUTER,
-				PLAYER_NUM,				//用种类来定颜色是不正确的, 调试完了要改进. 
+				PLAYER_NUM,				//用种类来定颜色是不正确的, 调试完了要改进.
 			};
 
 			enum CHESSMAN_TYPES
@@ -92,7 +92,7 @@ namespace CIG
 			};
 
 
-			static int INI_CHESSMAN_NUM_OF_ONE_PLAYER; 
+			static int INI_CHESSMAN_NUM_OF_ONE_PLAYER;
 			static bool CHESSMAN_IN_LATTICE;
 			//static const int MAX_SEARCH_DEPTH = 1024;
 			static const int INI_CHESSMAN_GROUP_SIZE = 64;

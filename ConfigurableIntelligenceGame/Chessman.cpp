@@ -12,7 +12,7 @@ CIG::Chessman::Chessman( const Chessman& c )
 }
 
 CIG::Chessman::Chessman( CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v )
-	: chessmanType(t), coordinate(c), chessmanLocation(p,index), status(s)
+	: chessmanType(t), coordinate(c), chessmanLocation(p, index), status(s)
 {
 	for (int i = 0 ; i < CIGRuleConfig::PLAYER_NUM; ++i)
 	{
@@ -77,10 +77,5 @@ CIG::Chessman::~Chessman()
 
 void CIG::Chessman::operator=( const Chessman& c )
 {
-	memcpy(this,&c,sizeof(Chessman));
-}
-
-void CIG::Chessman::valify()
-{
-
+	memcpy(this, &c, sizeof(Chessman));
 }

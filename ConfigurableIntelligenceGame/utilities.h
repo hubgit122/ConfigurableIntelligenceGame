@@ -23,7 +23,7 @@ using namespace std;
 //#define  DEBUG_ARRAY
 //#define DEBUG_CHESSBOARD
 //#define DEBUG_REF
-//#define DEBUG_MESSAGE 
+//#define DEBUG_MESSAGE
 #define DEBUG_GENERATOR
 
 /*************************************************************************
@@ -45,19 +45,19 @@ struct PointOrVector_Float
 		this->x[1] = y;
 	}
 
-	float operator*(const PointOrVector_Float&p)
+	float operator*(const PointOrVector_Float& p)
 	{
-		return x[0]*p.x[0]+x[1]*p.x[1];
+		return x[0] * p.x[0] + x[1] * p.x[1];
 	}
 
 	void operator = (const PointOrVector_Float& p)
 	{
-		memcpy(x, p.x, sizeof(float)*2);
+		memcpy(x, p.x, sizeof(float) * 2);
 	}
 
 	friend PointOrVector_Float operator*(int lambda, const PointOrVector_Float& p)
 	{
-		return (float)lambda*p;
+		return (float)lambda * p;
 	}
 
 	friend PointOrVector_Float operator*(float lambda, const PointOrVector_Float& p)
@@ -92,7 +92,7 @@ struct PointOrVector_Float
 
 	friend ostringstream& operator<<(ostringstream& oss, const PointOrVector_Float& p)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 	{
-		oss << "( "<<p.x[0]<<" , "<<p.x[1]<<" ) \n";
+		oss << "( " << p.x[0] << " , " << p.x[1] << " ) \n";
 		return oss;
 	}
 };
@@ -103,7 +103,7 @@ struct PointOrVector
 
 	PointOrVector()
 	{
-		memset(x,0,sizeof(unsigned short)*2);
+		memset(x, 0, sizeof(unsigned short) * 2);
 	}
 
 	PointOrVector(unsigned x, unsigned y)
@@ -126,7 +126,9 @@ struct PointOrVector
 	{
 		PointOrVector temp = *this;
 
-		*(unsigned*)temp.x -= *(unsigned*)(p.x);
+		//*(unsigned*)temp.x -= *(unsigned*)(p.x);				//涉及到进位时这样计算失败. 
+		temp.x[0]-=p.x[0];
+		temp.x[1]-=p.x[1];
 		return temp;
 	}
 
@@ -134,21 +136,24 @@ struct PointOrVector
 	{
 		PointOrVector temp = *this;
 
-		*(unsigned*)temp.x += *(unsigned*)(p.x);
+		temp.x[0]+=p.x[0];
+		temp.x[1]+=p.x[1];
+
+		//*(unsigned*)temp.x += *(unsigned*)(p.x);			//在低位有负数的时候这种加法失败. 
 		return temp;
 	}
 
 	friend ostringstream& operator<<(ostringstream& oss, const PointOrVector& p)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 	{
-		oss << "( "<<p.x[0]<<" , "<<p.x[1]<<" ) \n";
+		oss << "( " << p.x[0] << " , " << p.x[1] << " ) \n";
 		return oss;
 	}
 };
 
 struct Line
 {
-	PointOrVector p0,p1;
-	Line(int x0, int y0, int x1, int y1):p0(x0,y0),p1(x1,y1)
+	PointOrVector p0, p1;
+	Line(int x0, int y0, int x1, int y1): p0(x0, y0), p1(x1, y1)
 	{
 	}
 };

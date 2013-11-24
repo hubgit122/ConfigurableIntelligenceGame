@@ -47,7 +47,7 @@ BOOL CConfigurableIntelligenceGameApp::InitInstance()
 
 	EnableTaskbarInteraction(FALSE);
 
-	// 使用 RichEdit 控件需要  AfxInitRichEdit2()	
+	// 使用 RichEdit 控件需要  AfxInitRichEdit2()
 	// AfxInitRichEdit2();
 
 	// 标准初始化
@@ -63,13 +63,17 @@ BOOL CConfigurableIntelligenceGameApp::InitInstance()
 	// 若要创建主窗口，此代码将创建新的框架窗口
 	// 对象，然后将其设置为应用程序的主窗口对象
 	CMainFrame* pFrame = new CMainFrame;
+
 	if (!pFrame)
+	{
 		return FALSE;
+	}
+
 	m_pMainWnd = pFrame;
 	// 创建并加载框架及其资源
 	pFrame->LoadFrame(IDR_MAINFRAME,
-		WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, NULL,
-		NULL);
+					  WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, NULL,
+					  NULL);
 
 
 
@@ -94,20 +98,20 @@ int CConfigurableIntelligenceGameApp::ExitInstance()
 
 class CAboutDlg : public CDialogEx
 {
-public:
-	CAboutDlg();
+	public:
+		CAboutDlg();
 
-// 对话框数据
-	enum { IDD = IDD_ABOUTBOX };
+		// 对话框数据
+		enum { IDD = IDD_ABOUTBOX };
 
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+	protected:
+		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
-// 实现
-protected:
-	DECLARE_MESSAGE_MAP()
-public:
-protected:
+		// 实现
+	protected:
+		DECLARE_MESSAGE_MAP()
+	public:
+	protected:
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)

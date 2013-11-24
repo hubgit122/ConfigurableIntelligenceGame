@@ -7,13 +7,13 @@
 #include "Stack.h"
 #include "ChessBoard.h"
 
-//GUI线程令主线程清空数据, 重新开始. 
-#define WM_RESTART			WM_USER+1							
+//GUI线程令主线程清空数据, 重新开始.
+#define WM_RESTART			WM_USER+1
 
-//GUI线程给工作线程消息, 可以给我下一步了, 我好根据你的结果画图. 
-//而工作线程发现当前玩家是人, 通知GUI线程读取走法, 然后传给我数据, 我好给你交差. 
-//这样设计可扩展, GUI不必知道下一轮是人还是电脑. 
-#define WM_GET_MOVE 		WM_USER+2							
+//GUI线程给工作线程消息, 可以给我下一步了, 我好根据你的结果画图.
+//而工作线程发现当前玩家是人, 通知GUI线程读取走法, 然后传给我数据, 我好给你交差.
+//这样设计可扩展, GUI不必知道下一轮是人还是电脑.
+#define WM_GET_MOVE 		WM_USER+2
 #define WM_MOVE_COMPLETE WM_USER+3
 
 class CConfigurableIntelligenceGameApplicationView : public CView

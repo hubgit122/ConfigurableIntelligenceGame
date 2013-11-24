@@ -102,7 +102,7 @@ namespace CIG
 		{0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
 		{0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
 		{0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0,1, 1, 1, 1, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
@@ -385,13 +385,15 @@ namespace CIG
 	int CIGRuleConfig::getChessmanNum()
 	{
 		int result = 0;
-		for (int i =0; i<(1<<INI_BOARD_WIDTH_LOG2);++i)
+
+		for (int i = 0; i < (1 << INI_BOARD_WIDTH_LOG2); ++i)
 		{
-			for (int j=0; j<(1<<INI_BOARD_HEIGHT_LOG2);++j)
+			for (int j = 0; j < (1 << INI_BOARD_HEIGHT_LOG2); ++j)
 			{
-					result+=INI_BOARD[0][j][i]!=CHESSMAN_TYPES::NOCHESSMAN;
+				result += INI_BOARD[0][j][i] != CHESSMAN_TYPES::NOCHESSMAN;
 			}
 		}
+
 		return result;
 	}
 

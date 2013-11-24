@@ -36,7 +36,7 @@ END_MESSAGE_MAP()
 // CConfigurableIntelligenceGameApplicationView 构造/析构
 CConfigurableIntelligenceGameApplicationView* CIG::GUI::cigView = NULL;
 
-CConfigurableIntelligenceGameApplicationView::CConfigurableIntelligenceGameApplicationView():nowBoard(),actionOfThisRound("actionOfThisRound")
+CConfigurableIntelligenceGameApplicationView::CConfigurableIntelligenceGameApplicationView(): nowBoard(), actionOfThisRound("actionOfThisRound")
 {
 	// TODO: 在此处添加构造代码
 }
@@ -144,20 +144,22 @@ void CConfigurableIntelligenceGameApplicationView::OnFileNew()
 {
 	m_GameThread->PostThreadMessage(WM_RESTART, 0, 0);
 	eventThreadMessageOK.Lock();
-	
-	m_GameThread->PostThreadMessage(WM_GET_MOVE,(WPARAM)&actionOfThisRound,(LPARAM)&nowBoard);
+
+	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&actionOfThisRound, (LPARAM)&nowBoard);
 }
 
 
 int CConfigurableIntelligenceGameApplicationView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
+	{
 		return -1;
+	}
 
 	// TODO:  在此添加您专用的创建代码
 
 	CIG::GUI::cigView = this;
-	m_GameThread = AfxBeginThread(CIG::GUI::runThread,this);
+	m_GameThread = AfxBeginThread(CIG::GUI::runThread, this);
 	eventThreadMessageOK.Lock();
 
 	return 0;

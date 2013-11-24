@@ -2,5 +2,5 @@
 
 int roundInt( float f )
 {
-	return int(f+0.5);
+	return int(f + 0.5);
 }

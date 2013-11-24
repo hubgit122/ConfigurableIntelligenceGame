@@ -6,7 +6,7 @@
 #include "Array.h"
 #include "Stack.h"
 #include "CIGRuleConfig.h"
-#include "Chessman.h" 
+#include "Chessman.h"
 #include "utilities.h"
 #include "ChessmanLocation.h"
 #include "Player.h"
@@ -17,11 +17,11 @@ namespace CIG
 	{
 		public:
 			Chessboard();
-			Chessboard(const Chessboard& cb);		//因为数据之间的相关性太大, 此函数没有写完. 
+			Chessboard(const Chessboard& cb);		//因为数据之间的相关性太大, 此函数没有写完.
 			virtual ~Chessboard();
 			void operator=(const Chessboard& cb);
 
-			/*Array<CIGRuleConfig::PLAYERS, Player, CIGRuleConfig::INI_BOARD_WIDTH_LOG2, 0>*/ 
+			/*Array<CIGRuleConfig::PLAYERS, Player, CIGRuleConfig::INI_BOARD_WIDTH_LOG2, 0>*/
 			Player players[CIGRuleConfig::PLAYER_NUM];
 			unsigned int nowRound;
 			CIGRuleConfig::PLAYER_NAMES nowTurn;
@@ -67,19 +67,20 @@ namespace CIG
 
 			friend ostringstream& operator<<(ostringstream& oss, const Chessboard& cb)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
-				oss << "Chessboard::\n" <<"\tnowTurn: "<<cb.nowTurn<<"\n\tnowRound: "<<cb.nowRound<<"\n{\n";
-				for (int i=0; i<(1<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2);++i)
+				oss << "Chessboard::\n" << "\tnowTurn: " << cb.nowTurn << "\n\tnowRound: " << cb.nowRound << "\n{\n";
+
+				for (int i = 0; i < (1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2); ++i)
 				{
-					for (int j=0;j<(1<<CIGRuleConfig::INI_BOARD_HEIGHT_LOG2);++j)
+					for (int j = 0; j < (1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2); ++j)
 					{
-						oss<<"[ "<<i<<" , "<<j<<" ]";
+						oss << "[ " << i << " , " << j << " ]";
 						//oss<< cb.mChessmanBoard[j][i];			// TO-DO
 					}
 				}
-				oss<<'}\n';
+
+				oss << '}\n';
 				return oss;
 			}
-			void valify();
 			//static Array<CIGRuleConfig::Points, PointOrVector, CIGRuleConfig::INT_MARKED_POINTS_SIZE, 0> markedPoints;
 			//static const Array<CIGRuleConfig::Lines, Line, CIGRuleConfig::INT_MARKED_POINTS_SIZE, 0> additionalLines;
 			//static const bool CHESSMANES_ON_CROSS_NOT_IN_HOLES;

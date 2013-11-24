@@ -47,13 +47,13 @@ namespace CIG
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	T& CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::top() const
 	{
-		return this->at(this->size-1);					//size-1 这个错误犯了两次了. 
+		return this->at(this->size - 1);					//size-1 这个错误犯了两次了.
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	T CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::pop()
 	{
-		return Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::deleteAt(this->size-1);
+		return Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::deleteAt(this->size - 1);
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>

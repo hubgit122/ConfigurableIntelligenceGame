@@ -26,31 +26,31 @@ namespace CIG
 		Game::instance->mainLoop();
 		}*/
 
-//void CIG::Game::mainLoop()
-//{
-//	chessBoard = Chessboard();
-//	history.clear();
+	//void CIG::Game::mainLoop()
+	//{
+	//	chessBoard = Chessboard();
+	//	history.clear();
 
-//	do
-//	{
-//		opeartionOfThisTurn.clear();
-//		chessBoard.players[chessBoard.nowTurn].operate();
-//		switchTurn.Lock();
+	//	do
+	//	{
+	//		opeartionOfThisTurn.clear();
+	//		chessBoard.players[chessBoard.nowTurn].operate();
+	//		switchTurn.Lock();
 
-//		if (chessBoard.canMakeAction())
-//		{
-//			history.push(chessBoard);
-//			chessBoard.makeAction();
-//		}
-//		else
-//		{
-//			GUI::inform("走法不正确, 请重新走. \n", false);
-//			continue;
-//		}
+	//		if (chessBoard.canMakeAction())
+	//		{
+	//			history.push(chessBoard);
+	//			chessBoard.makeAction();
+	//		}
+	//		else
+	//		{
+	//			GUI::inform("走法不正确, 请重新走. \n", false);
+	//			continue;
+	//		}
 
-//		GUI::drawBoard();
-//	}
-//	while (chessBoard.onChangeTurn());
-//}
+	//		GUI::drawBoard();
+	//	}
+	//	while (chessBoard.onChangeTurn());
+	//}
 
 }

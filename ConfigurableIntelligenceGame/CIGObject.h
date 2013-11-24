@@ -38,7 +38,7 @@ namespace CIG
 	template<CIGRuleConfig::CLASS_TYPES TYPE_ID>
 	void CIG::CIGObject<TYPE_ID>::operator=( const CIGObject& o )
 	{
-		memcpy(this,&o,sizeof(CIG::CIGObject<TYPE_ID>));
+		memcpy(this, &o, sizeof(CIG::CIGObject<TYPE_ID>));
 	}
 
 	template<CIGRuleConfig::CLASS_TYPES TYPE_ID>

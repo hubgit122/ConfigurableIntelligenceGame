@@ -42,7 +42,9 @@ CMainFrame::~CMainFrame()
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
+	{
 		return -1;
+	}
 
 	// 创建一个视图以占用框架的工作区
 	if (!m_wndView.Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, CRect(0, 0, 0, 0), this, AFX_IDW_PANE_FIRST, NULL))
@@ -63,7 +65,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("未能创建状态栏\n");
 		return -1;      // 未能创建
 	}
-	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+
+	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 
 	//// TODO: 如果不需要可停靠工具栏，则删除这三行
 	//m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -77,23 +80,26 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if( !CFrameWnd::PreCreateWindow(cs) )
+	{
 		return FALSE;
+	}
+
 	// TODO: 在此处通过修改
 	//  CREATESTRUCT cs 来修改窗口类或样式
-	
+
 	GUI::refreshBoardDisplayData();
 
 	cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
-		 | WS_MINIMIZEBOX | WS_SYSMENU;
+			   | WS_MINIMIZEBOX | WS_SYSMENU;
 
 	cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
 
-	CRect windowrect(0,0,roundInt(GUI::boundsOfBoard.x[0]),roundInt(GUI::boundsOfBoard.x[1]));
+	CRect windowrect(0, 0, roundInt(GUI::boundsOfBoard.x[0]), roundInt(GUI::boundsOfBoard.x[1]));
 	::AdjustWindowRect(&windowrect, WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
-		| WS_MINIMIZEBOX | WS_SYSMENU, TRUE);
+					   | WS_MINIMIZEBOX | WS_SYSMENU, TRUE);
 	cs.cx = windowrect.right - windowrect.left;
 	cs.cy = windowrect.bottom - windowrect.top + 15;		//状态栏
-	
+
 	cs.lpszClass = AfxRegisterWndClass(0);
 
 	return TRUE;
@@ -126,7 +132,9 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 {
 	// 让视图第一次尝试该命令
 	if (m_wndView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+	{
 		return TRUE;
+	}
 
 	// 否则，执行默认处理
 	return CFrameWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);

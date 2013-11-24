@@ -5,13 +5,13 @@
 #include "utilities.h"
 #include "CIGRuleConfig.h"
 
-//GUI线程令主线程清空数据, 重新开始. 
-#define WM_RESTART			(WM_USER+1)							
+//GUI线程令主线程清空数据, 重新开始.
+#define WM_RESTART			(WM_USER+1)
 
-//GUI线程给工作线程消息, 可以给我下一步了, 我好根据你的结果画图. 
-//而工作线程发现当前玩家是人, 通知GUI线程读取走法, 然后传给我数据, 我好给你交差. 
-//这样设计可扩展, GUI不必知道下一轮是人还是电脑. 
-#define WM_GET_MOVE 		(WM_USER+2)							
+//GUI线程给工作线程消息, 可以给我下一步了, 我好根据你的结果画图.
+//而工作线程发现当前玩家是人, 通知GUI线程读取走法, 然后传给我数据, 我好给你交差.
+//这样设计可扩展, GUI不必知道下一轮是人还是电脑.
+#define WM_GET_MOVE 		(WM_USER+2)
 #define WM_MOVE_COMPLETE (WM_USER+3)
 
 class CConfigurableIntelligenceGameView;
@@ -20,10 +20,10 @@ namespace CIG
 	class GUI
 	{
 		public:
-			
-		/*************************************************************************
-			设置通信接口, 跨平台时需要重写代码. 
-		**************************************************************************/
+
+			/*************************************************************************
+				设置通信接口, 跨平台时需要重写代码.
+			**************************************************************************/
 			static CEvent drawComplete;
 			static CEvent moveComplete;
 			static CConfigurableIntelligenceGameView* cigView;
@@ -31,19 +31,19 @@ namespace CIG
 			static void inform(const string& messsage, bool exit = false);
 			static void exit();
 			static UINT runThread(LPVOID pParam);
-			static void postMessage( UINT msg,WPARAM wp, LPARAM  lp);
-			
-		/*************************************************************************
-			设置棋盘绘制参数
-			先确定棋子大小, 在窗口初始化时绘制棋盘并根据棋盘情况确定客户区大小. 
-			规定几何坐标轴:
-			0----------------->x
-			|
-			|
-			|
-			↓
-			y
-		**************************************************************************/
+			static void postMessage( UINT msg, WPARAM wp, LPARAM  lp);
+
+			/*************************************************************************
+				设置棋盘绘制参数
+				先确定棋子大小, 在窗口初始化时绘制棋盘并根据棋盘情况确定客户区大小.
+				规定几何坐标轴:
+				0----------------->x
+				|
+				|
+				|
+				↓
+				y
+			**************************************************************************/
 			typedef float degree;
 
 			static bool roundChessman;					//棋子圆或方
@@ -63,7 +63,7 @@ namespace CIG
 			static float borderWidth;
 			static vector<PointOrVector_Float> LINE_DIRECTION;
 			static float boundsOfBoardRelatively[4];
-			enum {TOP,BOTTOM,LEFT,RIGHT};
+			enum {TOP, BOTTOM, LEFT, RIGHT};
 			static void refreshBoardDisplayData();
 			static PointOrVector_Float getGeometryCoordination(int x, int y);
 			static PointOrVector_Float getGeometryCoordination(PointOrVector p);
@@ -73,7 +73,7 @@ namespace CIG
 			static PointOrVector_Float coordinateOf00;
 			static vector<Line> addtionalLines;
 			static int latticePenWidth;
-						//判断任意棋盘的边界比较难, 不做了. 
+			//判断任意棋盘的边界比较难, 不做了.
 			//static int borderPenColor[3];
 
 	};

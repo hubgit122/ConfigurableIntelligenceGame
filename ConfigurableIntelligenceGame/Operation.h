@@ -16,15 +16,14 @@ namespace CIG
 			Operation(const Operation& op);
 			Operation(ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, DWORD extra_ = 0);
 			virtual ~Operation();
-			void operator=(const Operation&op);
+			void operator=(const Operation& op);
 
 			friend std::ostringstream& operator<<(std::ostringstream& oss, const Operation& op)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
-				oss << "Operation::\n"<<"\toperation: "<<op.operation <<"\n\tchessman: ";
+				oss << "Operation::\n" << "\toperation: " << op.operation << "\n\tchessman: ";
 				//oss<<(const Chessman&)(*op.chessman);				// TO-DO
 				return oss;
 			}
-			void valify();
 			CIGRuleConfig::OPERATIONS operation;
 			ChessmanLocation chessmanLocation;
 			DWORD extra;

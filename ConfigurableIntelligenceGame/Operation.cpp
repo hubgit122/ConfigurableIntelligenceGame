@@ -12,7 +12,7 @@ CIG::Operation::Operation( ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, DW
 {
 }
 
-CIG::Operation::Operation( const Operation& op ):chessmanLocation(op.chessmanLocation), operation(op.operation), extra(op.extra)
+CIG::Operation::Operation( const Operation& op ): chessmanLocation(op.chessmanLocation), operation(op.operation), extra(op.extra)
 {
 }
 
@@ -21,12 +21,7 @@ CIG::Operation::~Operation()
 
 }
 
-void CIG::Operation::operator=( const Operation&op )
+void CIG::Operation::operator=( const Operation& op )
 {
-	memcpy(this,&op,sizeof(Operation));
-}
-
-void CIG::Operation::valify()
-{
-
+	memcpy(this, &op, sizeof(Operation));
 }
