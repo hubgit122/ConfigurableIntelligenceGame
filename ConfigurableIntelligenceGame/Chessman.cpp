@@ -2,7 +2,7 @@
 #include "Chessman.h"
 
 CIG::Chessman::Chessman( const Chessman& c )
-	: /*CIGNamedObject(c), */chessmanType(c.chessmanType), coordinate(c.coordinate), belongsToWhom(c.belongsToWhom),
+	: /*CIGNamedObject(c), */chessmanType(c.chessmanType), coordinate(c.coordinate), chessmanLocation(c.chessmanLocation),
 	  status(c.status)
 {
 	for (int i = 0 ; i < CIGRuleConfig::PLAYER_NUM; ++i)
@@ -11,8 +11,8 @@ CIG::Chessman::Chessman( const Chessman& c )
 	}
 }
 
-CIG::Chessman::Chessman( /*const string& str,*/ CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v )
-	: /*CIGNamedObject(str), */chessmanType(t), coordinate(c), belongsToWhom(p), status(s)
+CIG::Chessman::Chessman( CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v )
+	: chessmanType(t), coordinate(c), chessmanLocation(p,index), status(s)
 {
 	for (int i = 0 ; i < CIGRuleConfig::PLAYER_NUM; ++i)
 	{

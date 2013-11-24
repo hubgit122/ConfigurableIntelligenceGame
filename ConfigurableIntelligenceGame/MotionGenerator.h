@@ -3,7 +3,7 @@
 #define __MOTIONGENERATOR_H__
 #include "Stack.h"
 #include "CIGRuleConfig.h"
-#include "ChessBoard.h"
+#include "Chessboard.h"
 
 namespace CIG
 {
@@ -12,17 +12,17 @@ namespace CIG
 		private:
 			MotionGenerator();
 		public:
-			MotionGenerator(ChessBoard& cb);
+			MotionGenerator(const Chessboard& cb);
 			virtual ~MotionGenerator();
 			
 			Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK, OperationStack, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> chessmanActionStack;
-			ChessBoardStack chessboardStack;
-			ChessBoard& chessBoard;				//每个ChesssBoard有一个MotionGenerator实例.
+			ChessboardStack chessboardStack;
+			const Chessboard& chessBoard;				//每个ChesssBoard有一个MotionGenerator实例.
 
 			virtual void generateMotionsAndBoards();
-			virtual void generateForOneChessman( Chessman* c, OperationStack& logMotionStack, ChessBoardStack& logChessBoardStack, StatusStack& statusStack);
+			virtual void generateForOneChessman( Chessman* c, OperationStack& logMotionStack, ChessboardStack& logChessboardStack, StatusStack& statusStack);
 
-			virtual void generateForOneOp( Chessman* c, StatusStack& statusStack, ChessBoardStack& logChessBoardStack, OperationStack& logOperationStack, ChessBoardStack& runningChessboardStack, OperationStack& runningOperationStack );
+			virtual void generateForOneOp( Chessman* c, StatusStack& statusStack, ChessboardStack& logChessboardStack, OperationStack& logOperationStack, ChessboardStack& runningChessboardStack, OperationStack& runningOperationStack );
 
 	};
 }

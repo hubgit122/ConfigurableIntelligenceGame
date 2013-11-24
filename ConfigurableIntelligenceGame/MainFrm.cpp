@@ -88,7 +88,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
 
-	CRect windowrect(0,0,GUI::boundsOfBoard.x[0],GUI::boundsOfBoard.x[1]);
+	CRect windowrect(0,0,roundInt(GUI::boundsOfBoard.x[0]),roundInt(GUI::boundsOfBoard.x[1]));
 	::AdjustWindowRect(&windowrect, WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
 		| WS_MINIMIZEBOX | WS_SYSMENU, TRUE);
 	cs.cx = windowrect.right - windowrect.left;

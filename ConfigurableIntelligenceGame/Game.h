@@ -14,8 +14,8 @@ namespace CIG
 		public:
 			Game();
 			virtual ~Game();
-			ChessBoard chessBoard;
-			CIG::Stack<CIGRuleConfig::CHESSBOARD_STACK, ChessBoard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> history;
+			Chessboard chessBoard;
+			CIG::Stack<CIGRuleConfig::CHESSBOARD_STACK, Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> history;
 
 		public:
 			static void deleteInstance( Game* instance );

@@ -4,6 +4,7 @@
 
 #include "utilities.h"
 #include "CIGRuleConfig.h"
+#include "ChessmanLocation.h"
 //#include "CIGNamedObject.h"
 
 namespace CIG
@@ -15,11 +16,11 @@ namespace CIG
 		public:
 			virtual ~Chessman();
 			Chessman(const Chessman& c);
-			Chessman(/*const string& str,*/ CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v);
+			Chessman(/*const string& str,*/ CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v);
 
 			CIGRuleConfig::CHESSMAN_TYPES chessmanType;
 			struct PointOrVector coordinate;
-			CIGRuleConfig::PLAYER_NAMES belongsToWhom;
+			ChessmanLocation chessmanLocation;
 			CIGRuleConfig::CHESSMAN_STATUS status;
 			CIGRuleConfig::VISIBILITIES visibility[CIGRuleConfig::PLAYER_NUM];
 			//static const HBITMAP bitMap[CIGRuleConfig::CHESSMAN_NUM];
@@ -28,7 +29,7 @@ namespace CIG
 			friend std::ostringstream& operator<<(std::ostringstream& oss, const Chessman& c)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
 				oss << "Chessman::\n" <<"\tchessmanType: "<<c.chessmanType<<"\n\tcoordinate: ";
-				oss<<c.coordinate<<"\nbelongsToWhom: "<<c.belongsToWhom<<'\n';
+				oss<<c.coordinate<<"\nchessmanLocation.player: "<<c.chessmanLocation.player<<'\n';
 				//oss<<(const CIGNamedObject<CIGRuleConfig::CLASS_TYPES::CHESSMAN>&)c;
 				return oss;
 			}

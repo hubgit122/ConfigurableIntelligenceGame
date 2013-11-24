@@ -7,6 +7,7 @@
 
 namespace CIG
 {
+	//在堆上存储的复杂性远大于在栈上. 但是因为没有调用赋值运算符, 结构很稳定. 栈上的结构可以快速赋值快速删除, 所以改回栈上.  
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	class Array: public CIGNamedObject<TYPE_ID>
 	{
@@ -20,6 +21,8 @@ namespace CIG
 			T** elements;
 			unsigned short size;
 			unsigned short capacity;
+
+			void operator = (const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& a);
 
 			void clear();
 			bool contains(const T& e)const;
@@ -54,6 +57,19 @@ namespace CIG
 				return oss;
 			}
 	};
+
+	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::operator=( const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& a )
+	{
+		clear();
+		size = a.size;
+		capacity = a.capacity;
+
+		for (int i=0; i<size;++i)
+		{
+			this->add(a[i]);
+		}
+	}
 
 	template <CIG::CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	bool CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::contains(const T& e) const			// TO-DO 这种函数疑问很多

@@ -24,7 +24,7 @@ using namespace std;
 //#define DEBUG_CHESSBOARD
 //#define DEBUG_REF
 //#define DEBUG_MESSAGE 
-
+#define DEBUG_GENERATOR
 
 /*************************************************************************
 	辅助类和结构体
@@ -110,6 +110,16 @@ struct PointOrVector
 	{
 		this->x[0] = x;
 		this->x[1] = y;
+	}
+
+	PointOrVector( unsigned xy )
+	{
+		*(unsigned*)(this->x) = xy;
+	}
+
+	unsigned short& operator[](bool index)
+	{
+		return x[index];
 	}
 
 	PointOrVector operator- (const PointOrVector& p)

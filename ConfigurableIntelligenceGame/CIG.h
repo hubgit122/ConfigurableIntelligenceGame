@@ -9,7 +9,7 @@
 #include "CIGNamedObject.h"
 #include "Array.h"
 #include "Stack.h"
-#include "ChessBoard.h"
+#include "Chessboard.h"
 #include "Operation.h"
 #include "Game.h"
 #endif //__CIG_H__

@@ -8,26 +8,27 @@
 #include "CIGRuleConfig.h"
 #include "Chessman.h" 
 #include "utilities.h"
+#include "ChessmanLocation.h"
+#include "Player.h"
 
 namespace CIG
 {
-	class Player;
-	class ChessBoard
+	class Chessboard
 	{
 		public:
-			ChessBoard();
-			ChessBoard(const ChessBoard& cb);		//因为数据之间的相关性太大, 此函数没有写完. 
-			virtual ~ChessBoard();
-			void operator=(const ChessBoard& cb);
+			Chessboard();
+			Chessboard(const Chessboard& cb);		//因为数据之间的相关性太大, 此函数没有写完. 
+			virtual ~Chessboard();
+			void operator=(const Chessboard& cb);
 
 			/*Array<CIGRuleConfig::PLAYERS, Player, CIGRuleConfig::INI_BOARD_WIDTH_LOG2, 0>*/ 
-			Player* players[CIGRuleConfig::PLAYER_NUM];
+			Player players[CIGRuleConfig::PLAYER_NUM];
 			unsigned int nowRound;
 			CIGRuleConfig::PLAYER_NAMES nowTurn;
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<CIGRuleConfig::CHESSMAN_OPERATIONS, Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
-			Array<CIGRuleConfig::CHESSMAN, Chessman* , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessman;
-			Chessman* mChessmanBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
+			Array<CIGRuleConfig::CHESSMAN, ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessman;
+			ChessmanLocation mChessmanBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
 			//Array<CIGRuleConfig::Players, Player*, 10, 0>winners("Winners");
 			//Array<CIGRuleConfig::Players, Player*, 10, 0>losers("Losers");
 
@@ -64,15 +65,15 @@ namespace CIG
 			//virtual void undoCapture(PointOrVector p);
 			//virtual void undoCapture(Chessman& c);
 
-			friend ostringstream& operator<<(ostringstream& oss, const ChessBoard& cb)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
+			friend ostringstream& operator<<(ostringstream& oss, const Chessboard& cb)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
-				oss << "ChessBoard::\n" <<"\tnowTurn: "<<cb.nowTurn<<"\n\tnowRound: "<<cb.nowRound<<"\n{\n";
+				oss << "Chessboard::\n" <<"\tnowTurn: "<<cb.nowTurn<<"\n\tnowRound: "<<cb.nowRound<<"\n{\n";
 				for (int i=0; i<(1<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2);++i)
 				{
 					for (int j=0;j<(1<<CIGRuleConfig::INI_BOARD_HEIGHT_LOG2);++j)
 					{
 						oss<<"[ "<<i<<" , "<<j<<" ]";
-						oss<< (const Chessman&)(*cb.mChessmanBoard[j][i]);
+						//oss<< cb.mChessmanBoard[j][i];			// TO-DO
 					}
 				}
 				oss<<'}\n';

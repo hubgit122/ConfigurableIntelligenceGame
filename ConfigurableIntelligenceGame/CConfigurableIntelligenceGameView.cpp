@@ -8,7 +8,7 @@
 #include "GUI.h"
 #include "Player.h"
 #include "Chessman.h"
-#include "ChessBoard.h"
+#include "Chessboard.h"
 #include "utilities.h"
 #include "MotionGenerator.h"
 
@@ -19,11 +19,10 @@ using namespace CIG;
 #endif
 
 
-CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView():nowBoard(),actionOfLastRound("actionOfThisRound")
+CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView():nowBoard(),actionOfLastRound("ActionOfLastRound")
 {
-	CIG::GUI::cigView = this;
-	m_GameThread = AfxBeginThread(CIG::GUI::runThread,this);
-	eventThreadMessageOK.Lock();
+	//这里的初始化会乱掉. 所以还是在别处再初始化一次吧. 
+	
 }
 
 CConfigurableIntelligenceGameView::~CConfigurableIntelligenceGameView()
@@ -68,6 +67,7 @@ void CConfigurableIntelligenceGameView::OnPaint()
 	CPaintDC memClientDC(this); // 用于绘制的设备上下文
 	
 	// TODO: 在此处添加消息处理程序代码
+
 	DrawBoard();
 
 	GUI::drawComplete.SetEvent();
@@ -80,6 +80,7 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 	m_GameThread->PostThreadMessage(WM_RESTART, 0, 0);
 	eventThreadMessageOK.Lock();
 
+	PostMessage(WM_PAINT,0,0);
 	m_GameThread->PostThreadMessage(WM_GET_MOVE,(WPARAM)&actionOfLastRound,(LPARAM)&nowBoard);
 }
 
@@ -94,6 +95,7 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnGetMove(WPARAM wParam, LPARAM lParam)
 {
+	getAction = true;
 	GUI::inform("假设已经得到走法. ");
 	GUI::moveComplete.SetEvent();
 	//MessageBox((LPCTSTR)_T("假设已经得到走法. "));
@@ -190,7 +192,7 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 	//画棋子
 	{
 		CFont font;
-		font.CreatePointFont(0.4*10*GUI::chessmanRect.x[1],_T("华文行楷"),NULL);
+		font.CreatePointFont(0.5*10*GUI::chessmanRect.x[1],_T("华文行楷"),NULL);
 		memClientDC.SetBkMode(TRANSPARENT);
 		memClientDC.SetStretchBltMode(COLORONCOLOR);
 
@@ -199,21 +201,21 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 		for (int p = 0; p<CIGRuleConfig::PLAYER_NUM; ++p)
 		{
 
-			for (int c=nowBoard.players[p]->ownedChessmans.size()-1; c>=0; --c)
+			for (int c=nowBoard.players[p].ownedChessmans.size-1; c>=0; --c)
 			{
 				CDC chessDC;
 				chessDC.CreateCompatibleDC(&memClientDC);
 
 				CBitmap* pBoardBaseDCBmpOld = chessDC.SelectObject(&chessmanBaseBitmap);
-				PointOrVector_Float xy = GUI::getGeometryCoordination(nowBoard.players[p]->ownedChessmans[c].coordinate);
+				PointOrVector_Float xy = GUI::getGeometryCoordination(nowBoard.players[p].ownedChessmans[c].coordinate);
 			
 				BITMAP bm;
 				chessmanBaseBitmap.GetBitmap(&bm);
 
-				TransparentBlt2(memClientDC.m_hDC,xy.x[0]-GUI::chessmanRect.x[0]/2,xy.x[1]-GUI::chessmanRect.x[1]/2,GUI::chessmanRect.x[0],GUI::chessmanRect.x[1],chessDC.m_hDC,0,0,bm.bmWidth,bm.bmHeight,RGB(0,255,0));
+				TransparentBlt2(memClientDC.m_hDC,xy.x[0]-roundInt(GUI::chessmanRect.x[0]/2),xy.x[1]-roundInt(GUI::chessmanRect.x[1]/2),GUI::chessmanRect.x[0],GUI::chessmanRect.x[1],chessDC.m_hDC,0,0,bm.bmWidth,bm.bmHeight,RGB(0,255,0));
 				
 				memClientDC.SetTextColor(GUI::playerColor[p]);
-				memClientDC.DrawText(GUI::chessmanName[nowBoard.players[p]->ownedChessmans[c].chessmanType],&CRect(xy.x[0]-GUI::chessmanRect.x[0]/2,xy.x[1]-GUI::chessmanRect.x[1]/2,xy.x[0]+GUI::chessmanRect.x[0]/2,xy.x[1]+GUI::chessmanRect.x[1]/2),DT_SINGLELINE|DT_CENTER|DT_VCENTER);
+				memClientDC.DrawText(GUI::chessmanName[nowBoard.players[p].ownedChessmans[c].chessmanType],&CRect(xy.x[0]-roundInt(GUI::chessmanRect.x[0]/2),roundInt(xy.x[1]-GUI::chessmanRect.x[1]/2),roundInt(xy.x[0]+GUI::chessmanRect.x[0]/2),xy.x[1]+GUI::chessmanRect.x[1]/2),DT_SINGLELINE|DT_CENTER|DT_VCENTER);
 
 				chessDC.SelectObject(oldFont);
 			}
@@ -310,7 +312,7 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 					int x = roundInt(GUI::getGeometryCoordination(i,j).x[0]);
 					int y = roundInt(GUI::getGeometryCoordination(i,j).x[1]);			//得到几何坐标
 
-					latticeDC.Ellipse(x-GUI::dotRadias,y-GUI::dotRadias,x+GUI::dotRadias,y+GUI::dotRadias);			//画点
+					latticeDC.Ellipse(roundInt(x-GUI::dotRadias),roundInt(y-GUI::dotRadias),roundInt(x+GUI::dotRadias),roundInt(y+GUI::dotRadias));			//画点
 				}
 			}
 		}
@@ -340,7 +342,12 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  在此添加您专用的创建代码
+	// TODO:  在此添加您专用的创建代码CIG::GUI::cigView = this;
+	m_GameThread = AfxBeginThread(CIG::GUI::runThread,this);
+	eventThreadMessageOK.Lock();
+	getAction = false;
+	nowBoard = Chessboard();
+
 	CClientDC memDC(this);
 	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
 	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman)?IDB_CHESSMAN_ROUND:IDB_CHESSMAN_RECTANGLE);
@@ -351,10 +358,20 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+#ifdef DEBUG_GENERATOR
 	PointOrVector lp = GUI::getLogicalCoordination(point.x,point.y);
 	MotionGenerator mg(nowBoard);
 	mg.generateMotionsAndBoards();
+#endif // DEBUG_GENERATOR
+	if (getAction)
+	{
 
+
+
+
+		getAction = false;
+	}
 
 #ifdef _DEBUG_POINT
 	ostringstream oss;

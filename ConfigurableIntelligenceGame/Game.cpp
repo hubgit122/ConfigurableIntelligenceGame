@@ -28,7 +28,7 @@ namespace CIG
 
 //void CIG::Game::mainLoop()
 //{
-//	chessBoard = ChessBoard();
+//	chessBoard = Chessboard();
 //	history.clear();
 
 //	do

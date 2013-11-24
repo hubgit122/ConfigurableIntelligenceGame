@@ -8,7 +8,7 @@
 
 namespace CIG
 {
-	class ChessBoard;
+	class Chessboard;
 	class Operation;
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	class Stack: public Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>
@@ -64,7 +64,7 @@ namespace CIG
 	CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::Stack( const Stack& s ): Array(s) {}
 
 	typedef Stack<CIGRuleConfig::CLASS_TYPES::OPERATION_STACK, Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> OperationStack;
-	typedef Stack<CIGRuleConfig::CLASS_TYPES::CHESSBOARD_STACK, ChessBoard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessBoardStack;
+	typedef Stack<CIGRuleConfig::CLASS_TYPES::CHESSBOARD_STACK, Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
 	typedef	 Stack<CIGRuleConfig::CLASS_TYPES::MOTION_STATUS, CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
 }
 

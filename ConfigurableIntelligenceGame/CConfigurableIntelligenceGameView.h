@@ -6,7 +6,7 @@
 #pragma once
 
 #include "Stack.h"
-#include "ChessBoard.h"
+#include "Chessboard.h"
 #include "CIGRuleConfig.h"
 using namespace CIG;
 
@@ -23,7 +23,8 @@ public:
 	CWinThread* m_GameThread;
 	CEvent eventThreadMessageOK;
 	CIG::OperationStack actionOfLastRound;
-	CIG::ChessBoard nowBoard;
+	CIG::Chessboard nowBoard;
+	bool getAction;
 	int nBoardBaseDC;
 	int nChessmanDC[CIGRuleConfig::PLAYER_NUM][CIGRuleConfig::CHESSMAN_TYPE_NUM];
 	CBitmap boardBaseBitmap;
