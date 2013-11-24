@@ -7,72 +7,81 @@
 
 namespace CIG
 {
-	//在堆上存储的复杂性远大于在栈上. 但是因为没有调用赋值运算符, 结构很稳定. 栈上的结构可以快速赋值快速删除, 所以改回栈上.  
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	class Array: public CIGNamedObject<TYPE_ID>
 	{
-		private:
-			Array();
-		public:
-			Array(const string& str);
-			Array(const Array& a);
-			virtual ~Array();
+	private:
+		Array();
+	public:
+		Array(const string& str);
+		Array(const Array& a);
+		virtual ~Array();
 
-			T** elements;
-			unsigned short size;
-			unsigned short capacity;
+		T* elements;
+		unsigned short size;
+		unsigned short capacity;
 
-			void operator = (const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& a);
+		void operator = (const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& a);
+		void valify();
 
-			void clear();
-			bool contains(const T& e)const;
-			Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& add(const T& element);
-			void addAt(short index, const T& e);
-			T deleteAt(short index);
-			T& at(short index)const;
-			T& operator[](short index)const;
-			void increaseCapacity();
-			void memAlloc();
-			void memRealloc();
+		bool contains(const T& e)const;
+		Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& add(const T& element);
+		void addAt(short index, const T e);
+		T deleteAt(short index);
+		T& at(short index)const;
+		T& operator[](short index)const;
 
-			friend ostream& operator << (ostream& os, const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& o)
+		void increaseCapacity();
+		void memAlloc();
+		void memRealloc();
+		void clear();
+
+		friend ostream& operator << (ostream& os, const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& o)
+		{
+			ostringstream oss;
+			oss << o;
+			os << oss.str();
+			return os;
+		}
+
+		friend ostringstream& operator << (ostringstream& oss, const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& o)
+		{
+			oss << "Array<" << TYPE_ID/*CIGConfig::CLASS_TYPES[TYPE_ID]*/ << ',' << typeid(T).name() << ',' << INI_DEPTH << ',' << DEPTH_INCRE << ">:: \n\tsize = " << o.size << "\n\tcapacity = " << o.capacity << "\n\telements: \n";
+
+			for (unsigned short i = 0; i < o.size; ++i)
 			{
-				ostringstream oss;
-				oss << o;
-				os << oss.str();
-				return os;
+				oss << "\t\t";
+				oss << o.elements[i] << '\n';
 			}
 
-			friend ostringstream& operator << (ostringstream& oss, const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& o)
-			{
-				oss << "Array<" << TYPE_ID/*CIGConfig::CLASS_TYPES[TYPE_ID]*/ << ',' << typeid(T).name() << ',' << INI_DEPTH << ',' << DEPTH_INCRE << ">:: \n\tsize = " << o.size << "\n\tcapacity = " << o.capacity << "\n\telements: \n";
-
-				for (unsigned short i = 0; i < o.size; ++i)
-				{
-					oss << "\t\t";
-					oss << o.elements[i] << '\n';
-				}
-
-				oss << (CIGNamedObject<TYPE_ID>&)o ;
-				return oss;
-			}
+			oss << (CIGNamedObject<TYPE_ID>&)o ;
+			return oss;
+		}
 	};
+
+	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::valify()
+	{
+		this->elements = NULL;
+	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::operator=( const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& a )
 	{
+		//valify();								///一定要注意, 自从加上这一句, Array类已经失去了通用性. 
 		clear();
 		size = a.size;
 		capacity = a.capacity;
-
-		for (int i=0; i<size;++i)
+		memAlloc();
+		for (int i=0;i<size;++i)
 		{
-			this->add(a[i]);
+
+			elements[i] = a.elements[i];
 		}
 	}
 
 	template <CIG::CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	bool CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::contains(const T& e) const			// TO-DO 这种函数疑问很多
+	bool CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::contains(const T& e) const
 	{
 		for (int i = size - 1; i >= 0; --i)
 		{
@@ -85,20 +94,23 @@ namespace CIG
 		return false;
 	}
 
+	//清空所有内容. 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::clear()
 	{
-		for (int i=0; i<size;++i)
-		{
-			delete this->elements[i];
-		}
 		size = 0;
+		capacity = INI_DEPTH;
+		if (elements)
+		{
+			free(elements);
+		}
+		memAlloc();
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::memRealloc()
 	{
-		if ( (elements = (T**)realloc(this->elements, sizeof(T*) * (this->capacity))) == NULL)
+		if ( (elements = (T*)realloc(this->elements, sizeof(T) * (this->capacity))) == NULL)
 		{
 			this->informError(string("内存不足, 请检查\n"));
 		}
@@ -124,7 +136,7 @@ namespace CIG
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::memAlloc()
 	{
-		if ( (elements = (T**)malloc(sizeof(T*) * (this->capacity))) == NULL)
+		if ( (elements = (T*)malloc(sizeof(T) * (this->capacity))) == NULL)
 		{
 			this->informError(string("内存不足, 请检查\n"));
 		}
@@ -149,7 +161,7 @@ namespace CIG
 			index += this->size;
 		}
 
-		return *(this->elements[index]);
+		return this->elements[index];
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -165,10 +177,9 @@ namespace CIG
 			index += this->size;
 		}
 
-		T temp(*(this->elements[index]));
-		delete (this->elements[index]);
+		T temp = this->elements[index];
 
-		for (unsigned short i = index; i < this->size; ++i)
+		for (unsigned short i = index; i+1 < this->size; ++i)
 		{
 			this->elements[i] = this->elements[i + 1];
 		}
@@ -179,7 +190,7 @@ namespace CIG
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::addAt( short index, const T& e )
+	void CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::addAt( short index, const T e )
 	{
 		if ((index >= this->size) || (index < -this->size))
 		{
@@ -198,7 +209,9 @@ namespace CIG
 			this->elements[i + 1] = this->elements[i];
 		}
 
-		this->elements[index] = new T(e);
+		memset(&elements[size],0,sizeof(T));						//
+		memcpy(&this->elements[index],&e,sizeof(void*));
+		this->elements[index] = e;
 		this->size++;
 	}
 
@@ -209,10 +222,11 @@ namespace CIG
 		// 比如拷贝, 用有的类operator=和拷贝构造函数是private的, 而拷贝构造函数又不能对基本类型使用, 
 		// 直接内存拷贝是浅拷贝, 而且可能因为使用父类的指针但是父类没有虚表子类有, 导致4字节的差别. 
 		// 另外还要考虑一致性问题, 比如某些类型不允许属性相同的两个实例存在, 而有些类的拷贝和析构时要求一定要有记录. 
-		
+
 		this->increaseCapacity();
-		this->elements[this->size++] = new T(element);		//拷贝构造, 深拷贝. 
-		//this->elements[this->size++](element);		//拷贝构造, 深拷贝. 
+		memset(&elements[size],0,sizeof(T));
+		memcpy(&elements[size],&element,sizeof(void*));
+		this->elements[this->size++] = element;											//如何保证速度和正确性, 由T类的赋值运算决定. 
 		//memcpy(this->elements + this->size++, &element, sizeof(T));			//浅拷贝不可以. 各种指针错误. 
 		return *this;
 	}
@@ -220,37 +234,40 @@ namespace CIG
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::~Array()
 	{
-		for (int i=0; i<this->size;++i)
+		if (elements)
 		{
-			delete elements[i];
+			free(this->elements);
 		}
-		free(this->elements);
+		elements = NULL;
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::Array( const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& a ): CIGNamedObject(a)
+		,size(a.size), capacity(max<unsigned short>(a.capacity, INI_DEPTH))
 	{
 #ifdef DEBUG
 		cout << "Array copy" << endl;
 #endif // DEBUG
-		this->entityName =  string(a.entityName);
-		size = a.size;
-		this->capacity = max<unsigned short>(a.capacity, INI_DEPTH);
 		memAlloc();
-		for (int i = 0; i < a.size; i++)
+		//memcpy(elements, a.elements, sizeof(T)*a.size);					//破坏封装的语句, 效率再高也不能用. 
+		for (int i=0; i<size; ++i)
 		{
-			elements[i] = new T(*a.elements[i]);
+			memcpy(&this->elements[i],&a.elements[i],sizeof(void*));
+			elements[i] = a.elements[i];
 		}
 	}
 
 	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::Array(const string& str): CIGNamedObject<TYPE_ID>(str), size(0), capacity(INI_DEPTH)
+	CIG::Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::Array(const string& str): CIGNamedObject<TYPE_ID>(str), size(0), capacity(INI_DEPTH), elements(NULL)
 	{
 #ifdef DEBUG
 		cout << "Array create" << endl;
 #endif // DEBUG
 		memAlloc();
 	}
+
+	class Chessman;
+	typedef Array<CIGRuleConfig::CHESSMAN_GROUP, Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> ChessmanGroup;
 }
 #endif /*__ARRAY_H_*/
 
