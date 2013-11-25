@@ -22,7 +22,7 @@ void CIG::MotionGenerator::generateMotionsAndBoards()
 }
 
 CIG::MotionGenerator::MotionGenerator(const Chessboard& cb)
-	: chessBoard(cb), chessboardStack("ChessboardStack"), chessmanActionStack("StackOfMotionStack") {}
+	: chessBoard(cb), chessboardStack("ChessboardStack"), actionStack("StackOfMotionStack") {}
 
 // 过程比较复杂:
 // 对于运行中搜索的一步, 若全局状态栈非空, 取定栈顶为当前状态,
@@ -70,7 +70,6 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 {
 	Chessboard chessBoard = logChessboardStack.size == 0 ? this->chessBoard : logChessboardStack.top();
 	CIGRuleConfig::OPERATIONS s = statusStack.top();
-	Operation op;
 
 	Chessman* chess = &(chessBoard.players[c->chessmanLocation.player].ownedChessmans[c->chessmanLocation.index]);
 	bool result = false;
@@ -85,10 +84,9 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 			if (result)
 			{
-				op.operation = CIGRuleConfig::PICK;
-				op.chessmanLocation = chess->chessmanLocation;
+				Operation optemp(chess->chessmanLocation, CIGRuleConfig::PICK, logOperationStack.top().distination);
 				runningChessboardStack.push(chessBoard);
-				runningOperationStack.push(op);
+				runningOperationStack.push(optemp);
 			}
 
 			break;
@@ -97,10 +95,9 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 		case CIGRuleConfig::CAPTURE:
 			if (logOperationStack.top().operation==CIGRuleConfig::CAPTURE)
 			{
-				Operation optemp(chess->chessmanLocation, s);
-
-				if (chessBoard.onPutIntent(chess, logOperationStack.top().extra))
+				if (chessBoard.onPutIntent(chess, logOperationStack.top().distination))
 				{
+					Operation optemp(chess->chessmanLocation, s, logOperationStack.top().distination);
 					runningChessboardStack.push(chessBoard);
 					runningOperationStack.push(optemp);
 				}
@@ -123,11 +120,8 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							continue;
 						}
 
-						Operation optemp(tempChess->chessmanLocation, s);
-
 						if (s == CIGRuleConfig::CAPTURE)
 						{
-							optemp.extra = *((DWORD*)dist.x);
 							result = tempBoard.onCaptureIntent(tempChess, dist);
 						}
 						else
@@ -137,6 +131,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 						if (result)
 						{
+							Operation optemp(chess->chessmanLocation, s, dist);
 							runningChessboardStack.push(tempBoard);
 							runningOperationStack.push(optemp);
 						}
@@ -151,7 +146,6 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 						Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
 						
 						PointOrVector dist = tempChess->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
-						Operation optemp(tempChess->chessmanLocation, s);
 						PointOrVector offset = dist - PointOrVector(7, (tempChess->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 4 : 11);
 
 						if (abs(offset.x[0]) & (-2) || abs(offset.x[1]) & (-2))
@@ -161,7 +155,6 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 						if (s == CIGRuleConfig::CAPTURE)
 						{
-							optemp.extra = *((DWORD*)dist.x);
 							result = tempBoard.onCaptureIntent(tempChess, dist);
 						}
 						else
@@ -171,6 +164,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 						if (result)
 						{
+							Operation optemp(chess->chessmanLocation, s, dist);
 							runningChessboardStack.push(tempBoard);
 							runningOperationStack.push(optemp);
 						}
@@ -192,11 +186,8 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							continue;
 						}
 
-						Operation optemp(tempChess->chessmanLocation, s);
-
 						if (s == CIGRuleConfig::CAPTURE)
 						{
-							optemp.extra = *((DWORD*)dist.x);
 							result = tempBoard.onCaptureIntent(tempChess, dist);
 						}
 						else
@@ -206,6 +197,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 						if (result)
 						{
+							Operation optemp(chess->chessmanLocation, s, dist);
 							runningChessboardStack.push(tempBoard);
 							runningOperationStack.push(optemp);
 						}
@@ -227,11 +219,8 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							continue;
 						}
 
-						Operation optemp(tempChess->chessmanLocation, s);
-
 						if (s == CIGRuleConfig::CAPTURE)
 						{
-							optemp.extra = *((DWORD*)dist.x);
 							result = tempBoard.onCaptureIntent(tempChess, dist);
 						}
 						else
@@ -241,6 +230,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 						if (result)
 						{
+							Operation optemp(chess->chessmanLocation, s, dist);
 							runningChessboardStack.push(tempBoard);
 							runningOperationStack.push(optemp);
 						}
@@ -272,15 +262,13 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							}
 							else
 							{
-								Operation optemp(tempChess->chessmanLocation, s);
-
 								if (s == CIGRuleConfig::CAPTURE)
 								{
-									optemp.extra = *((DWORD*)dist.x);
 									result = tempBoard.onCaptureIntent(tempChess, dist);
 									
 									if (result)
 									{
+										Operation optemp(chess->chessmanLocation, s, dist);
 										runningChessboardStack.push(tempBoard);
 										runningOperationStack.push(optemp);
 										break;
@@ -291,6 +279,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 									result = tempBoard.onPutIntent(tempChess, dist);
 									if (result)
 									{
+										Operation optemp(chess->chessmanLocation, s, dist);
 										runningChessboardStack.push(tempBoard);
 										runningOperationStack.push(optemp);
 									}
@@ -325,12 +314,11 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							{
 								if ((s == CIGRuleConfig::PUT) && (!haveEmplacement))
 								{
-									Operation optemp(tempChess->chessmanLocation, s);
-
 									result = tempBoard.onPutIntent(tempChess, dist);
 
 									if (result)
 									{
+										Operation optemp(tempChess->chessmanLocation, s, dist);
 										runningChessboardStack.push(tempBoard);
 										runningOperationStack.push(optemp);
 									}
@@ -338,13 +326,12 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							}
 							else if (haveEmplacement)
 							{
-								Operation optemp(tempChess->chessmanLocation, s);
 
 								result = tempBoard.onCaptureIntent(tempChess, dist);
 
 								if (result)
 								{
-									optemp.extra = *((DWORD*)dist.x);
+									Operation optemp(tempChess->chessmanLocation, s, dist);
 									runningChessboardStack.push(tempBoard);
 									runningOperationStack.push(optemp);
 								}
@@ -372,11 +359,9 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 					if (chessBoard.onSelfHalfOfBoard(chess->coordinate))
 					{
 						PointOrVector dist = chess->coordinate + PointOrVector(0, (chess->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 1 : -1);
-						Operation optemp(chess->chessmanLocation, s);
 
 						if (s == CIGRuleConfig::CAPTURE)
 						{
-							optemp.extra = *((DWORD*)dist.x);
 							result = chessBoard.onCaptureIntent(chess, dist);
 						}
 						else
@@ -386,6 +371,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 						if (result)
 						{
+							Operation optemp(chess->chessmanLocation, s, dist);
 							runningChessboardStack.push(chessBoard);
 							runningOperationStack.push(optemp);
 						}
@@ -398,11 +384,9 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 							Chessman* tempChess = &(tempBoard.players[chess->chessmanLocation.player].ownedChessmans[chess->chessmanLocation.index]);
 
 							PointOrVector dist = tempChess->coordinate + PointOrVector( i, (tempChess->chessmanLocation.player==CIGRuleConfig::COMPUTER)?(!i):(-!i) );
-							Operation optemp(tempChess->chessmanLocation, s);
 							
 							if (s == CIGRuleConfig::CAPTURE)
 							{
-								optemp.extra = *((DWORD*)dist.x);
 								result = tempBoard.onCaptureIntent(tempChess, dist);
 							}
 							else
@@ -412,6 +396,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 							if (result)
 							{
+								Operation optemp(chess->chessmanLocation, s, dist);
 								runningChessboardStack.push(tempBoard);
 								runningOperationStack.push(optemp);
 							}
@@ -427,9 +412,12 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 			break;
 
 		case CIGRuleConfig::END:
+			if (logChessboardStack.top().onChangeTurn())
+			{
+				chessboardStack.push(logChessboardStack.top());
+				actionStack.push(logOperationStack);
+			}
 
-			chessboardStack.push(logChessboardStack.top());
-			chessmanActionStack.push(logOperationStack);
 			break;
 
 		default:

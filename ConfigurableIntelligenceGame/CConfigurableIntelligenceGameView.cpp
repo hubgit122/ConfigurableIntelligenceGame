@@ -90,6 +90,7 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
 	GUI::inform("OnMoveComplete");
+	PostMessage(WM_PAINT, 0,0);
 	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&actionOfLastRound, (LPARAM)&nowBoard);
 
 	return 0;
@@ -98,9 +99,9 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnGetMove(WPARAM wParam, LPARAM lParam)
 {
 	getAction = true;
-	GUI::inform("假设已经得到走法. ");
+	MessageBox((LPCTSTR)_T("假设已经得到走法. "));
+
 	GUI::moveComplete.SetEvent();
-	//MessageBox((LPCTSTR)_T("假设已经得到走法. "));
 	return 0;
 }
 
@@ -197,7 +198,7 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 	//画棋子
 	{
 		CFont font;
-		font.CreatePointFont(0.5 * 10 * GUI::chessmanRect.x[1], _T("华文行楷"), NULL);
+		font.CreatePointFont(roundInt(0.5 * 10 * min(GUI::chessmanRect.x[0], GUI::chessmanRect.x[1])), _T("华文行楷"), NULL);
 		memClientDC.SetBkMode(TRANSPARENT);
 		memClientDC.SetStretchBltMode(COLORONCOLOR);
 
@@ -358,11 +359,12 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_GameThread = AfxBeginThread(CIG::GUI::runThread, this);
 	eventThreadMessageOK.Lock();
 	getAction = false;
-	nowBoard = Chessboard();
 
 	CClientDC memDC(this);
 	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
 	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman) ? IDB_CHESSMAN_ROUND : IDB_CHESSMAN_RECTANGLE);
+
+	input = (CIGRuleConfig::PLAYER_NAMES)-1;
 
 	return 0;
 }
@@ -371,23 +373,6 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-
-#ifdef DEBUG_GENERATOR
-	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
-
-	MotionGenerator mg(nowBoard);
-	mg.generateMotionsAndBoards();
-
-	for (int i = 0; i < mg.chessboardStack.size ; ++i)
-	{
-		nowBoard = mg.chessboardStack[i];
-		PostMessage(WM_PAINT, 0, 0);
-		GUI::drawComplete.Lock();
-		MessageBox(_T("ok?"));
-	}
-
-#endif // DEBUG_GENERATOR
-
 
 	if (getAction)
 	{
@@ -403,5 +388,26 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 	oss << "lp= (" << lp.x[0] << " , " << lp.x[1] << ")";
 	GUI::inform(oss.str());
 #endif // _DEBUG_POINT
+#ifdef DEBUG_GENERATOR
+	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
+
+	nowBoard.nowTurn = CIGRuleConfig::COMPUTER;
+
+	for (;;)
+	{
+		MotionGenerator mg(nowBoard);
+		mg.generateMotionsAndBoards();
+
+		for (int i = 0; i < mg.chessboardStack.size ; ++i)
+		{
+			nowBoard = mg.chessboardStack[i];
+			PostMessage(WM_PAINT, 0, 0);
+			GUI::drawComplete.Lock();
+			MessageBox(_T("ok?"));
+		}
+		nowBoard.nowTurn = (CIGRuleConfig::PLAYER_NAMES)(1-nowBoard.nowTurn);
+	}
+#endif // DEBUG_GENERATOR
+
 	CWnd::OnLButtonDown(nFlags, point);
 }

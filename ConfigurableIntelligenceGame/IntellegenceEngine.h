@@ -6,18 +6,14 @@
 
 namespace CIG
 {
+	//纯接口. 
 	class IntellegenceEngine: public Player
 	{
 		public:
-			IntellegenceEngine(int POWER_ );
+			IntellegenceEngine(CIGRuleConfig::PLAYER_NAMES p = CIGRuleConfig::PLAYER_NAMES(-1) , Chessboard* cb = NULL);
+			IntellegenceEngine(const IntellegenceEngine& ie);
 			virtual ~IntellegenceEngine();
-			void operator = (const IntellegenceEngine& ie);
-			int POWER;											//一种能力设定.
-			static const float MAX_SEARCH_TIME;
 	};
-
-	const float IntellegenceEngine::MAX_SEARCH_TIME = 10000;		//10s
-
 }
 
 #endif /*__INTELLEGENCEENGINE_H_*/

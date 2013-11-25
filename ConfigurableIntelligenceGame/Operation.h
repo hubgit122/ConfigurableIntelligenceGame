@@ -14,7 +14,7 @@ namespace CIG
 		public:
 			Operation();
 			Operation(const Operation& op);
-			Operation(ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, DWORD extra_ = 0);
+			Operation(ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, PointOrVector dist);
 			virtual ~Operation();
 			void operator=(const Operation& op);
 
@@ -26,7 +26,7 @@ namespace CIG
 			}
 			CIGRuleConfig::OPERATIONS operation;
 			ChessmanLocation chessmanLocation;
-			DWORD extra;
+			PointOrVector distination;
 	};
 }
 

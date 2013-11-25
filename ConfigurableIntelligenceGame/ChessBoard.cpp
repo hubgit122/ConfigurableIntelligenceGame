@@ -58,7 +58,7 @@ namespace CIG
 
 	void CIG::Chessboard::operator=( const Chessboard& cb )
 	{
-		//memcpy(this,&cb,4);
+		//memcpy(this,&cb,sizeof(void*));
 		currentBannedMotions = cb.currentBannedMotions;
 		pickedChessmanByLocation = cb.pickedChessmanByLocation;
 		nowRound = cb.nowRound;
@@ -166,7 +166,7 @@ namespace CIG
 				{
 					c->onCaptureIntent(testC);
 					chessmanLocationBoard[p.x[1]][p.x[0]].clear();
-					evaluations[testC->chessmanLocation.player] -= CIGRuleConfig::EVALUATIONS[testC->chessmanLocation.player][testC->chessmanType][p.x[1]][p.x[0]];
+					evaluations[testC->chessmanLocation.player] -= (testC->chessmanType==CIGRuleConfig::KING)?MATE_VALUE:(CIGRuleConfig::EVALUATIONS[testC->chessmanLocation.player][testC->chessmanType][p.x[1]][p.x[0]]);
 					return true;
 				}
 				else
@@ -214,7 +214,21 @@ namespace CIG
 	int CIG::Chessboard::getEvaluation( CIGRuleConfig::PLAYER_NAMES p ) const
 	{
 		// TO-DO 还要加入胜负, 包括平局, 判负
-		return evaluations[p] - evaluations[1 - p];
+		int resualt = evaluations[p];
+
+		for (int i=0;i<CIGRuleConfig::PLAYER_NUM;++i)
+		{
+			if (i!=nowTurn)
+			{
+				resualt-=evaluations[i];
+			}
+		}
+
+		/*if ()
+		{
+		}*/
+
+		return resualt;
 	}
 
 	int CIG::Chessboard::getEvaluation() const
@@ -254,7 +268,7 @@ namespace CIG
 					break;
 
 				case CIGRuleConfig::PUT:
-					if(this->onPutIntent(&(this->players[action[i].chessmanLocation.player].ownedChessmans[action[i].chessmanLocation.index])))
+					if(!onPutIntent(&(this->players[action[i].chessmanLocation.player].ownedChessmans[action[i].chessmanLocation.index]),action[i].distination))
 					{
 						return false;
 					}
@@ -262,7 +276,11 @@ namespace CIG
 					break;
 
 				case CIGRuleConfig::CAPTURE:
-					//result&=this->onCaptureIntent(op[i].chessman);		// TO-DO
+					if(!onCaptureIntent(&(this->players[action[i].chessmanLocation.player].ownedChessmans[action[i].chessmanLocation.index]),action[i].distination))
+					{
+						return false;
+					}
+
 					break;
 
 				default:
@@ -287,17 +305,4 @@ namespace CIG
 	CIG::Chessboard::~Chessboard()
 	{
 	}
-
 }
-
-
-//void Chessboard::undoCapture( PointOrVector p )
-//{
-//	undoCapture(*(*this)[p]);
-//}
-
-//void Chessboard::undoCapture( Chessman& c )
-//{
-//	c.undoCapture();
-//	evaluations[c.belongsToWhom] += CIGRuleConfig::EVALUATIONS[c.belongsToWhom][c.chessmanType][c.coordinate.x[1]][c.coordinate.x[0]];
-//}

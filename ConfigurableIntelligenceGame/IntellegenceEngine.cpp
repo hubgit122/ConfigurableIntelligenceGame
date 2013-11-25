@@ -1,14 +1,17 @@
 #include "IntellegenceEngine.h"
 
-
-
-
-CIG::IntellegenceEngine::IntellegenceEngine( int POWER_ ) : POWER(POWER_), Player(CIGRuleConfig::COMPUTER)
+namespace CIG
 {
+	CIG::IntellegenceEngine::IntellegenceEngine( CIGRuleConfig::PLAYER_NAMES p /*= CIGRuleConfig::PLAYER_NAMES(-1) */, Chessboard* cb /*= NULL*/)
+		: Player(p,cb) 
+	{
+	}
 
-}
+	CIG::IntellegenceEngine::IntellegenceEngine( const IntellegenceEngine& ie ):Player(ie)
+	{
+	}
 
-CIG::IntellegenceEngine::~IntellegenceEngine()
-{
-
+	CIG::IntellegenceEngine::~IntellegenceEngine()
+	{
+	}
 }

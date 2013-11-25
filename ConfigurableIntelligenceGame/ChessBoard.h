@@ -10,6 +10,7 @@
 #include "utilities.h"
 #include "ChessmanLocation.h"
 #include "Player.h"
+#include "GraphSearchEngine.h"
 
 namespace CIG
 {
@@ -22,13 +23,18 @@ namespace CIG
 			void operator=(const Chessboard& cb);
 
 			/*Array<CIGRuleConfig::PLAYERS, Player, CIGRuleConfig::INI_BOARD_WIDTH_LOG2, 0>*/
-			Player players[CIGRuleConfig::PLAYER_NUM];
+			Player players[CIGRuleConfig::PLAYER_NUM];			// TO-DO
 			unsigned int nowRound;
 			CIGRuleConfig::PLAYER_NAMES nowTurn;
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<CIGRuleConfig::CHESSMAN_OPERATIONS, Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
 			Array<CIGRuleConfig::CHESSMAN, ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
 			ChessmanLocation chessmanLocationBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
+
+			static const int MATE_VALUE = 10000;  // 最高分值，即将死的分值
+			static const int WIN_VALUE = MATE_VALUE - 100; // 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
+			static const int ADVANCED_VALUE = 3;  // 先行权分值
+
 			//Array<CIGRuleConfig::Players, Player*, 10, 0>winners("Winners");
 			//Array<CIGRuleConfig::Players, Player*, 10, 0>losers("Losers");
 

@@ -29,6 +29,9 @@ class CConfigurableIntelligenceGameView : public CWnd
 		int nChessmanDC[CIGRuleConfig::PLAYER_NUM][CIGRuleConfig::CHESSMAN_TYPE_NUM];
 		CBitmap boardBaseBitmap;
 		CBitmap chessmanBaseBitmap;
+
+		CIGRuleConfig::PLAYER_NAMES input;				//作为谁的输入设备. 
+
 		// 操作
 	public:
 		void DrawBoard();

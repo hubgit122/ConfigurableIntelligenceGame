@@ -25,7 +25,6 @@ namespace CIG
 			Stack<CIGRuleConfig::CHESSMAN_GROUP, Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> ownedChessmans;
 			Chessboard* chessboard;
 
-			static bool wins();
 			virtual void makeBestAction(OperationStack& op);
 			//static const unsigned char color[CIGRuleConfig::PLAYER_NUM][3];
 			//static const HBITMAP bitMap;

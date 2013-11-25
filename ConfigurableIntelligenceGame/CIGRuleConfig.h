@@ -91,7 +91,6 @@ namespace CIG
 				ALLY,
 			};
 
-
 			static int INI_CHESSMAN_NUM_OF_ONE_PLAYER;
 			static bool CHESSMAN_IN_LATTICE;
 			//static const int MAX_SEARCH_DEPTH = 1024;

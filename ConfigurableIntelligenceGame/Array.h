@@ -66,8 +66,10 @@ namespace CIG
 		capacity = a.capacity;
 		memAlloc();
 
+		memset(&elements, 0, sizeof(T)*size);						//可以清空一些未初始化的指针
 		for (int i = 0; i < size; ++i)
 		{
+			memcpy(&this->elements[i], &a.elements[i], sizeof(void*));		//初始化虚函数指针.
 
 			elements[i] = a.elements[i];
 		}

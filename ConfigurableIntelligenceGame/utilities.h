@@ -99,7 +99,7 @@ struct PointOrVector_Float
 
 struct PointOrVector
 {
-	unsigned short x[2];
+	short x[2];
 
 	PointOrVector()
 	{
@@ -117,7 +117,7 @@ struct PointOrVector
 		*(unsigned*)(this->x) = xy;
 	}
 
-	unsigned short& operator[](bool index)
+	short& operator[](bool index)
 	{
 		return x[index];
 	}
