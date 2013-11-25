@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "utilities.h"
 #include "CIGRuleConfig.h"
+#include "Operation.h"
+#include "Stack.h"
 
 //GUI线程令主线程清空数据, 重新开始.
 #define WM_RESTART			(WM_USER+1)
@@ -32,6 +34,8 @@ namespace CIG
 			static void exit();
 			static UINT runThread(LPVOID pParam);
 			static void postMessage( UINT msg, WPARAM wp, LPARAM  lp);
+
+			static void askForAction(void* op);
 
 			/*************************************************************************
 				设置棋盘绘制参数
@@ -75,7 +79,6 @@ namespace CIG
 			static int latticePenWidth;
 			//判断任意棋盘的边界比较难, 不做了.
 			//static int borderPenColor[3];
-
 	};
 }
 

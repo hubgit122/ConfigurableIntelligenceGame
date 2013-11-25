@@ -10,7 +10,6 @@
 #include "utilities.h"
 #include "ChessmanLocation.h"
 #include "Player.h"
-#include "GraphSearchEngine.h"
 
 namespace CIG
 {

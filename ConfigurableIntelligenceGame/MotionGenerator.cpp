@@ -84,7 +84,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 
 			if (result)
 			{
-				Operation optemp(chess->chessmanLocation, CIGRuleConfig::PICK, logOperationStack.top().distination);
+				Operation optemp(chess->chessmanLocation, CIGRuleConfig::PICK);
 				runningChessboardStack.push(chessBoard);
 				runningOperationStack.push(optemp);
 			}
