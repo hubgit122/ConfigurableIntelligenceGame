@@ -17,6 +17,7 @@
 class CConfigurableIntelligenceGameView;
 namespace CIG
 {
+	class Chessboard;
 	class GUI
 	{
 		public:
@@ -33,7 +34,7 @@ namespace CIG
 			static UINT runThread(LPVOID pParam);
 			static void postMessage( UINT msg, WPARAM wp, LPARAM  lp);
 
-			static void askForAction(void* op);
+			static void askForAction(Chessboard*cb, void* op);
 
 			/*************************************************************************
 				设置棋盘绘制参数

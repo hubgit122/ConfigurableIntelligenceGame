@@ -8,27 +8,26 @@
 
 namespace CIG
 {
-	class GraphSearchEngine: public IntellegenceEngine
+	class GraphSearchEngine
 	{
 		public:
-			GraphSearchEngine(CIGRuleConfig::PLAYER_NAMES p = CIGRuleConfig::PLAYER_NAMES(-1) , Chessboard* cb = NULL/*, int POWER_ = 5*/);
-			GraphSearchEngine(const GraphSearchEngine& gse);
-			virtual ~GraphSearchEngine();
+			//GraphSearchEngine(CIGRuleConfig::PLAYER_NAMES p = CIGRuleConfig::PLAYER_NAMES(-1) , Chessboard* cb = NULL/*, int POWER_ = 5*/);
+			//GraphSearchEngine(const GraphSearchEngine& gse);
+			//virtual ~GraphSearchEngine();
 			//void operator = (const GraphSearchEngine& ie);
 			
-			virtual void makeBestAction( OperationStack& op );
+			static void makeBestAction(Chessboard*cb, void* op);
 
 			static const float MAX_SEARCH_TIME;
-			static const int MAX_GEN_MOVES = 128; // 最大的生成走法数
-			static const int LIMIT_DEPTH = 32;    // 最大的搜索深度
+			static const int LIMIT_DEPTH;
 
 		private:
+			static int alphaBetaSearch(int alpha, int beta, int depth);
 			//HashTable<Motion> historyList;
-			Stack<CIGRuleConfig::CHESSBOARD_STACK,Chessboard,LIMIT_DEPTH,0> searchingChessboardStack;
-			Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK,OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> searchingOperationStack;
-			OperationStack bestMove;
+			static Stack<CIGRuleConfig::CHESSBOARD_STACK,Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> searchingChessboardStack;
+			static Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK,OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> searchingOperationStack;
+			static OperationStack bestMove;
 
-			int alphaBetaSearch(int alpha, int beta, int depth);
 	};
 
 }

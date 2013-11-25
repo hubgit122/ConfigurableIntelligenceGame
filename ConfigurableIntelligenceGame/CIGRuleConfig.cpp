@@ -1,4 +1,4 @@
-//#include "stdafx.h"
+#include "stdafx.h"
 #include "GUI.h"
 #include "CIGRuleConfig.h"
 

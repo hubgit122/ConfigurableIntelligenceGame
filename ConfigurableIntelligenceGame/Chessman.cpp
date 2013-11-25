@@ -1,4 +1,4 @@
-//#include "stdafx.h"
+#include "stdafx.h"
 #include "Chessman.h"
 
 CIG::Chessman::Chessman( const Chessman& c )

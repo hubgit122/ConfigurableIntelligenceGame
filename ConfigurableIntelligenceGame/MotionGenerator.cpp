@@ -1,4 +1,4 @@
-//#include "stdafx.h"
+#include "stdafx.h"
 #include "MotionGenerator.h"
 #include "Array.h"
 #include "Chessboard.h"

@@ -90,8 +90,9 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
-	GUI::inform("OnMoveComplete");
 	PostMessage(WM_PAINT, 0,0);
+	GUI::drawComplete.Lock();
+
 	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&actionOfLastRound, (LPARAM)&nowBoard);
 
 	return 0;

@@ -1,17 +1,18 @@
-//#include "stdafx.h"
+#include "stdafx.h"
 #include "Chessboard.h"
 #include "Player.h"
 #include "Array.h"
 #include "Chessman.h"
 #include "ChessmanLocation.h"
+#include "GraphSearchEngine.h"
 
 namespace CIG
 {
 	// 按配置初始化很少执行, 所以可以速度慢一点.
 	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByLocation("PickedChessman"), currentBannedMotions("currentBannedMotions")
 	{
-		players[0] = Player(CIGRuleConfig::HUMAN, GUI::askForAction, this);
-		players[1] = Player(CIGRuleConfig::COMPUTER, GUI::askForAction, this);			// TO-DO  应该是智能引擎实例而不是player类实例.
+		players[0] = Player(CIGRuleConfig::HUMAN, GraphSearchEngine::makeBestAction, this);
+		players[1] = Player(CIGRuleConfig::COMPUTER, GraphSearchEngine::makeBestAction, this);			// TO-DO  应该是智能引擎实例而不是player类实例.
 		memset(chessmanLocationBoard, -1, sizeof(ChessmanLocation) << (CIGRuleConfig::INI_BOARD_WIDTH_LOG2 + CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));			//如果指针不清空初始值根本不是0
 
 		for (int k = 0; k < CIGRuleConfig::PLAYER_NUM; ++k)
@@ -46,7 +47,7 @@ namespace CIG
 		nowRound(cb.nowRound), nowTurn(cb.nowTurn)
 	{
 		//一定不要破坏底层封装, 这样极大地影响了系统的可移植性. 应该调用成员的响应函数, 如何操作数据由成员决定.
-		memcpy(this->chessmanLocationBoard, cb.chessmanLocationBoard, sizeof(ChessmanLocation) << (CIGRuleConfig::INI_BOARD_WIDTH_LOG2 + CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));
+		memcpy(&this->chessmanLocationBoard, &cb.chessmanLocationBoard, sizeof(ChessmanLocation) << (CIGRuleConfig::INI_BOARD_WIDTH_LOG2 + CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));
 		memcpy(this->evaluations, cb.evaluations, sizeof(evaluations));
 
 		for (int i = 0; i < CIGRuleConfig::PLAYER_NUM; ++i)
@@ -246,7 +247,7 @@ namespace CIG
 	{
 		bool result = true;
 
-		for (int i = 0; i < action.size - 1; i++)
+		for (int i = 0; i < action.size; i++)
 		{
 			//BEGIN,
 			//PICK,						//拿起
@@ -287,8 +288,6 @@ namespace CIG
 					return false;
 					break;
 			}
-
-			return true;
 		}
 
 		result &= (this->pickedChessmanByLocation.size == 0);
@@ -298,8 +297,8 @@ namespace CIG
 	bool CIG::Chessboard::canMakeAction(OperationStack& action)
 	{
 		Chessboard cb(*this);
-
-		return cb.makeAction(action);
+		bool result = cb.makeAction(action);
+		return result;
 	}
 
 	CIG::Chessboard::~Chessboard()

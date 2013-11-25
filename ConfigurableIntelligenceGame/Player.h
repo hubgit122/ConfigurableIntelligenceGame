@@ -16,7 +16,7 @@ namespace CIG
 	{
 		public:
 			Player();
-			Player(CIGRuleConfig::PLAYER_NAMES p, void (*makeBestAction_)(void*) = GUI::askForAction , Chessboard* cb = NULL);
+			Player(CIGRuleConfig::PLAYER_NAMES p, void (*makeBestAction_)(Chessboard*cb, void*) = GUI::askForAction , Chessboard* cb = NULL);
 			Player(const Player& p, Chessboard* cb = NULL);
 			virtual ~Player();
 
@@ -26,7 +26,7 @@ namespace CIG
 			Stack<CIGRuleConfig::CHESSMAN_GROUP, Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> ownedChessmans;
 			Chessboard* chessboard;
 
-			void (*makeBestAction)(void* op);
+			void (*makeBestAction)(Chessboard*cb, void* op);
 			//static const unsigned char color[CIGRuleConfig::PLAYER_NUM][3];
 			//static const HBITMAP bitMap;
 	};

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "GraphSearchEngine.h"
 #include "ChessBoard.h"
 #include "MotionGenerator.h"
@@ -7,19 +8,19 @@ namespace CIG
 {
 	const float GraphSearchEngine::MAX_SEARCH_TIME = 10000;		//10s
 
-	CIG::GraphSearchEngine::GraphSearchEngine( CIGRuleConfig::PLAYER_NAMES p /*= CIGRuleConfig::PLAYER_NAMES(-1) */, Chessboard* cb /*= NULL*//*, int POWER_ / *= 5* /*/ )
-		: IntellegenceEngine(p,cb) , bestMove("BestMove"), searchingOperationStack("SearchingMotionStack"),searchingChessboardStack("searchingChessboardStack")
-	{
-	}
+	//CIG::GraphSearchEngine::GraphSearchEngine( CIGRuleConfig::PLAYER_NAMES p /*= CIGRuleConfig::PLAYER_NAMES(-1) */, Chessboard* cb /*= NULL*//*, int POWER_ / *= 5* /*/ )
+	//	: IntellegenceEngine(p,cb) , bestMove("BestMove"), searchingOperationStack("SearchingMotionStack"),searchingChessboardStack("searchingChessboardStack")
+	//{
+	//}
 
-	GraphSearchEngine::GraphSearchEngine( const GraphSearchEngine& gse )
-		: IntellegenceEngine(gse), bestMove(gse.bestMove), searchingOperationStack(gse.searchingOperationStack),searchingChessboardStack(gse.searchingChessboardStack)
-	{
-	}
+	//GraphSearchEngine::GraphSearchEngine( const GraphSearchEngine& gse )
+	//	: IntellegenceEngine(gse), bestMove(gse.bestMove), searchingOperationStack(gse.searchingOperationStack),searchingChessboardStack(gse.searchingChessboardStack)
+	//{
+	//}
 
-	GraphSearchEngine::~GraphSearchEngine()
-	{
-	}
+	//GraphSearchEngine::~GraphSearchEngine()
+	//{
+	//}
 
 	int GraphSearchEngine::alphaBetaSearch( int alpha, int beta, int depth )
 	{
@@ -35,7 +36,7 @@ namespace CIG
 
 		// 2. 初始化最佳值和最佳走法
 		vlBest = -Chessboard::MATE_VALUE; // 这样可以知道，是否一个走法都没走过(杀棋)
-		this->bestMove.clear();           // 这样可以知道，是否搜索到了Beta走法或PV走法，以便保存到历史表
+		bestMove.clear();           // 这样可以知道，是否搜索到了Beta走法或PV走法，以便保存到历史表
 
 		// 3. 生成全部走法，并根据历史表排序			如果被将死, 没有棋可以走.
 		MotionGenerator mg(nowBoard);
@@ -96,9 +97,10 @@ namespace CIG
 		return vlBest;
 	}
 
-	void GraphSearchEngine::makeBestAction( OperationStack& op )
+	void GraphSearchEngine::makeBestAction( Chessboard*chessboard, void* op )
 	{
 		int t = clock();
+		searchingOperationStack.clear();
 		searchingChessboardStack.clear();
 		searchingChessboardStack.push(*chessboard);
 		// TO-DO 加入历史表
@@ -119,7 +121,13 @@ namespace CIG
 				break;
 			}
 		}
-		op = this->bestMove;
+		*(OperationStack*)op = bestMove;
 	}
+
+	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
+
+	Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK,OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack("searchingOperationStack");
+	Stack<CIGRuleConfig::CHESSBOARD_STACK,Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack("searchingChessboardStack");
+	CIG::OperationStack GraphSearchEngine::bestMove("bestMove");
 }
 
