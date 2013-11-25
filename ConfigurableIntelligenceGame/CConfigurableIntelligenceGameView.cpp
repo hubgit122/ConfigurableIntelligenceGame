@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CConfigurableIntelligenceGameView, CWnd)
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -410,4 +411,14 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 #endif // DEBUG_GENERATOR
 
 	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void CConfigurableIntelligenceGameView::OnClose()
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	
+	m_GameThread->PostThreadMessage(WM_QUIT,0,0);
+
+	CWnd::OnClose();
 }

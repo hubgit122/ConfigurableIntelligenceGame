@@ -10,8 +10,8 @@ namespace CIG
 	// 按配置初始化很少执行, 所以可以速度慢一点.
 	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByLocation("PickedChessman"), currentBannedMotions("currentBannedMotions")
 	{
-		players[0] = Player(CIGRuleConfig::HUMAN, this);
-		players[1] = Player(CIGRuleConfig::COMPUTER, this);			// TO-DO  应该是智能引擎实例而不是player类实例.
+		players[0] = Player(CIGRuleConfig::HUMAN, GUI::askForAction, this);
+		players[1] = Player(CIGRuleConfig::COMPUTER, GUI::askForAction, this);			// TO-DO  应该是智能引擎实例而不是player类实例.
 		memset(chessmanLocationBoard, -1, sizeof(ChessmanLocation) << (CIGRuleConfig::INI_BOARD_WIDTH_LOG2 + CIGRuleConfig::INI_BOARD_HEIGHT_LOG2));			//如果指针不清空初始值根本不是0
 
 		for (int k = 0; k < CIGRuleConfig::PLAYER_NUM; ++k)
