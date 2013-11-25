@@ -3,27 +3,25 @@
 #define __STACK_H__
 
 #include "Array.h"
-#include "CIGNamedObject.h"
 #include "CIGRuleConfig.h"
 
 namespace CIG
 {
 	class Chessboard;
 	class Operation;
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	class Stack: public Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	class Stack: public Array< T, INI_DEPTH, DEPTH_INCRE>
 	{
-		private:
-			Stack();
 		public:
-			Stack(const string& str);
+			Stack();
 			Stack(const Stack& s);
 			virtual ~Stack();
 
 			void push(const T& E);
-			T pop();
+			T popThenGet();
+			void popNoReturn();
 			T& top()const;
-			friend ostream& operator << (ostream& os, const Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& o)
+			friend ostream& operator << (ostream& os, const Stack<T, INI_DEPTH, DEPTH_INCRE>& o)
 			{
 				ostringstream oss;
 				oss << o;
@@ -31,47 +29,53 @@ namespace CIG
 				return os;
 			}
 
-			friend ostringstream& operator << (ostringstream& oss, const Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>& o)
+			friend ostringstream& operator << (ostringstream& oss, const Stack<T, INI_DEPTH, DEPTH_INCRE>& o)
 			{
-				oss << "Stack<" << TYPE_ID/*CIGConfig::CLASS_TYPES[TYPE_ID]*/ << ',' << typeid(T).name() << ',' << INI_DEPTH << ',' << DEPTH_INCRE << ">::\n";
-				oss << (const Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>&)o;
+				oss << "Stack<" << typeid(T).name() << ',' << INI_DEPTH << ',' << DEPTH_INCRE << ">::\n";
+				oss << (const Array<T, INI_DEPTH, DEPTH_INCRE>&)o;
 				return oss;
 			}
 	};
 
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::~Stack()
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::~Stack()
 	{
 	}
 
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	T& CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::top() const
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	T& CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::top() const
 	{
 		return this->at(this->size - 1);					//size-1 这个错误犯了两次了.
 	}
 
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	T CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::pop()
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	T CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::popThenGet()
 	{
-		return Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::deleteAt(this->size - 1);
+		return Array<T, INI_DEPTH, DEPTH_INCRE>::deleteAtThenGet(this->size - 1);
 	}
 
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	void CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::push( const T& E )
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	void CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::popNoReturn()
 	{
-		Array<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::add(E);
+		Array<T, INI_DEPTH, DEPTH_INCRE>::deleteAtNoReturn(this->size - 1);
 	}
 
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::Stack( const string& str ) : Array(str) {}
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	void CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::push( const T& E )
+	{
+		Array<T, INI_DEPTH, DEPTH_INCRE>::add(E);
+	}
 
-	template <CIGRuleConfig::CLASS_TYPES TYPE_ID, class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	CIG::Stack<TYPE_ID, T, INI_DEPTH, DEPTH_INCRE>::Stack( const Stack& s ): Array(s) {}
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	Stack<T, INI_DEPTH, DEPTH_INCRE>::Stack(){}
 
-	typedef Stack<CIGRuleConfig::CLASS_TYPES::OPERATION_STACK, Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> OperationStack;
-	typedef Stack<CIGRuleConfig::CLASS_TYPES::CHESSBOARD_STACK, Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
-	typedef	 Stack<CIGRuleConfig::CLASS_TYPES::MOTION_STATUS, CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
-	typedef Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK, OperationStack, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::Stack( const Stack& s ): Array(s) {}
+
+	typedef Stack<Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> OperationStack;
+	typedef Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
+	typedef	 Stack<CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
+	typedef Stack<OperationStack, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
 }
 
 #endif /*__STACK_H_*/

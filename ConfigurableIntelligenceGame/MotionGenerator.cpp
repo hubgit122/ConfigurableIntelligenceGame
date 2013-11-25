@@ -7,22 +7,22 @@
 
 void CIG::MotionGenerator::generateMotionsAndBoards()
 {
-	const Stack<CIGRuleConfig::CHESSMAN_GROUP, Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessBoard.players[chessBoard.nowTurn].ownedChessmans;
+	const Stack<Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessBoard.players[chessBoard.nowTurn].ownedChessmans;
 
 	for (unsigned i = 0; i < cg.size; ++i)
 	{
-		OperationStack logOperationStack("logMotionStack");
-		ChessboardStack logChesssboardStack("logChesssboardStack");
-		StatusStack statusStack("StatusStack");
+		OperationStack logOperationStack;
+		ChessboardStack logChesssboardStack;
+		StatusStack statusStack;
 		Chessman* c = const_cast<Chessman*> (&(cg.at(i)));
 		statusStack.push(CIGRuleConfig::BEGIN);
 		generateForOneChessman(c, logOperationStack, logChesssboardStack, statusStack);
-		statusStack.pop();
+		statusStack.popThenGet();
 	}
 }
 
 CIG::MotionGenerator::MotionGenerator(const Chessboard& cb)
-	: chessBoard(cb), chessboardStack("ChessboardStack"), actionStack("StackOfMotionStack") {}
+	: chessBoard(cb), chessboardStack(), actionStack() {}
 
 // 过程比较复杂:
 // 对于运行中搜索的一步, 若全局状态栈非空, 取定栈顶为当前状态,
@@ -33,8 +33,8 @@ CIG::MotionGenerator::MotionGenerator(const Chessboard& cb)
 // 初始条件配置: statusStack.push(CIGRuleConfig::BEGIN);
 void CIG::MotionGenerator::generateForOneChessman( Chessman* c , OperationStack& logOperationStack, ChessboardStack& logChessboardStack, StatusStack& statusStack)
 {
-	OperationStack runningOperationStack("OperationStack");
-	ChessboardStack runningChessboardStack("runningChessboardStack");
+	OperationStack runningOperationStack;
+	ChessboardStack runningChessboardStack;
 
 	CIGRuleConfig::OPERATIONS op = statusStack.top();
 	int i = 0;
@@ -55,14 +55,14 @@ void CIG::MotionGenerator::generateForOneChessman( Chessman* c , OperationStack&
 
 			generateForOneChessman(c, logOperationStack, logChessboardStack, statusStack);
 
-			logOperationStack.pop();
-			logChessboardStack.pop();
+			logOperationStack.popNoReturn();
+			logChessboardStack.popNoReturn();
 
-			runningOperationStack.pop();
-			runningChessboardStack.pop();
+			runningOperationStack.popNoReturn();
+			runningChessboardStack.popNoReturn();
 		}
 
-		statusStack.pop();
+		statusStack.popThenGet();
 	}
 }
 

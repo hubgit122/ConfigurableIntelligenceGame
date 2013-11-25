@@ -8,9 +8,8 @@ namespace CIG
 	}
 
 	Game::Game():
-		history("HistoryBoard"),
-		chessBoard(),
-		CIGNamedObject("GameInstance")
+		history(),
+		chessBoard()
 	{
 	}
 

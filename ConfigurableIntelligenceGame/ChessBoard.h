@@ -26,8 +26,8 @@ namespace CIG
 			unsigned int nowRound;
 			CIGRuleConfig::PLAYER_NAMES nowTurn;
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
-			Array<CIGRuleConfig::CHESSMAN_OPERATIONS, Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
-			Array<CIGRuleConfig::CHESSMAN, ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
+			Array<Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
+			Array<ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
 			ChessmanLocation chessmanLocationBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
 
 			static const int MATE_VALUE = 10000;  // 最高分值，即将死的分值

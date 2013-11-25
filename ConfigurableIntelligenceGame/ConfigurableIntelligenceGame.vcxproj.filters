@@ -48,9 +48,6 @@
     <ClInclude Include="CIG.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CIGNamedObject.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CIGObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -135,6 +132,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="GraphSearchEngine.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CIGObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

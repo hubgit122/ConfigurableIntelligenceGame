@@ -5,18 +5,18 @@
 #include "utilities.h"
 #include "CIGRuleConfig.h"
 #include "ChessmanLocation.h"
-//#include "CIGNamedObject.h"
+#include "CIGObject.h"
 
 namespace CIG
 {
-	class Chessman//: public CIGNamedObject<CIGRuleConfig::CLASS_TYPES::CHESSMAN>
+	class Chessman:public CIGObject
 	{
 		private:
 			Chessman();
 		public:
 			virtual ~Chessman();
 			Chessman(const Chessman& c);
-			Chessman(/*const string& str,*/ CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v);
+			Chessman(CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v);
 
 			CIGRuleConfig::CHESSMAN_TYPES chessmanType;
 			struct PointOrVector coordinate;
@@ -31,7 +31,6 @@ namespace CIG
 			{
 				oss << "Chessman::\n" << "\tchessmanType: " << c.chessmanType << "\n\tcoordinate: ";
 				oss << c.coordinate << "\nchessmanLocation.player: " << c.chessmanLocation.player << '\n';
-				//oss<<(const CIGNamedObject<CIGRuleConfig::CLASS_TYPES::CHESSMAN>&)c;
 				return oss;
 			}
 			//************************************

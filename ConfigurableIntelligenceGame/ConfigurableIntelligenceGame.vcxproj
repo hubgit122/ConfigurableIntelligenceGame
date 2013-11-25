@@ -58,6 +58,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -107,7 +108,6 @@
     <ClInclude Include="Chessman.h" />
     <ClInclude Include="ChessmanLocation.h" />
     <ClInclude Include="CIG.h" />
-    <ClInclude Include="CIGNamedObject.h" />
     <ClInclude Include="CIGObject.h" />
     <ClInclude Include="CIGRuleConfig.h" />
     <ClInclude Include="ConfigurableIntelligenceGame.h" />
@@ -138,6 +138,7 @@
     <ClCompile Include="ChessmanLocation.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="CIGObject.cpp" />
     <ClCompile Include="CIGRuleConfig.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>

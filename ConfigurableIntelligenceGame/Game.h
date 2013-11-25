@@ -4,19 +4,19 @@
 #include "stdafx.h"
 #include "CIGRuleConfig.h"
 #include "Stack.h"
-#include "CIGNamedObject.h"
+#include "CIGObject.h"
 #include "ChessBoard.h"
 
 namespace CIG
 {
-	class Game: public CIGNamedObject<CIGRuleConfig::GAME_CLASS>
+	class Game: public CIGObject
 	{
 		public:
 			Game();
 			virtual ~Game();
 			void operator = (const Game& g);
 			Chessboard chessBoard;
-			CIG::Stack<CIGRuleConfig::CHESSBOARD_STACK, Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> history;
+			CIG::Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> history;
 
 		public:
 			static void deleteInstance( Game* instance );

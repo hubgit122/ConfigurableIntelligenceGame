@@ -71,8 +71,8 @@ namespace CIG
 				}
 			}
 
-			searchingOperationStack.pop();
-			searchingChessboardStack.pop();
+			searchingOperationStack.popNoReturn();
+			searchingChessboardStack.popNoReturn();
 		}
 
 		// 5. 所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
@@ -126,8 +126,8 @@ namespace CIG
 
 	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
 
-	Stack<CIGRuleConfig::CHESSMAN_MOTION_STACK,OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack("searchingOperationStack");
-	Stack<CIGRuleConfig::CHESSBOARD_STACK,Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack("searchingChessboardStack");
-	CIG::OperationStack GraphSearchEngine::bestMove("bestMove");
+	Stack<OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack;
+	Stack<Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack;
+	CIG::OperationStack GraphSearchEngine::bestMove;
 }
 

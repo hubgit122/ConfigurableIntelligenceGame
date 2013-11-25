@@ -6,7 +6,6 @@
 #include "Chessman.h"
 #include "CIGRuleConfig.h"
 #include "CIGObject.h"
-#include "CIGNamedObject.h"
 #include "Array.h"
 #include "Stack.h"
 #include "Chessboard.h"

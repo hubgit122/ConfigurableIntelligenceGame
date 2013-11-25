@@ -7,15 +7,6 @@ namespace CIG
 	bool CIG::CIGRuleConfig::checkConstrains()
 	{
 		typedef unsigned long long U64;
-
-		if (sizeof(U64) != 8)					//检测过之后, 认为sizeof(U64)==8, 这样会化简一些除法.
-		{
-			ostringstream oss;
-			oss << "系统字长与期望不同. \n" << "sizeof(U64) = " << sizeof(U64) << " != 8";
-			GUI::inform(oss.str(), true);
-			return false;
-		}
-
 		if (PLAYER_NUM != 2)
 		{
 			ostringstream oss;

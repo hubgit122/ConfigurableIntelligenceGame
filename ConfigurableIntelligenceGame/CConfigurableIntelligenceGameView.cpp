@@ -19,7 +19,7 @@ using namespace CIG;
 #endif
 
 
-CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(), actionOfLastRound("ActionOfLastRound")
+CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(), actionOfLastRound()
 {
 	//这里的初始化会乱掉. 所以还是在别处再初始化一次吧.
 

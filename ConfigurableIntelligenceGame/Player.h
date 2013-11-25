@@ -2,17 +2,18 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
 #include "utilities.h"
-#include "CIGNamedObject.h"
+#include "CIGObject.h"
 #include "Array.h"
 #include "Stack.h"
 #include "GUI.h"
+#include "CIGRuleConfig.h"
 
 namespace CIG
 {
 	class Chessboard;
 	// 注意Player是完全依赖于Chesssboard的, 因为棋子的偏移量. 所以初始化时如果没有Chesssboard的信息, 也要赋空值而不是复制.
 	// 拥有的棋子也是构造后在棋盘的构造函数里边加上去的.
-	class Player//: public CIGNamedObject<CIGRuleConfig::PLAYER>
+	class Player: public CIGObject
 	{
 		public:
 			Player();
@@ -23,7 +24,7 @@ namespace CIG
 			void operator = (const Player& p);
 
 			CIGRuleConfig::PLAYER_NAMES NAME;
-			Stack<CIGRuleConfig::CHESSMAN_GROUP, Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> ownedChessmans;
+			Stack<Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> ownedChessmans;
 			Chessboard* chessboard;
 
 			void (*makeBestAction)(Chessboard*cb, void* op);

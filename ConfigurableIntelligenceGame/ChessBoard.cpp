@@ -9,7 +9,7 @@
 namespace CIG
 {
 	// 按配置初始化很少执行, 所以可以速度慢一点.
-	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByLocation("PickedChessman"), currentBannedMotions("currentBannedMotions")
+	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByLocation(), currentBannedMotions()
 	{
 		players[0] = Player(CIGRuleConfig::HUMAN, GraphSearchEngine::makeBestAction, this);
 		players[1] = Player(CIGRuleConfig::COMPUTER, GraphSearchEngine::makeBestAction, this);			// TO-DO  应该是智能引擎实例而不是player类实例.
@@ -27,11 +27,8 @@ namespace CIG
 
 					if (t != CIGRuleConfig::NOCHESSMAN)
 					{
-						Chessman c = Chessman(/*string("test"), */t, PointOrVector(j, i), (CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size, CIGRuleConfig::ON_BOARD, CIGRuleConfig::ALL);
-						players[k].ownedChessmans.push(c
-													   // const string& str, CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v
-													   //Chessman(/*string("test"), */t, PointOrVector(j, i), (CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size, CIGRuleConfig::ON_BOARD, CIGRuleConfig::ALL)			// TO-DO
-													  );
+						Chessman c = Chessman(t, PointOrVector(j, i), (CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size, CIGRuleConfig::ON_BOARD, CIGRuleConfig::ALL);
+						players[k].ownedChessmans.push(c);
 
 						chessmanLocationBoard[i][j] = ChessmanLocation((CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size - 1);
 						evaluations[k] += CIGRuleConfig::EVALUATIONS[k][players[k].ownedChessmans.top().chessmanType][i][j];
@@ -135,7 +132,7 @@ namespace CIG
 		{
 			chessmanLocationBoard[p.x[1]][p.x[0]] = c->chessmanLocation;
 			evaluations[nowTurn] += CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][p.x[1]][p.x[0]];
-			pickedChessmanByLocation.deleteAt(0);
+			pickedChessmanByLocation.deleteAtThenGet(0);
 			return true;
 		}
 
