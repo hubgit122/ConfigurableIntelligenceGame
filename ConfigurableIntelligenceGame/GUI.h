@@ -4,8 +4,6 @@
 #include "stdafx.h"
 #include "utilities.h"
 #include "CIGRuleConfig.h"
-#include "Operation.h"
-#include "Stack.h"
 
 //GUI线程令主线程清空数据, 重新开始.
 #define WM_RESTART			(WM_USER+1)

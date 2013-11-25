@@ -1,7 +1,7 @@
 #include "GraphSearchEngine.h"
 #include "ChessBoard.h"
-#include <time.h>
 #include "MotionGenerator.h"
+#include <time.h>
 
 namespace CIG
 {
