@@ -80,7 +80,11 @@ namespace CIG
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::operator=( const Array<T, INI_DEPTH, DEPTH_INCRE>& a )
 	{
-		clear();
+		if (elements)
+		{
+			free(elements);
+		}
+		elements = 0;
 		size = a.size;
 		capacity = a.capacity;
 		memAlloc();

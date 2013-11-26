@@ -13,44 +13,9 @@ namespace CIG
 	{
 	}
 
-	void Game::deleteInstance( Game* instance )
+	void Game::operator=( const Game& g )
 	{
-		if (instance)
-		{
-			delete instance;
-		}
+		history = g.history;
+		chessBoard = g.chessBoard;
 	}
-
-	/*UINT Game::runThread( LPVOID pParam )
-	{
-		Game::instance->mainLoop();
-		}*/
-
-	//void CIG::Game::mainLoop()
-	//{
-	//	chessBoard = Chessboard();
-	//	history.clear();
-
-	//	do
-	//	{
-	//		opeartionOfThisTurn.clear();
-	//		chessBoard.players[chessBoard.nowTurn].operate();
-	//		switchTurn.Lock();
-
-	//		if (chessBoard.canMakeAction())
-	//		{
-	//			history.push(chessBoard);
-	//			chessBoard.makeAction();
-	//		}
-	//		else
-	//		{
-	//			GUI::inform("走法不正确, 请重新走. \n", false);
-	//			continue;
-	//		}
-
-	//		GUI::drawBoard();
-	//	}
-	//	while (chessBoard.onChangeTurn());
-	//}
-
 }

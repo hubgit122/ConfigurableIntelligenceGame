@@ -124,7 +124,7 @@ namespace CIG
 		*(OperationStack*)op = bestMove;
 	}
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
+	const int GraphSearchEngine::LIMIT_DEPTH = 2;    // 最大的搜索深度
 
 	Stack<OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack;
 	Stack<Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack;

@@ -19,7 +19,6 @@ namespace CIG
 			CIG::Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> history;
 
 		public:
-			static void deleteInstance( Game* instance );
 			static void endThread();
 			static void restartThread();
 	};
