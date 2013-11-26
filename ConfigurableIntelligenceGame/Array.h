@@ -123,6 +123,8 @@ namespace CIG
 		{
 			free(elements);
 		}
+
+		memAlloc();
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -227,7 +229,6 @@ namespace CIG
 			this->elements[i + 1] = this->elements[i];
 		}
 
-		//注意, 只有自己或者父类有虚函数, 而且是单继承结构的类型, 才能安全地使用这个模板数组. 
 		memset(&elements[size], 0, sizeof(T));						//可以清空一些未初始化的指针
 		memcpy(&this->elements[index], &e, sizeof(void*));		//初始化虚函数指针.
 		this->elements[index] = e;										//正常赋值
