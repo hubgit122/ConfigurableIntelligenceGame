@@ -1,18 +1,19 @@
 
 #include "ChessmanLocationBoard.h"
+#include "utilities.h"
 
 namespace CIG
 {
 	void CIG::ChessmanLocationBoard::operator=( const ChessmanLocationBoard& clb )
 	{
-		if (!content)
+		if (content==NULL)
 		{
 			if ((content = (ChessmanLocation*) malloc(sizeof(ChessmanLocation)<<CIGRuleConfig::INI_BOARD_HEIGHT_LOG2<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2))==0)
 			{
 				GUI::inform("在生成ChessmanLocaionBoard时内存不足. ",true);
 			}
 		}
-		memcpy(content, clb.content, sizeof(ChessmanLocation)<<CIGRuleConfig::INI_BOARD_HEIGHT_LOG2<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2);
+		memcpy((void*)content, (void*)(clb.content), sizeof(ChessmanLocation)<<CIGRuleConfig::INI_BOARD_HEIGHT_LOG2<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2);
 	}
 
 	ChessmanLocationBoard::ChessmanLocationBoard()

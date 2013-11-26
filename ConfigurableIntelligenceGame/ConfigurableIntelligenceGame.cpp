@@ -3,7 +3,6 @@
 //
 
 #include "stdafx.h"
-#include "vld.h"
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include "ConfigurableIntelligenceGame.h"
