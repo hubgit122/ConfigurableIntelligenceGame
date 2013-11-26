@@ -13,11 +13,16 @@ namespace CIG
 	class CIGObject
 	{
 		public:
-			CIGObject();
-			CIGObject(const CIGObject& o);
-			virtual ~CIGObject();
+			inline CIGObject(){};
+			inline CIGObject(const CIGObject& o){};
+			inline virtual ~CIGObject(){};
 
-			virtual void informError(const string& str)const;
+			inline virtual void informError(const string& str)const
+			{
+				ostringstream oss;
+				oss << *this;
+				GUI::inform(str + oss.str(), true);		///C++静态函数成员的引用用域符号.
+			}
 
 			friend ostream& operator << (ostream& os, const CIGObject& o)
 			{

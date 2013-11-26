@@ -61,6 +61,6 @@ class CConfigurableIntelligenceGameView : public CWnd
 	public:
 		afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 		afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-		afx_msg void OnClose();
+//		afx_msg void OnClose();
 };
 

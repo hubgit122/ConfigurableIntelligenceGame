@@ -13,14 +13,16 @@ namespace CIG
 	class Stack: public Array< T, INI_DEPTH, DEPTH_INCRE>
 	{
 		public:
-			Stack();
-			Stack(const Stack& s);
+			inline Stack();
+			inline Stack(const Stack& s);
 			virtual ~Stack();
 
-			void push(const T& E);
-			T popThenGet();
-			void popNoReturn();
-			T& top()const;
+			inline void operator<<(Stack<T, INI_DEPTH, DEPTH_INCRE>& a);
+
+			inline void push(const T& E);
+			inline T popThenGet();
+			inline void popNoReturn();
+			inline T& top()const;
 			friend ostream& operator << (ostream& os, const Stack<T, INI_DEPTH, DEPTH_INCRE>& o)
 			{
 				ostringstream oss;

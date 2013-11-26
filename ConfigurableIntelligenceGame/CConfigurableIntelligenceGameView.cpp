@@ -44,7 +44,6 @@ BEGIN_MESSAGE_MAP(CConfigurableIntelligenceGameView, CWnd)
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_LBUTTONDOWN()
-	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -87,7 +86,6 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 	PostMessage(WM_PAINT, 0, 0);
 	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&actionOfLastRound, (LPARAM)&nowBoard);
 }
-
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
@@ -377,6 +375,55 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 
+	//Array<int,8,0> ia;
+	//Array<Array<int, 8,0>,8,0> iaa;
+	////Stack<Array<Array<int, 8,0>,8,0>,8,0> iaas;
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	////iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	//iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	////iaas.push(iaa);
+	//ia.add(1);
+	//iaa.add(ia);
+	////iaas.push(iaa);
+
 	if (getAction)
 	{
 
@@ -413,14 +460,4 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 #endif // DEBUG_GENERATOR
 
 	CWnd::OnLButtonDown(nFlags, point);
-}
-
-
-void CConfigurableIntelligenceGameView::OnClose()
-{
-	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	
-	m_GameThread->PostThreadMessage(WM_QUIT,0,0);
-
-	CWnd::OnClose();
 }

@@ -8,23 +8,10 @@ namespace CIG
 {
 	const float GraphSearchEngine::MAX_SEARCH_TIME = 10000;		//10s
 
-	//CIG::GraphSearchEngine::GraphSearchEngine( CIGRuleConfig::PLAYER_NAMES p /*= CIGRuleConfig::PLAYER_NAMES(-1) */, Chessboard* cb /*= NULL*//*, int POWER_ / *= 5* /*/ )
-	//	: IntellegenceEngine(p,cb) , bestMove("BestMove"), searchingOperationStack("SearchingMotionStack"),searchingChessboardStack("searchingChessboardStack")
-	//{
-	//}
-
-	//GraphSearchEngine::GraphSearchEngine( const GraphSearchEngine& gse )
-	//	: IntellegenceEngine(gse), bestMove(gse.bestMove), searchingOperationStack(gse.searchingOperationStack),searchingChessboardStack(gse.searchingChessboardStack)
-	//{
-	//}
-
-	//GraphSearchEngine::~GraphSearchEngine()
-	//{
-	//}
-
 	int GraphSearchEngine::alphaBetaSearch( int alpha, int beta, int depth )
 	{
 		int vl, vlBest;
+		OperationStack bestMove;
 		Chessboard& nowBoard = searchingChessboardStack.top();
 		// 一个Alpha-Beta完全搜索分为以下几个阶段
 
@@ -36,7 +23,7 @@ namespace CIG
 
 		// 2. 初始化最佳值和最佳走法
 		vlBest = -Chessboard::MATE_VALUE; // 这样可以知道，是否一个走法都没走过(杀棋)
-		bestMove.clear();           // 这样可以知道，是否搜索到了Beta走法或PV走法，以便保存到历史表
+		//bestMove.clear();           // 这样可以知道，是否搜索到了Beta走法或PV走法，以便保存到历史表
 
 		// 3. 生成全部走法，并根据历史表排序			如果被将死, 没有棋可以走.
 		MotionGenerator mg(nowBoard);
@@ -51,7 +38,6 @@ namespace CIG
 		for (int i = runningChessboardStack.size -1; i >=0 ; --i)
 		{
 			searchingChessboardStack.push(runningChessboardStack[i]);
-			searchingOperationStack.push(runningActionStack[i]);
 			vl = -alphaBetaSearch(-beta, -alpha, depth - 1);
 
 			// 5. 进行Alpha-Beta大小判断和截断
@@ -71,7 +57,6 @@ namespace CIG
 				}
 			}
 
-			searchingOperationStack.popNoReturn();
 			searchingChessboardStack.popNoReturn();
 		}
 
@@ -79,7 +64,7 @@ namespace CIG
 		if (vlBest == -Chessboard::MATE_VALUE)
 		{
 			// 如果是杀棋，就根据杀棋步数给出评价
-			return depth - Chessboard::MATE_VALUE;
+			return searchingChessboardStack.size - Chessboard::MATE_VALUE;
 		}
 
 		if (bestMove.size != 0)
@@ -87,11 +72,11 @@ namespace CIG
 			//// 如果不是Alpha走法，就将最佳走法保存到历史表
 			//Search.nHistoryTable[mvBest] += nDepth * nDepth;
 
-			//if (depth == 0)
-			//{
-			//	// 搜索根节点时，总是有一个最佳走法(因为全窗口搜索不会超出边界)，将这个走法保存下来
-			//	Search.mvResult = mvBest;
-			//}
+			if (searchingChessboardStack.size == 1)
+			{
+				// 搜索根节点时，总是有一个最佳走法(因为全窗口搜索不会超出边界)，将这个走法保存下来
+				GraphSearchEngine::bestMove = bestMove;
+			}
 		}
 
 		return vlBest;
@@ -116,15 +101,15 @@ namespace CIG
 			}
 
 			// 超过 MAX_SEARCH_TIME，就终止搜索
-			if (clock() - t > MAX_SEARCH_TIME)
+			/*if (clock() - t > MAX_SEARCH_TIME)
 			{
 				break;
-			}
+			}*/
 		}
 		*(OperationStack*)op = bestMove;
 	}
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 2;    // 最大的搜索深度
+	const int GraphSearchEngine::LIMIT_DEPTH = 16;    // 最大的搜索深度
 
 	Stack<OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack;
 	Stack<Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack;

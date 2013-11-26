@@ -3,6 +3,7 @@
 /*************************************************************************
   °üº¬ÎÄ¼þ
 **************************************************************************/
+#include "stdafx.h"
 #include <string.h>
 #include <iostream>
 #include <sstream>
@@ -20,7 +21,7 @@ using namespace std;
  **************************************************************************/
 //#define VERBOS
 //#define DEBUG_INTEGER
-//#define  DEBUG_ARRAY
+//#define DEBUG_ARRAY
 //#define DEBUG_CHESSBOARD
 //#define DEBUG_REF
 //#define DEBUG_MESSAGE

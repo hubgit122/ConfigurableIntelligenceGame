@@ -11,29 +11,30 @@ namespace CIG
 	class Array: public CIGObject
 	{
 		public:
-			Array();
-			Array(const Array& a);
-			virtual ~Array();
-
+			inline Array();
+			inline Array(const Array& a);
+			inline virtual ~Array();
+			
 			T* elements;
 			unsigned short size;
 			unsigned short capacity;
 
-			void operator = (const Array<T, INI_DEPTH, DEPTH_INCRE>& a);
+			inline void operator = (const Array<T, INI_DEPTH, DEPTH_INCRE>& a);
+			inline void forceCopyFrom(const Array<T, INI_DEPTH, DEPTH_INCRE>& a);
 
-			bool contains(const T& e)const;
-			Array<T, INI_DEPTH, DEPTH_INCRE>& add(const T& element);
-			void addAt(short index, const T e);
-			void deleteAtNoReturn(short index);
-			T deleteAtThenGet(short index);
-			T& at(short index)const;
-			T& operator[](short index)const;
+			inline bool contains(const T& e)const;
+			inline Array<T, INI_DEPTH, DEPTH_INCRE>& add(const T& element);
+			inline void addAt(short index, const T e);
+			inline void deleteAtNoReturn(short index);
+			inline T deleteAtThenGet(short index);
+			inline T& at(short index)const;
+			inline T& operator[](short index)const;
 
-			void increaseCapacity();
-			void memAlloc();
-			void memRealloc();
-			void clearMem();
-			void clear();
+			inline void increaseCapacity();
+			inline void memAlloc();
+			inline void memRealloc();
+			inline void clearMem();
+			inline void clear();
 
 			friend ostream& operator << (ostream& os, const Array<T, INI_DEPTH, DEPTH_INCRE>& o)
 			{
@@ -58,6 +59,19 @@ namespace CIG
 	};
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::forceCopyFrom(const Array<T, INI_DEPTH, DEPTH_INCRE>& a )
+	{
+		size = a.size;
+		capacity = a.capacity;
+		if (elements)
+		{
+			free(elements);
+		}
+		memAlloc();
+		memcpy(elements, a.elements, size*sizeof(T));
+	}
+
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::deleteAtNoReturn( short index )
 	{
 		if ((index >= this->size) || (index < -this->size))
@@ -71,13 +85,13 @@ namespace CIG
 		}
 
 		(elements+index)->~T();
-		for (unsigned short i = index; i + 1 < this->size; ++i)
+		for (unsigned short i = index; i  < size - 1; ++i)
 		{
 			new(elements+i) T(elements[1+i]);
 			(elements+i+1)->~T();
 		}
 
-		this->size--;
+		size--;
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -120,7 +134,7 @@ namespace CIG
 			}
 
 			free(elements);
-			elements = NULL;			// TO-DO 最终是要删掉这句话的. 
+			elements = NULL;
 		}
 	}
 
@@ -152,6 +166,7 @@ namespace CIG
 				new(temp+i) T(elements[i]);
 				elements[i].~T();
 			}
+			free(elements);											///忘了这句话, 真是失败. 
 		}
 		elements = temp;
 	}

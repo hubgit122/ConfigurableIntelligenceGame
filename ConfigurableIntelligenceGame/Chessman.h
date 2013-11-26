@@ -14,10 +14,19 @@ namespace CIG
 		private:
 			Chessman();
 		public:
-			virtual ~Chessman();
-			Chessman(const Chessman& c);
-			Chessman(CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v);
-
+			inline virtual ~Chessman(){};
+			inline Chessman(const Chessman& c)
+			{
+				memcpy(this, &c, sizeof(Chessman));
+			};
+			inline Chessman(CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v)
+				: chessmanType(t), coordinate(c), chessmanLocation(p, index), status(s)
+			{
+				for (int i = 0 ; i < CIGRuleConfig::PLAYER_NUM; ++i)
+				{
+					this->visibility[i] = CIGRuleConfig::VISIBILITIES::ALL;
+				}
+			}
 			CIGRuleConfig::CHESSMAN_TYPES chessmanType;
 			struct PointOrVector coordinate;
 			ChessmanLocation chessmanLocation;

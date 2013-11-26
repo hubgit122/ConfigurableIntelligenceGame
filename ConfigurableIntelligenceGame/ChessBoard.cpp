@@ -37,12 +37,14 @@ namespace CIG
 		}
 	}
 
-	CIG::Chessboard::Chessboard( const Chessboard& cb ):
-		currentBannedMotions(cb.currentBannedMotions),
-		pickedChessmanByLocation(cb.pickedChessmanByLocation),
-		nowRound(cb.nowRound), nowTurn(cb.nowTurn),
+	CIG::Chessboard::Chessboard( const Chessboard& cb )
+		: nowRound(cb.nowRound), 
+		nowTurn(cb.nowTurn),
 		chessmanLocationBoard(cb.chessmanLocationBoard)
 	{
+		currentBannedMotions.forceCopyFrom(cb.currentBannedMotions);
+		pickedChessmanByLocation.forceCopyFrom(cb.pickedChessmanByLocation);
+
 		memcpy(this->evaluations, cb.evaluations, sizeof(evaluations));
 
 		for (int i = 0; i < CIGRuleConfig::PLAYER_NUM; ++i)
@@ -54,8 +56,8 @@ namespace CIG
 
 	void CIG::Chessboard::operator=( const Chessboard& cb )
 	{
-		currentBannedMotions = cb.currentBannedMotions;
-		pickedChessmanByLocation = cb.pickedChessmanByLocation;
+		currentBannedMotions.forceCopyFrom(cb.currentBannedMotions);
+		pickedChessmanByLocation.forceCopyFrom(cb.pickedChessmanByLocation);
 		nowRound = cb.nowRound;
 		nowTurn = cb.nowTurn;
 
@@ -292,9 +294,5 @@ namespace CIG
 		Chessboard cb(*this);
 		bool result = cb.makeAction(action);
 		return result;
-	}
-
-	CIG::Chessboard::~Chessboard()
-	{
 	}
 }

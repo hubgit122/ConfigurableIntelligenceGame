@@ -4,7 +4,7 @@ namespace CIG
 {
 	CIG::CIGObject::CIGObject( const CIGObject& o )
 	{
-#ifdef DEBUG
+#ifdef ssqDEBUG
 		cout << "CIGObject copy" << endl;
 #endif // DEBUG
 	}
@@ -18,7 +18,7 @@ namespace CIG
 
 	CIG::CIGObject::CIGObject()
 	{
-#ifdef DEBUG
+#ifdef ssqDEBUG
 		cout << "CIGObject create" << endl;
 #endif // DEBUG
 	}

@@ -19,7 +19,7 @@ namespace CIG
 		public:
 			Chessboard();
 			Chessboard(const Chessboard& cb);		//因为数据之间的相关性太大, 此函数没有写完.
-			virtual ~Chessboard();
+			virtual ~Chessboard(){};
 			void operator=(const Chessboard& cb);
 
 			/*Array<CIGRuleConfig::PLAYERS, Player, CIGRuleConfig::INI_BOARD_WIDTH_LOG2, 0>*/

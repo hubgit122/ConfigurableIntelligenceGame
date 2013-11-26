@@ -28,7 +28,6 @@ namespace CIG
 			static Stack<OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> searchingOperationStack;
 			static OperationStack bestMove;
 	};
-
 }
 
 #endif /*__GRAPHSEARCHENGINE_H_*/
