@@ -43,6 +43,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>E:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -107,6 +109,7 @@
     <ClInclude Include="ChessBoard.h" />
     <ClInclude Include="Chessman.h" />
     <ClInclude Include="ChessmanLocation.h" />
+    <ClInclude Include="ChessmanLocationBoard.h" />
     <ClInclude Include="CIG.h" />
     <ClInclude Include="CIGObject.h" />
     <ClInclude Include="CIGRuleConfig.h" />
@@ -138,6 +141,7 @@
     <ClCompile Include="ChessmanLocation.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ChessmanLocationBoard.cpp" />
     <ClCompile Include="CIGObject.cpp" />
     <ClCompile Include="CIGRuleConfig.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

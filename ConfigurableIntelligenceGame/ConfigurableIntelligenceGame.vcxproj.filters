@@ -84,6 +84,9 @@
     <ClInclude Include="ChessmanLocation.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ChessmanLocationBoard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConfigurableIntelligenceGame.cpp">
@@ -135,6 +138,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CIGObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessmanLocationBoard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

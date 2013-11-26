@@ -10,6 +10,7 @@
 #include "utilities.h"
 #include "ChessmanLocation.h"
 #include "Player.h"
+#include "ChessmanLocationBoard.h"
 
 namespace CIG
 {
@@ -28,7 +29,7 @@ namespace CIG
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
 			Array<ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
-			ChessmanLocation chessmanLocationBoard[1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2][1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2];
+			ChessmanLocationBoard chessmanLocationBoard;
 
 			static const int MATE_VALUE = 10000;  // 最高分值，即将死的分值
 			static const int WIN_VALUE = MATE_VALUE - 100; // 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
