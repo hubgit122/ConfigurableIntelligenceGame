@@ -32,6 +32,7 @@ namespace CIG
 			void increaseCapacity();
 			void memAlloc();
 			void memRealloc();
+			void clearMem();
 			void clear();
 
 			friend ostream& operator << (ostream& os, const Array<T, INI_DEPTH, DEPTH_INCRE>& o)
@@ -69,9 +70,11 @@ namespace CIG
 			index += this->size;
 		}
 
+		(elements+index)->~T();
 		for (unsigned short i = index; i + 1 < this->size; ++i)
 		{
-			this->elements[i] = this->elements[i + 1];
+			new(elements+i) T(elements[1+i]);
+			(elements+i+1)->~T();
 		}
 
 		this->size--;
@@ -80,21 +83,14 @@ namespace CIG
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::operator=( const Array<T, INI_DEPTH, DEPTH_INCRE>& a )
 	{
-		if (elements)
-		{
-			free(elements);
-		}
-		elements = 0;
+		clearMem();
 		size = a.size;
 		capacity = a.capacity;
 		memAlloc();
 
-		//memset(elements, 0, sizeof(T)*size);						//可以清空一些未初始化的指针
 		for (int i = 0; i < size; ++i)
 		{
-			//memcpy(&this->elements[i], &a.elements[i], sizeof(void*));		//初始化虚函数指针.
-
-			elements[i] = a.elements[i];
+			new(elements+i) T(a.elements[i]);
 		}
 	}
 
@@ -114,15 +110,27 @@ namespace CIG
 
 	//清空所有内容.
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::clear()
+	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::clearMem()
 	{
-		size = 0;
-		capacity = INI_DEPTH;
-
 		if (elements)
 		{
+			for (int i=0; i<size;++i)
+			{
+				(elements+i)->~T();
+			}
+
 			free(elements);
+			elements = NULL;			// TO-DO 最终是要删掉这句话的. 
 		}
+	}
+
+	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
+	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::clear()
+	{
+		clearMem();
+
+		size = 0;
+		capacity = INI_DEPTH;
 
 		memAlloc();
 	}
@@ -130,10 +138,22 @@ namespace CIG
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	void CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::memRealloc()
 	{
-		if ( (elements = (T*)realloc(this->elements, sizeof(T) * (this->capacity))) == NULL)
+		T* temp;
+
+		if ( (temp = (T*)malloc(sizeof(T) * (this->capacity))) == NULL)
 		{
 			this->informError(string("内存不足, 请检查\n"));
 		}
+
+		if (elements)
+		{
+			for (int i=0; i<size; ++i)
+			{
+				new(temp+i) T(elements[i]);
+				elements[i].~T();
+			}
+		}
+		elements = temp;
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -197,11 +217,13 @@ namespace CIG
 			index += this->size;
 		}
 
-		T temp = this->elements[index];
+		T temp(this->elements[index]);
 
+		(elements+index)->~T();
 		for (unsigned short i = index; i + 1 < this->size; ++i)
 		{
-			this->elements[i] = this->elements[i + 1];
+			new(elements+i) T(elements[1+i]);
+			(elements+i+1)->~T();
 		}
 
 		this->size--;
@@ -226,13 +248,12 @@ namespace CIG
 
 		for (unsigned short i = this->size - 1; i >= index; --i)
 		{
-			this->elements[i + 1] = this->elements[i];
+			new(elements+i+1) T(elements[i]);
+			(elements+i)->~T();
 		}
 
-		memset(&elements[size], 0, sizeof(T));						//可以清空一些未初始化的指针
-		memcpy(&this->elements[index], &e, sizeof(void*));		//初始化虚函数指针.
-		this->elements[index] = e;										//正常赋值
-		this->size++;
+		new(elements+index) T(e);
+		size++;
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -244,9 +265,9 @@ namespace CIG
 		// 另外还要考虑一致性问题, 比如某些类型不允许属性相同的两个实例存在, 而有些类的拷贝和析构时要求一定要有记录.
 
 		this->increaseCapacity();
-		memset(&elements[size], 0, sizeof(T));
-		memcpy(&elements[size], &element, sizeof(void*));
-		this->elements[this->size++] = element;											//如何保证速度和正确性, 由T类的赋值运算决定.
+		//memset(&elements[size], 0, sizeof(T));
+		//memcpy(&elements[size], &element, sizeof(void*));
+		new(elements+(size++)) T(element);											//如何保证速度和正确性, 由T类的赋值运算决定.
 		//memcpy(this->elements + this->size++, &element, sizeof(T));			//浅拷贝不可以. 各种指针错误.
 		return *this;
 	}
@@ -254,12 +275,7 @@ namespace CIG
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::~Array()
 	{
-		if (elements)
-		{
-			free(this->elements);
-		}
-
-		elements = NULL;
+		clearMem();
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -270,8 +286,7 @@ namespace CIG
 
 		for (int i = 0; i < size; ++i)
 		{
-			memcpy(&this->elements[i], &a.elements[i], sizeof(void*));
-			elements[i] = a.elements[i];
+			new (elements+i) T(a.elements[i]);
 		}
 	}
 

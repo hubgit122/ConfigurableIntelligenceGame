@@ -30,6 +30,7 @@ CConfigurableIntelligenceGameView::~CConfigurableIntelligenceGameView()
 	if (m_GameThread)
 	{
 		m_GameThread->PostThreadMessage(WM_QUIT, 0, 0);
+		this->eventThreadMessageOK.Lock();
 	}
 }
 
