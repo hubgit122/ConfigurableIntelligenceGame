@@ -39,6 +39,7 @@ namespace CIG
 		{
 			searchingChessboardStack.push(runningChessboardStack[i]);
 			vl = -alphaBetaSearch(-beta, -alpha, depth - 1);
+			searchingChessboardStack.popNoReturn();
 
 			// 5. 进行Alpha-Beta大小判断和截断
 			if (vl > vlBest)      // 找到最佳值(但不能确定是Alpha、PV还是Beta走法)
@@ -47,21 +48,19 @@ namespace CIG
 
 				if (vl >= beta)   // 找到一个Beta走法
 				{
-					bestMove = runningActionStack[i];  // Beta走法要保存到历史表		// TO-DO保存到历史表有什么用? 为什么是beta?
+					bestMove = runningActionStack[i];		// TO-DO保存到历史表有什么用? 为什么是beta?
 					break;            // Beta截断
 				}
 				else if (vl > alpha)   // 找到一个PV走法
 				{
-					bestMove = runningActionStack[i];  // PV走法要保存到历史表
+					bestMove = runningActionStack[i];
 					alpha = vl;     // 缩小Alpha-Beta边界
 				}
 			}
-
-			searchingChessboardStack.popNoReturn();
 		}
 
 		// 5. 所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
-		if (vlBest == -Chessboard::MATE_VALUE)
+		if (vlBest <= -Chessboard::WIN_VALUE )
 		{
 			// 如果是杀棋，就根据杀棋步数给出评价
 			return searchingChessboardStack.size - Chessboard::MATE_VALUE;
@@ -92,7 +91,7 @@ namespace CIG
 
 		for (int i=1; i<LIMIT_DEPTH; ++i)
 		{
-			int vl = alphaBetaSearch(-Chessboard::MATE_VALUE, Chessboard::MATE_VALUE, i);
+			int vl = alphaBetaSearch( -Chessboard::MATE_VALUE, Chessboard::MATE_VALUE, i);
 
 			// 搜索到杀棋，就终止搜索
 			if (vl > Chessboard::WIN_VALUE || vl < -Chessboard::WIN_VALUE)			//为了和记录深度的机制保持一致, WIN_VALUE = MATE_VALUE - 100
@@ -109,10 +108,9 @@ namespace CIG
 		*(OperationStack*)op = bestMove;
 	}
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 16;    // 最大的搜索深度
+	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
 
 	Stack<OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack;
 	Stack<Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack;
 	CIG::OperationStack GraphSearchEngine::bestMove;
 }
-

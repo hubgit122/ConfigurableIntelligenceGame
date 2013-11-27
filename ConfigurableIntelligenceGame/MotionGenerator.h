@@ -18,8 +18,9 @@ namespace CIG
 
 			ActionStack actionStack;
 			ChessboardStack chessboardStack;
-			const Chessboard& chessBoard;				//每个ChesssBoard有一个MotionGenerator实例.
+			const Chessboard chessBoard;				//每个ChesssBoard有一个MotionGenerator实例.
 
+			virtual OperationStack* nextAction();
 			virtual void generateMotionsAndBoards();
 			virtual void generateForOneChessman( Chessman* c, OperationStack& logMotionStack, ChessboardStack& logChessboardStack, StatusStack& statusStack);
 

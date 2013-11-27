@@ -56,3 +56,18 @@ void CIG::Chessman::operator=( const Chessman& c )
 {
 	memcpy(this, &c, sizeof(Chessman));
 }
+
+void CIG::Chessman::undoPick()
+{
+	this->status = CIGRuleConfig::ON_BOARD;
+}
+
+void CIG::Chessman::undoPut()
+{
+	this->status = CIGRuleConfig::OFF_BOARD;
+}
+
+void CIG::Chessman::undoCapture()
+{
+	this->status = CIGRuleConfig::ON_BOARD;
+}

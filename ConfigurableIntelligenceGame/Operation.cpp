@@ -2,8 +2,6 @@
 #include "Operation.h"
 
 
-
-
 CIG::Operation::Operation() : chessmanLocation(), operation(CIGRuleConfig::NOMORE), distination(0)
 {
 

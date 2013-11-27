@@ -10,7 +10,6 @@ namespace CIG
 {
 	class Operation
 	{
-			typedef unsigned long DWORD;
 		public:
 			Operation();
 			Operation(const Operation& op);
@@ -24,9 +23,10 @@ namespace CIG
 				//oss<<(const Chessman&)(*op.chessman);				// TO-DO
 				return oss;
 			}
-			CIGRuleConfig::OPERATIONS operation;
-			ChessmanLocation chessmanLocation;
-			PointOrVector distination;
+
+			CIGRuleConfig::OPERATIONS operation;			//操作类型
+			ChessmanLocation chessmanLocation;				//棋子所属的玩家号和在玩家手中的索引号
+			PointOrVector distination;								//事件的位置
 	};
 }
 

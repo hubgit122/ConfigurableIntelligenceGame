@@ -31,12 +31,9 @@ namespace CIG
 			Array<ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
 			ChessmanLocationBoard chessmanLocationBoard;
 
-			static const int MATE_VALUE = 10000;  // 最高分值，即将死的分值
-			static const int WIN_VALUE = MATE_VALUE - 100; // 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
+			static const int MATE_VALUE = 10000000;  // 最高分值，即将死的分值
+			static const int WIN_VALUE = MATE_VALUE>>1; // 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
 			static const int ADVANCED_VALUE = 3;  // 先行权分值
-
-			//Array<CIGRuleConfig::Players, Player*, 10, 0>winners("Winners");
-			//Array<CIGRuleConfig::Players, Player*, 10, 0>losers("Losers");
 
 			//************************************
 			// Method:    onXXIntent
@@ -56,20 +53,42 @@ namespace CIG
 			virtual bool onPutIntent(Chessman* c, PointOrVector p);
 			virtual bool onPutIntent(Chessman* c);
 			virtual bool onCaptureIntent(Chessman* c, PointOrVector p);
+			virtual bool onPromotionIntent(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t);
+			virtual bool onPromotionIntent(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t);
 
+		private:
+			//************************************
+			// Method:    undoXX
+			// FullName:  CIG::Chessboard::undoXX
+			// Access:    virtual private 
+			// Returns:   void
+			// Qualifier:
+			// Parameter: PointOrVector p
+			// 注意, 为了运行效率, 并且尽量减少外界接口, 所以不做任何判断, 编程者必须严格保证是按照走棋的顺序撤销. 一定是类内部调用.
+			// 特别注意undoCaptureIntent的参数是被吃棋子, onCapture的参数是吃子的棋子
+			//************************************
+			virtual void undoPick(PointOrVector p);
+			virtual void undoPick(Chessman* c , PointOrVector p);
+			virtual void undoPick(Chessman* c );
+			virtual void undoPut(Chessman* c, PointOrVector p);
+			virtual void undoPut(Chessman* c);
+			virtual void undoCapture(Chessman* c, PointOrVector p);
+			virtual void undoPromotion(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t);
+			virtual void undoPromotion(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t);
+			virtual void undoChangeTurn();
+
+		public:
 			Chessman* operator[](PointOrVector p)const;
 			bool beyondBoardRange( PointOrVector& p );
 			bool onSelfHalfOfBoard( PointOrVector& p );
 
-			virtual bool onPromotionIntent(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t);
-			virtual bool onPromotionIntent(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t);
 			virtual int getEvaluation(CIGRuleConfig::PLAYER_NAMES p)const;
 			virtual int getEvaluation()const;
 			virtual bool onChangeTurn();
 			bool makeAction(OperationStack& action);
 			bool canMakeAction(OperationStack& action);
-			//virtual void undoCapture(PointOrVector p);
-			//virtual void undoCapture(Chessman& c);
+
+			void undoAction(OperationStack& action);
 
 			friend ostringstream& operator<<(ostringstream& oss, const Chessboard& cb)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{

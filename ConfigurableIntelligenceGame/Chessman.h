@@ -57,6 +57,10 @@ namespace CIG
 			virtual bool onCapturedIntent();
 			virtual bool onCaptureIntent(Chessman* c);
 			virtual bool onPromotionIntent(CIGRuleConfig::CHESSMAN_TYPES t);
+			
+			virtual void undoPick();
+			virtual void undoPut();
+			virtual void undoCapture();
 	};
 }
 

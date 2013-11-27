@@ -99,6 +99,49 @@ namespace CIG
 		return onPickIntent((*this)[p], p);
 	}
 
+	void CIG::Chessboard::undoPick(PointOrVector p)
+	{
+		undoPick((*this)[p],p);
+	}
+	void CIG::Chessboard::undoPick(Chessman* c )
+	{
+		undoPick(c,c->coordinate);
+	}
+	void CIG::Chessboard::undoPick(Chessman* c , PointOrVector p)
+	{
+		c->undoPick();
+		pickedChessmanByLocation.clear();
+		chessmanLocationBoard[p] = c->chessmanLocation;
+		evaluations[nowTurn] += CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][p.x[1]][p.x[0]];
+	}
+	void CIG::Chessboard::undoPut(Chessman* c)
+	{
+		undoPut(c,c->coordinate);
+	}
+
+	void CIG::Chessboard::undoPut(Chessman* c, PointOrVector p)
+	{
+		c->undoPut();
+		pickedChessmanByLocation.add(c->chessmanLocation);
+		evaluations[nowTurn] -= CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][p.x[1]][p.x[0]];
+	}
+
+	void CIG::Chessboard::undoCapture(Chessman* c, PointOrVector p)
+	{
+		c->undoCapture();
+		chessmanLocationBoard[p] = c->chessmanLocation;
+		evaluations[c->chessmanLocation.player] += (c->chessmanType==CIGRuleConfig::KING)?MATE_VALUE:(CIGRuleConfig::EVALUATIONS[c->chessmanLocation.player][c->chessmanType][p.x[1]][p.x[0]]);
+	}
+
+	void CIG::Chessboard::undoPromotion(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t)
+	{
+		//TODO
+	}
+	void CIG::Chessboard::undoPromotion(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t)
+	{
+		//TODO
+	}
+
 	bool CIG::Chessboard::onPickIntent( Chessman* c , PointOrVector p)
 	{
 		if ((c->chessmanLocation.player == nowTurn) && (pickedChessmanByLocation.size == 0) && (c->onPickIntent()))
@@ -295,4 +338,10 @@ namespace CIG
 		bool result = cb.makeAction(action);
 		return result;
 	}
+
+	void Chessboard::undoChangeTurn()
+	{
+
+	}
+
 }
