@@ -74,10 +74,10 @@ namespace CIG
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::Stack( const Stack& s ): Array(s) {}
 
-	typedef Stack<Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> OperationStack;
+	typedef Stack<Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> Action;
 	typedef Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
 	typedef	 Stack<CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
-	typedef Stack<OperationStack, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
+	typedef Stack<Action, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
 }
 
 #endif /*__STACK_H_*/

@@ -25,7 +25,6 @@ using namespace std;
 //#define DEBUG_CHESSBOARD
 //#define DEBUG_REF
 //#define DEBUG_MESSAGE
-//#define DEBUG_GENERATOR
 
 /*************************************************************************
 	辅助类和结构体

@@ -11,8 +11,8 @@ namespace CIG
 	int GraphSearchEngine::alphaBetaSearch( int alpha, int beta, int depth )
 	{
 		int vl, vlBest;
-		OperationStack bestMove;
-		Chessboard& nowBoard = searchingChessboardStack.top();
+		Action nowBestAction;
+		Chessboard& nowBoard = *pChessboard;
 		// 一个Alpha-Beta完全搜索分为以下几个阶段
 
 		// 1. 到达水平线，则返回局面评价值
@@ -29,17 +29,18 @@ namespace CIG
 		MotionGenerator mg(nowBoard);
 		mg.generateMotionsAndBoards();
 
-		ChessboardStack& runningChessboardStack= mg.chessboardStack;
 		ActionStack& runningActionStack = mg.actionStack;
 
 		//qsort(mvs, nGenMoves, sizeof(int), CompareHistory);		//根据CompareHistory的定义, 这里由大到小排序.
 
 		// 4. 逐一走这些走法，并进行递归
-		for (int i = runningChessboardStack.size -1; i >=0 ; --i)
+		for (int i = runningActionStack.size -1; i >=0 ; --i)
 		{
-			searchingChessboardStack.push(runningChessboardStack[i]);
+			Action& nowAction = runningActionStack[i];
+
+			nowBoard.onWholeActionIntent(nowAction);
 			vl = -alphaBetaSearch(-beta, -alpha, depth - 1);
-			searchingChessboardStack.popNoReturn();
+			nowBoard.undoWholeAction(nowAction);
 
 			// 5. 进行Alpha-Beta大小判断和截断
 			if (vl > vlBest)      // 找到最佳值(但不能确定是Alpha、PV还是Beta走法)
@@ -48,12 +49,12 @@ namespace CIG
 
 				if (vl >= beta)   // 找到一个Beta走法
 				{
-					bestMove = runningActionStack[i];		// TO-DO保存到历史表有什么用? 为什么是beta?
+					nowBestAction = runningActionStack[i];		// TO-DO保存到历史表有什么用? 为什么是beta?
 					break;            // Beta截断
 				}
 				else if (vl > alpha)   // 找到一个PV走法
 				{
-					bestMove = runningActionStack[i];
+					nowBestAction = runningActionStack[i];
 					alpha = vl;     // 缩小Alpha-Beta边界
 				}
 			}
@@ -63,30 +64,30 @@ namespace CIG
 		if (vlBest <= -Chessboard::WIN_VALUE )
 		{
 			// 如果是杀棋，就根据杀棋步数给出评价
-			return searchingChessboardStack.size - Chessboard::MATE_VALUE;
+			return searchingOperationStack.size - Chessboard::MATE_VALUE;
 		}
 
-		if (bestMove.size != 0)
+		if (nowBestAction.size != 0)
 		{
 			//// 如果不是Alpha走法，就将最佳走法保存到历史表
 			//Search.nHistoryTable[mvBest] += nDepth * nDepth;
 
-			if (searchingChessboardStack.size == 1)
+			if (searchingOperationStack.size == 1)
 			{
 				// 搜索根节点时，总是有一个最佳走法(因为全窗口搜索不会超出边界)，将这个走法保存下来
-				GraphSearchEngine::bestMove = bestMove;
+				GraphSearchEngine::bestAction = nowBestAction;
 			}
 		}
 
 		return vlBest;
 	}
 
-	void GraphSearchEngine::makeBestAction( Chessboard*chessboard, void* op )
+	void GraphSearchEngine::makeBestAction( Chessboard*chessboard, void* action )
 	{
 		int t = clock();
 		searchingOperationStack.clear();
-		searchingChessboardStack.clear();
-		searchingChessboardStack.push(*chessboard);
+		bestAction.clear();
+		GraphSearchEngine::pChessboard = chessboard;
 		// TO-DO 加入历史表
 
 		for (int i=1; i<LIMIT_DEPTH; ++i)
@@ -105,12 +106,13 @@ namespace CIG
 				break;
 			}*/
 		}
-		*(OperationStack*)op = bestMove;
+		(*((Action*)action)).forceCopyFrom(bestAction);
 	}
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
+	Chessboard* GraphSearchEngine::pChessboard = NULL;
 
-	Stack<OperationStack,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack;
-	Stack<Chessboard,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingChessboardStack;
-	CIG::OperationStack GraphSearchEngine::bestMove;
+	const int GraphSearchEngine::LIMIT_DEPTH = 2;    // 最大的搜索深度
+
+	Stack<Action,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> GraphSearchEngine::searchingOperationStack;
+	CIG::Action GraphSearchEngine::bestAction;
 }

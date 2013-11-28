@@ -13,7 +13,7 @@ namespace CIG
 		public:
 			Operation();
 			Operation(const Operation& op);
-			Operation(ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, PointOrVector dist = 0);
+			Operation(ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, PointOrVector dist = 0, PointOrVector pre = 0);
 			virtual ~Operation();
 			void operator=(const Operation& op);
 
@@ -27,6 +27,7 @@ namespace CIG
 			CIGRuleConfig::OPERATIONS operation;			//操作类型
 			ChessmanLocation chessmanLocation;				//棋子所属的玩家号和在玩家手中的索引号
 			PointOrVector distination;								//事件的位置
+			PointOrVector savedCoodinate;						//为了事件的恢复, 保存初始位置
 	};
 }
 

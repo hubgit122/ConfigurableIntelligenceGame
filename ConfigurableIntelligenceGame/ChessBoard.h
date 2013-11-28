@@ -42,21 +42,26 @@ namespace CIG
 			// Returns:   bool
 			// Qualifier:
 			// Parameter: PointOrVector p, Chessman& c, CIGConfig::CHESSMAN_TYPES t
-			// 返回是否操作成功, 默认配置为:
+			// 尝试操作, 并返回是否操作成功, 如果不成功, 则本次调用不会对棋盘产生影响, 如果操作成功, 则会保存操作的结果. 
+			// 默认配置为:
 			// 对于满足"不动别人的棋子, 不吃自己的棋子"条件的尝试, 调整棋盘状态, 更新评估值, 返回true;
 			// 如果修改规则, 应该继承该类, 重写onXXXIntent函数, 并在其中配置自己的评估规则.
 			// 当然也可以在自己的函数里调用本类的函数, 在并配置新加入的规则.
 			//************************************
 			virtual bool onPickIntent(PointOrVector p);
-			virtual bool onPickIntent(Chessman* c , PointOrVector p);
+			//virtual bool onPickIntent(Chessman* c , PointOrVector p);
 			virtual bool onPickIntent(Chessman* c );
 			virtual bool onPutIntent(Chessman* c, PointOrVector p);
-			virtual bool onPutIntent(Chessman* c);
+			//virtual bool onPutIntent(Chessman* c);
 			virtual bool onCaptureIntent(Chessman* c, PointOrVector p);
 			virtual bool onPromotionIntent(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t);
 			virtual bool onPromotionIntent(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t);
+			virtual bool onActionIntent(Action& action);
+			virtual bool onWholeActionIntent(Action& action);
+			virtual bool onOperationIntent(Operation& operation);
+			virtual bool canMakeAction(Action& action);
+			virtual bool onChangeTurn();
 
-		private:
 			//************************************
 			// Method:    undoXX
 			// FullName:  CIG::Chessboard::undoXX
@@ -67,28 +72,26 @@ namespace CIG
 			// 注意, 为了运行效率, 并且尽量减少外界接口, 所以不做任何判断, 编程者必须严格保证是按照走棋的顺序撤销. 一定是类内部调用.
 			// 特别注意undoCaptureIntent的参数是被吃棋子, onCapture的参数是吃子的棋子
 			//************************************
-			virtual void undoPick(PointOrVector p);
-			virtual void undoPick(Chessman* c , PointOrVector p);
 			virtual void undoPick(Chessman* c );
+			virtual void undoPick(PointOrVector p);
+			//virtual void undoPick(Chessman* c , PointOrVector p);
 			virtual void undoPut(Chessman* c, PointOrVector p);
-			virtual void undoPut(Chessman* c);
-			virtual void undoCapture(Chessman* c, PointOrVector p);
+			virtual void undoCaptured(Chessman* c);
+			//virtual void undoCapture(Chessman* c, PointOrVector p);
 			virtual void undoPromotion(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t);
 			virtual void undoPromotion(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t);
+			virtual void undoAction(Action& action);
+			virtual void undoWholeAction(Action& action);
+			virtual void undoOperation(Operation& operation);
 			virtual void undoChangeTurn();
 
 		public:
+			virtual int getEvaluation(CIGRuleConfig::PLAYER_NAMES p)const;
+			virtual int getEvaluation()const;
+
 			Chessman* operator[](PointOrVector p)const;
 			bool beyondBoardRange( PointOrVector& p );
 			bool onSelfHalfOfBoard( PointOrVector& p );
-
-			virtual int getEvaluation(CIGRuleConfig::PLAYER_NAMES p)const;
-			virtual int getEvaluation()const;
-			virtual bool onChangeTurn();
-			bool makeAction(OperationStack& action);
-			bool canMakeAction(OperationStack& action);
-
-			void undoAction(OperationStack& action);
 
 			friend ostringstream& operator<<(ostringstream& oss, const Chessboard& cb)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{

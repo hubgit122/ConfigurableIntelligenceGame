@@ -12,6 +12,8 @@
 #include "utilities.h"
 #include "MotionGenerator.h"
 
+#define DEBUG_GENERATOR
+
 using namespace CIG;
 
 #ifdef _DEBUG
@@ -30,7 +32,7 @@ CConfigurableIntelligenceGameView::~CConfigurableIntelligenceGameView()
 	if (m_GameThread)
 	{
 		m_GameThread->PostThreadMessage(WM_QUIT, 0, 0);
-		this->eventThreadMessageOK.Lock();
+		this->workThreadOK.Lock();
 	}
 }
 
@@ -81,7 +83,7 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 	// TODO: 在此添加命令处理程序代码
 
 	m_GameThread->PostThreadMessage(WM_RESTART, 0, 0);
-	eventThreadMessageOK.Lock();
+	workThreadOK.Lock();
 
 	PostMessage(WM_PAINT, 0, 0);
 	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&actionOfLastRound, (LPARAM)&nowBoard);
@@ -89,10 +91,9 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
-	PostMessage(WM_PAINT, 0,0);
-	GUI::drawComplete.Lock();
+	DrawBoard();
 
-	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&actionOfLastRound, (LPARAM)&nowBoard);
+	m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0);
 
 	return 0;
 }
@@ -358,7 +359,7 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  在此添加您专用的创建代码CIG::GUI::cigView = this;
 	m_GameThread = AfxBeginThread(CIG::GUI::runThread, this);
-	eventThreadMessageOK.Lock();
+	workThreadOK.Lock();
 	getAction = false;
 
 	CClientDC memDC(this);
@@ -375,54 +376,7 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 
-	//Array<int,8,0> ia;
-	//Array<Array<int, 8,0>,8,0> iaa;
-	////Stack<Array<Array<int, 8,0>,8,0>,8,0> iaas;
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	////iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	//iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	////iaas.push(iaa);
-	//ia.add(1);
-	//iaa.add(ia);
-	////iaas.push(iaa);
+	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
 
 	if (getAction)
 	{
@@ -439,23 +393,20 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 	GUI::inform(oss.str());
 #endif // _DEBUG_POINT
 #ifdef DEBUG_GENERATOR
-	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
-
-	nowBoard.nowTurn = CIGRuleConfig::COMPUTER;
 
 	for (;;)
 	{
 		MotionGenerator mg(nowBoard);
 		mg.generateMotionsAndBoards();
 
-		for (int i = 0; i < mg.chessboardStack.size ; ++i)
+		for (int i = 0; i < mg.actionStack.size ; ++i)
 		{
-			nowBoard = mg.chessboardStack[i];
-			PostMessage(WM_PAINT, 0, 0);
-			GUI::drawComplete.Lock();
+			nowBoard.onActionIntent(mg.actionStack[i]);
+			DrawBoard();
+			nowBoard.undoAction(mg.actionStack[i]);
 			MessageBox(_T("ok?"));
 		}
-		nowBoard.nowTurn = (CIGRuleConfig::PLAYER_NAMES)(1-nowBoard.nowTurn);
+		nowBoard.onChangeTurn();
 	}
 #endif // DEBUG_GENERATOR
 
