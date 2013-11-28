@@ -59,7 +59,7 @@ namespace CIG
 			virtual bool onActionIntent(Action& action);
 			virtual bool onWholeActionIntent(Action& action);
 			virtual bool onOperationIntent(Operation& operation);
-			virtual bool canMakeAction(Action& action);
+			virtual bool canMakeWholeAction(Action& action);
 			virtual bool onChangeTurn();
 
 			//************************************

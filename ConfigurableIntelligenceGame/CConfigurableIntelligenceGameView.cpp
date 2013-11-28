@@ -12,7 +12,7 @@
 #include "utilities.h"
 #include "MotionGenerator.h"
 
-#define DEBUG_GENERATOR
+//#define DEBUG_GENERATOR
 
 using namespace CIG;
 
@@ -92,6 +92,8 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
 	DrawBoard();
+
+	MessageBox(_T("test"));
 
 	m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0);
 

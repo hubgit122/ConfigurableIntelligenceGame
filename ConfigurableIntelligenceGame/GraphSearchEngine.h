@@ -19,8 +19,8 @@ namespace CIG
 		private:
 			static int alphaBetaSearch(int alpha, int beta, int depth);
 			//HashTable<Motion> historyList;
+			static int rootDepth;
 			static Chessboard* pChessboard;
-			static Stack<Action,CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE,0> searchingOperationStack;
 			static Action bestAction;
 	};
 }

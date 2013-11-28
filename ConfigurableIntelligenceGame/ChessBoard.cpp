@@ -275,10 +275,10 @@ namespace CIG
 		return true;
 	}
 
-	bool CIG::Chessboard::canMakeAction(Action& action)
+	bool CIG::Chessboard::canMakeWholeAction(Action& action)
 	{
 		Chessboard cb(*this);
-		bool result = cb.onActionIntent(action);
+		bool result = cb.onWholeActionIntent(action);
 		return result;
 	}
 
