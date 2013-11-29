@@ -50,9 +50,11 @@ namespace CIG
 			typedef float degree;
 
 			static bool roundChessman;					//棋子圆或方
+			static bool namedChessman;
 			static bool drawCross;								//是否标记点
 			static bool drawLineWhenDrawDot;		//是否画线(若画线, 则一定要画点, 否则点处会有空白)
 			static float dotRadias;							//棋盘点的半径
+			static float additionalPointRadias;
 			static degree thetaOfXY;						//棋盘线的夹角
 			static degree thetaOfXTop;					//x轴的俯角
 			static PointOrVector_Float chessmanRect;		//必须保证棋盘上没有重叠
@@ -75,6 +77,7 @@ namespace CIG
 			static PointOrVector_Float boundsOfBoard;
 			static PointOrVector_Float coordinateOf00;
 			static vector<Line> addtionalLines;
+			static vector<PointOrVector> addtionalPoints;
 			static int latticePenWidth;
 			//判断任意棋盘的边界比较难, 不做了.
 			//static int borderPenColor[3];

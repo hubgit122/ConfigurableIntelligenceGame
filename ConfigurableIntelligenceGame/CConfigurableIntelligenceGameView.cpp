@@ -69,8 +69,6 @@ BOOL CConfigurableIntelligenceGameView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CConfigurableIntelligenceGameView::OnPaint()
 {
-	CPaintDC memClientDC(this); // 用于绘制的设备上下文
-
 	// TODO: 在此处添加消息处理程序代码
 
 	DrawBoard();
@@ -205,26 +203,28 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 	memBitmap.CreateCompatibleBitmap(&dc, rect.Width(), rect.Height());
 	CBitmap* oldMemBitmap = memClientDC.SelectObject(&memBitmap);
 
-	memClientDC.SetBkMode(TRANSPARENT);
-
 	//画棋盘
 	{
 		CDC boardBaseDC;
 		CBitmap* pBoardBaseDCBmpOld = NULL;
-		GenerateBoardBaseDC(boardBaseDC, pBoardBaseDCBmpOld);
-		boardBaseDC.SelectObject(pBoardBaseDCBmpOld) ;//选入原DDB
+		GenerateBoardBaseDC(boardBaseDC, pBoardBaseDCBmpOld);			//绘图函数
 
 		memClientDC.BitBlt(0, 0, rect.Width(), rect.Height(), &boardBaseDC, 0, 0, SRCCOPY) ; //将源DC中(0,0,20,20)复制到目的DC
+		
+		boardBaseDC.SelectObject(pBoardBaseDCBmpOld) ;//选入原DDB
 	}
 
 	//画棋子
 	{
+		CFont* pOldFont;
 		CFont font;
-		font.CreatePointFont(roundInt(0.5 * 10 * min(GUI::chessmanRect.x[0], GUI::chessmanRect.x[1])), _T("华文行楷"), NULL);
+		if (GUI::namedChessman)
+		{
+			font.CreatePointFont(roundInt(0.5 * 10 * min(GUI::chessmanRect.x[0], GUI::chessmanRect.x[1])), _T("华文行楷"), NULL);
+			pOldFont = memClientDC.SelectObject(&font);
+			memClientDC.SetStretchBltMode(COLORONCOLOR);			// 调整像素模式, 让贴图好看一点
+		}
 		memClientDC.SetBkMode(TRANSPARENT);
-		memClientDC.SetStretchBltMode(COLORONCOLOR);
-
-		CFont* oldFont = memClientDC.SelectObject(&font);
 
 		for (int p = 0; p < CIGRuleConfig::PLAYER_NUM; ++p)				//每个玩家
 		{
@@ -237,33 +237,47 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 				CDC chessDC;
 				chessDC.CreateCompatibleDC(&memClientDC);
 
-				CBitmap* pBoardBaseDCBmpOld = chessDC.SelectObject(&chessmanBaseBitmap);
+
 				PointOrVector_Float xy = GUI::getGeometryCoordination(nowBoard.players[p].ownedChessmans[c].coordinate);
 
-				BITMAP bm;
-				chessmanBaseBitmap.GetBitmap(&bm);
+				if (GUI::namedChessman)
+				{
+					CBitmap* pBoardBaseDCBmpOld = chessDC.SelectObject(&chessmanBaseBitmap);
+					BITMAP bm;
+					chessmanBaseBitmap.GetBitmap(&bm);
+					TransparentBlt2(memClientDC.m_hDC, roundInt(xy.x[0] - GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(GUI::chessmanRect.x[0]), roundInt(GUI::chessmanRect.x[1]), chessDC.m_hDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(0, 255, 0));
 
-				TransparentBlt2(memClientDC.m_hDC, roundInt(xy.x[0] - GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(GUI::chessmanRect.x[0]), roundInt(GUI::chessmanRect.x[1]), chessDC.m_hDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(0, 255, 0));
-
-				memClientDC.SetTextColor(GUI::playerColor[p]);
-				memClientDC.DrawText(GUI::chessmanName[nowBoard.players[p].ownedChessmans[c].chessmanType], &CRect(xy.x[0] - roundInt(GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(xy.x[0] + GUI::chessmanRect.x[0] / 2), xy.x[1] + GUI::chessmanRect.x[1] / 2), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-
-				chessDC.SelectObject(oldFont);
+					memClientDC.SetTextColor(GUI::playerColor[p]);
+					memClientDC.DrawText(GUI::chessmanName[nowBoard.players[p].ownedChessmans[c].chessmanType], &CRect(xy.x[0] - roundInt(GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(xy.x[0] + GUI::chessmanRect.x[0] / 2), xy.x[1] + GUI::chessmanRect.x[1] / 2), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+					chessDC.SelectObject(pBoardBaseDCBmpOld);
+				}
+				else
+				{
+					CBrush brush(GUI::playerColor[p]);
+					CBrush* pOldChessBrush = memClientDC.SelectObject(&brush);
+					memClientDC.Ellipse(&CRect(xy.x[0] - roundInt(GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(xy.x[0] + GUI::chessmanRect.x[0] / 2), xy.x[1] + GUI::chessmanRect.x[1] / 2));
+					memClientDC.SelectObject(pOldChessBrush);
+				}
 			}
 		}
 
-		memClientDC.SelectObject(oldFont);
-	}
-
-	for (int i = actionOfLastRound.size-1; i>=0; --i)
-	{
-		if (actionOfLastRound[i].operation == CIGRuleConfig::PUT)
+		//标记上次走法
+		for (int i = actionOfLastRound.size-1; i>=0; --i)
 		{
-			ChessmanIndex& ci = actionOfLastRound[i].chessmanIndex;
-			WrapChessWithFrame(memClientDC, actionOfLastRound[i].distination);
-			WrapChessWithFrame(memClientDC, actionOfLastRound[i].savedCoodinate);
+			if (actionOfLastRound[i].operation == CIGRuleConfig::PUT_CHESS)
+			{
+				ChessmanIndex& ci = actionOfLastRound[i].chessmanIndex;
+				WrapChessWithFrame(memClientDC, actionOfLastRound[i].distination);
+				
+				if (actionOfLastRound[i].savedCoodinate != PointOrVector(-1,-1))
+				{
+					WrapChessWithFrame(memClientDC, actionOfLastRound[i].savedCoodinate);
+				}
+			}
 		}
-	}
+
+		memClientDC.SelectObject(pOldFont);
+	}// 画棋子
 
 	dc.BitBlt(0, 0, rect.Width(), rect.Height(), &memClientDC, 0, 0, SRCCOPY);			//双缓冲绘图
 
@@ -329,6 +343,7 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 		}
 	}
 
+	// 在附加平面上画附加线
 	for (unsigned i = 0; i < GUI::addtionalLines.size(); ++i)
 	{
 		int x = roundInt(GUI::getGeometryCoordination(GUI::addtionalLines[i].p0).x[0]);
@@ -341,8 +356,9 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 		addtionalDC.LineTo(x_, y_);
 	}
 
-	latticeDC.BitBlt(0, 0, rect.Width(), rect.Height(), &addtionalDC, 0, 0, SRCINVERT);
+	latticeDC.BitBlt(0, 0, rect.Width(), rect.Height(), &addtionalDC, 0, 0, SRCINVERT);		//异或得到画好特殊线的棋盘
 
+	//重新覆盖点, 防止交叉点被异或
 	if (GUI::drawCross)
 	{
 		for (int i = 0; i < (1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2); ++i)
@@ -360,6 +376,15 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 		}
 	}
 
+	// 在棋盘平面上画附加点
+	for (unsigned i = 0; i < GUI::addtionalPoints.size(); ++i)
+	{
+		int x = roundInt(GUI::getGeometryCoordination(GUI::addtionalPoints[i]).x[0]);
+		int y = roundInt(GUI::getGeometryCoordination(GUI::addtionalPoints[i]).x[1]);			//得到几何坐标
+
+		latticeDC.Ellipse(roundInt(x - GUI::additionalPointRadias), roundInt(y - GUI::additionalPointRadias), roundInt(x + GUI::additionalPointRadias), roundInt(y + GUI::additionalPointRadias));			//画点
+	}
+
 	latticeDC.StretchBlt(0, 0, rect.Width(), rect.Height(), NULL, 0, 0, rect.Width(), rect.Height(), DSTINVERT);
 
 	pBoardBaseDCBmpOld = boardBaseDC.SelectObject(&boardBaseBitmap) ;//保存原有DDB，并选入新DDB入DC,
@@ -371,13 +396,6 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 	latticeDC.SelectObject(oldLatticeBitmap);
 	addtionalDC.SelectObject(oldAdditionalBitmap);
 }
-
-////图标可以透明. 但是运行时生成图标是不可以的. 为了棋子图片的自动生成, 所以还是用位图吧.
-//HICON hIcon1=AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-//
-//dc.DrawIcon(0,0,hIcon1);
-//DestroyIcon(hIcon1);
-
 
 int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -393,9 +411,8 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CClientDC memDC(this);
 	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
-	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman) ? IDB_CHESSMAN_ROUND : IDB_CHESSMAN_RECTANGLE);
-
-	input = (CIGRuleConfig::PLAYER_NAMES)-1;
+	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman) ? IDB_CHESSMAN_ROUND_NAMED : IDB_CHESSMAN_RECTANGLE);
+	//input = (CIGRuleConfig::PLAYER_NAMES)-1;
 
 	return 0;
 }

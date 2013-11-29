@@ -16,10 +16,15 @@ void CIG::MotionGenerator::generateMotionsAndBoards()
 
 	Action logOperationStack;
 	StatusStack statusStack;
+	
+	statusStack.push(CIGRuleConfig::BEGIN_CHESS);
+	generateForPresentPlayer(logOperationStack, statusStack);
+	statusStack.popNoReturn();
+
 	for (unsigned i = 0; i < cg.size; ++i)
 	{
 		Chessman* c = const_cast<Chessman*> (&(cg.at(i)));
-		statusStack.push(CIGRuleConfig::BEGIN);
+		statusStack.push(CIGRuleConfig::BEGIN_CHESS);
 		generateForOneChessman(c, logOperationStack, statusStack);
 		statusStack.popNoReturn();
 	}
@@ -27,6 +32,40 @@ void CIG::MotionGenerator::generateMotionsAndBoards()
 
 CIG::MotionGenerator::MotionGenerator(Chessboard& cb)
 	: chessboard(cb), actionStack() {}
+
+void CIG::MotionGenerator::generateForPresentPlayer( Action& logMotionStack, StatusStack& statusStack )
+{
+	Action runningOperationStack;
+
+	CIGRuleConfig::CHESS_OPERATIONS op = statusStack.top();
+	int i = 0;
+
+	for (; CIGRuleConfig::chessOperationGraph[op][i] != CIGRuleConfig::NOMORE_CHESS_OPERATION; ++i)
+	{
+		statusStack.push(CIGRuleConfig::chessOperationGraph[op][i]);
+	}
+
+	for (; i > 0; --i)
+	{
+		generateForOneOp(c, statusStack, logOperationStack, runningOperationStack);
+
+		while (runningOperationStack.size > 0)
+		{
+			Operation& nowOperation = runningOperationStack.top();
+			logOperationStack.push(nowOperation);
+			chessboard.onOperationIntent(nowOperation);
+
+			generateForOneChessman(c, logOperationStack, statusStack);
+
+			chessboard.undoOperation(nowOperation);
+			logOperationStack.popNoReturn();
+
+			runningOperationStack.popNoReturn();
+		}
+
+		statusStack.popNoReturn();
+	}
+}
 
 // 过程比较复杂:
 // 对于运行中搜索的一步, 若全局状态栈非空, 取定栈顶为当前状态,
@@ -39,12 +78,12 @@ void CIG::MotionGenerator::generateForOneChessman( Chessman* c , Action& logOper
 {
 	Action runningOperationStack;
 
-	CIGRuleConfig::OPERATIONS op = statusStack.top();
+	CIGRuleConfig::CHESS_OPERATIONS op = statusStack.top();
 	int i = 0;
 
-	for (; CIGRuleConfig::operationGraph[op][i] != CIGRuleConfig::NOMORE; ++i)
+	for (; CIGRuleConfig::chessOperationGraph[op][i] != CIGRuleConfig::NOMORE_CHESS_OPERATION; ++i)
 	{
-		statusStack.push(CIGRuleConfig::operationGraph[op][i]);
+		statusStack.push(CIGRuleConfig::chessOperationGraph[op][i]);
 	}
 
 	for (; i > 0; --i)
@@ -71,231 +110,60 @@ void CIG::MotionGenerator::generateForOneChessman( Chessman* c , Action& logOper
 
 void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack )
 {
-	CIGRuleConfig::OPERATIONS s = statusStack.top();							// TO-DO 直接使用s作为参数更好. 
+	CIGRuleConfig::CHESS_OPERATIONS s = statusStack.top();							// TO-DO 直接使用s作为参数更好. 
 
 	switch (s)
 	{
-		case CIGRuleConfig::BEGIN:
+		case CIGRuleConfig::BEGIN_CHESS:
 			break;
 
-		case CIGRuleConfig::PICK:
-			if (chessboard.onPickIntent(c))
-			{
-				chessboard.undoPick(c);
-				Operation optemp(c->chessmanLocation, CIGRuleConfig::PICK,c->coordinate);
-				runningOperationStack.push(optemp);
-			}
+		//case CIGRuleConfig::PICK:
+		//	if (chessboard.onPickIntent(c))
+		//	{
+		//		chessboard.undoPick(c);
+		//		Operation optemp(c->chessmanLocation, CIGRuleConfig::PICK,c->coordinate);
+		//		runningOperationStack.push(optemp);
+		//	}
 
-			break;
-
-		case CIGRuleConfig::PUT:
-		case CIGRuleConfig::CAPTURE:
-			if (logOperationStack.top().operation==CIGRuleConfig::CAPTURE)
+		//	break;
+		case CIGRuleConfig::ADD:
+			for (int i=0; i< CIGRuleConfig::INI_BOARD_WIDTH_LOG2;++i)
 			{
-				PointOrVector p(c->coordinate);
-				if (chessboard.onPutIntent(c, logOperationStack.top().distination))
+				for (int j=0;j< CIGRuleConfig::INI_BOARD_HEIGHT_LOG2;++j)
 				{
-					chessboard.undoPut(c,p);
-					Operation optemp(c->chessmanLocation, s, logOperationStack.top().distination, p);
-					runningOperationStack.push(optemp);
+					PointOrVector dist =  PointOrVector(i,j);
+					if (chessboard[dist])
+					{
+						continue;
+					}
+
+					testAndSave(s, c, dist, runningOperationStack);
 				}
-				break;
 			}
+			break;
+
+		case CIGRuleConfig::PUT_CHESS:
+		//case CIGRuleConfig::CAPTURE:
+			//if (logOperationStack.top().operation==CIGRuleConfig::CAPTURE)
+			//{
+			//	PointOrVector p(c->coordinate);
+			//	if (chessboard.onPutIntent(c, logOperationStack.top().distination))
+			//	{
+			//		chessboard.undoPut(c,p);
+			//		Operation optemp(c->chessmanLocation, s, logOperationStack.top().distination, p);
+			//		runningOperationStack.push(optemp);
+			//	}
+			//	break;
+			//}
 
 			switch (c->chessmanType)				//生成象棋走法, 改变棋子的坐标.
 			{
-				case CIGRuleConfig::KING:
-					for (int i = 0; i < 4; ++i)
-					{
-						PointOrVector dist = c->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -1 : 1) : 0, (i & 1) ? ((i & 2) ? -1 : 1) : 0 );
-						PointOrVector offset = dist - PointOrVector(7, (c->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 4 : 11);
-
-						if (abs(offset.x[0]) & (-2) || abs(offset.x[1]) & (-2))
-						{
-							continue;
-						}
-
-						testAndSave(s, c, dist, runningOperationStack);
-					}
-
-					if (s==CIGRuleConfig::CAPTURE)
-					{
-						for (int j = 1;; ++j)
-						{
-							PointOrVector dist =  c->coordinate + PointOrVector(0,  (c->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? j : -j);
-
-							if (chessboard.beyondBoardRange(dist))
-							{
-								break;
-							}
-							else if ((chessboard[dist]) && (chessboard[dist]->chessmanType != CIGRuleConfig::KING))
-							{
-								break;
-							}
-							else
-							{
-								if(testAndSave(s,c,dist,runningOperationStack))
-								{
-									break;
-								}
-							}
-						}
-					}
-					break;
-
-				case CIGRuleConfig::ADVISOR:
-					for (int i = 0; i < 4; ++i)
-					{
-						PointOrVector dist = c->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
-						PointOrVector offset = dist - PointOrVector(7, (c->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 4 : 11);
-
-						if (abs(offset[0]) & (-2) || abs(offset[1]) & (-2))
-						{
-							continue;
-						}
-
-						testAndSave(s, c, dist, runningOperationStack);
-					}
-
-					break;
-
-				case CIGRuleConfig::ELEPHANT:
-					for (int i = 0; i < 4; ++i)
-					{
-						PointOrVector dist = c->coordinate + PointOrVector( (i & 1) ? -2 : 2, (i & 2) ? -2 : 2 );
-						PointOrVector eye = c->coordinate + PointOrVector( (i & 1) ? -1 : 1, (i & 2) ? -1 : 1 );
-
-						if (!chessboard.onSelfHalfOfBoard(dist) || chessboard[eye] != NULL)
-						{
-							continue;
-						}
-
-						testAndSave(s, c, dist, runningOperationStack);
-					}
-
-					break;
-
-				case CIGRuleConfig::HORSE:
-					for (int i = 0; i < 8; ++i)
-					{
-						PointOrVector dist = c->coordinate + PointOrVector( ((i & 1) ? -1 : 1) << ((i & 4) ? 1 : 0), ((i & 2) ? -1 : 1) << ((i & 4) ? 0 : 1) );
-						PointOrVector eye = c->coordinate + PointOrVector( (i & 4) ? ((i & 1) ? -1 : 1) : 0, (i & 4) ? 0 : ((i & 2) ? -1 : 1) );
-
-						if (chessboard.beyondBoardRange(dist) || chessboard[eye] != NULL)
-						{
-							continue;
-						}
-
-						testAndSave(s, c, dist, runningOperationStack);
-					}
-
-					break;
-
-				case CIGRuleConfig::CHAROIT:
-					for (int i = 0; i < 4; ++i)
-					{
-						for (int j = 1;; ++j)
-						{
-							PointOrVector dist =  c->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -j : j) : 0, (i & 1) ? ((i & 2) ? -j : j) : 0 );
-
-							if (chessboard.beyondBoardRange(dist))
-							{
-								break;
-							}
-							else if ((chessboard[dist]) && (chessboard[dist]->chessmanLocation.player == c->chessmanLocation.player))
-							{
-								break;
-							}
-							else
-							{
-								if (s == CIGRuleConfig::CAPTURE)
-								{
-									if(testAndSave(s,c,dist,runningOperationStack))
-									{
-										break;
-									}
-								}
-								else
-								{
-									if(!testAndSave(s,c,dist,runningOperationStack))
-									{
-										break;
-									}
-								}
-							}
-						}
-					}
-
-					break;
-
-				case CIGRuleConfig::CANNON:
-					for (int i = 0; i < 4; ++i)
-					{
-						bool haveEmplacement = false;
-
-						for (int j = 1;; ++j)
-						{
-							PointOrVector dist =  c->coordinate + PointOrVector( ((i & 1) == 0) ? ((i & 2) ? -j : j) : 0, (i & 1) ? ((i & 2) ? -j : j) : 0 );
-
-							if (chessboard.beyondBoardRange(dist))
-							{
-								break;
-							}
-							else if (chessboard[dist] == NULL)			//在棋盘上, 没有棋子
-							{
-								if ((s == CIGRuleConfig::PUT) && (!haveEmplacement))				//没有 "炮架" 
-								{
-									testAndSave(s,c,dist,runningOperationStack);
-								}
-							}
-							else if (haveEmplacement)							//有棋子, 有炮架
-							{
-								testAndSave(s,c,dist,runningOperationStack);
-
-								break;
-							}
-							else   															  //有棋子, 没炮架
-							{
-								if (s == CIGRuleConfig::CAPTURE)
-								{
-									haveEmplacement = true;
-								}
-								else
-								{
-									break;
-								}
-							}
-						}
-					}
-
-					break;
-
-				case CIGRuleConfig::PAWN:
-				{
-					if (chessboard.onSelfHalfOfBoard(c->coordinate))
-					{
-						PointOrVector dist = c->coordinate + PointOrVector(0, (c->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? 1 : -1);
-						testAndSave(s, c, dist, runningOperationStack);
-					}
-					else
-					{
-						for (int i = -1; i < 2; i += 1)
-						{
-							PointOrVector dist = c->coordinate + PointOrVector( i, (c->chessmanLocation.player==CIGRuleConfig::COMPUTER)?(!i):(-!i) );
-							
-							testAndSave(s, c, dist, runningOperationStack);
-						}
-					}
-				}
+			case CIGRuleConfig::CHESS:
+				testAndSave(s, c, c->, runningOperationStack);
 				break;
-
-				default:
-					break;
 			}
 
-			break;
-
-		case CIGRuleConfig::END:
+		case CIGRuleConfig::END_CHESS:
 			if (chessboard.onChangeTurn())
 			{
 				chessboard.undoChangeTurn();
@@ -309,7 +177,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 	}
 }
 
-bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack )
+bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::CHESS_OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack )
 {
 	if (s == CIGRuleConfig::CAPTURE)
 	{

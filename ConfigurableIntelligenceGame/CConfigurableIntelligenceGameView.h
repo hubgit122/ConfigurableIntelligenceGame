@@ -30,7 +30,7 @@ class CConfigurableIntelligenceGameView : public CWnd
 		CBitmap boardBaseBitmap;
 		CBitmap chessmanBaseBitmap;
 
-		CIGRuleConfig::PLAYER_NAMES input;				//作为谁的输入设备. 
+		//CIGRuleConfig::PLAYER_NAMES input;				//作为谁的输入设备. 
 
 		// 操作
 	public:

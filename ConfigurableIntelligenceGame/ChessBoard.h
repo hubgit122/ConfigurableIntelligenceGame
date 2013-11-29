@@ -48,10 +48,21 @@ namespace CIG
 			// 对于满足"不动别人的棋子, 不吃自己的棋子"条件的尝试, 调整棋盘状态, 更新评估值, 返回true;
 			// 如果修改规则, 应该继承该类, 重写onXXXIntent函数, 并在其中配置自己的评估规则.
 			// 当然也可以在自己的函数里调用本类的函数, 在并配置新加入的规则.
+			// 注意: 因为使用了动态容器, 所有的棋子指针必须在使用时重新计算. 原则是: 当且仅当得到指针后有过增加棋子的操作(无论是否又删除了棋子)
 			//************************************
 			virtual bool onPickIntent(PointOrVector p);
 			//virtual bool onPickIntent(Chessman* c , PointOrVector p);
 			virtual bool onPickIntent(Chessman* c );
+			//************************************
+			// Method:    onAddIntent
+			// FullName:  CIG::Chessboard::onAddIntent
+			// Access:    virtual public 
+			// Returns:   Chessman*
+			// Qualifier:
+			// Parameter: PointOrVector p
+			// 注意用法: 预告在某处增加一枚棋子, 返回棋子的指针, 但是还没有真正在游戏中放下这个子. 
+			//************************************
+			virtual Chessman* onAddIntent(PointOrVector p = PointOrVector(-1,-1));
 			virtual bool onPutIntent(Chessman* c, PointOrVector p);
 			//virtual bool onPutIntent(Chessman* c);
 			virtual bool onCaptureIntent(Chessman* c, PointOrVector p);
@@ -75,6 +86,7 @@ namespace CIG
 			//************************************
 			virtual void undoPick(Chessman* c );
 			virtual void undoPick(PointOrVector p);
+			virtual void undoAdd();
 			//virtual void undoPick(Chessman* c , PointOrVector p);
 			virtual void undoPut(Chessman* c, PointOrVector p);
 			virtual void undoCaptured(Chessman* c);

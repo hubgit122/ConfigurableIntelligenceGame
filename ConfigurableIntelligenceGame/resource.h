@@ -6,7 +6,7 @@
 #define IDR_MAINFRAME                   128
 #define IDR_ConfigurableIntTYPE         130
 #define IDB_BOARD_BASE                  314
-#define IDB_CHESSMAN_ROUND              316
+#define IDB_CHESSMAN_ROUND_NAMED              316
 #define IDB_BITMAP2                     317
 #define IDB_CHESSMAN_RECTANGLE          317
 #define ID_GAME_NEW                     32773

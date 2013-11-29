@@ -52,7 +52,7 @@ struct PointOrVector_Float
 
 	void operator = (const PointOrVector_Float& p)
 	{
-		memcpy(x, p.x, sizeof(float) * 2);
+		memcpy(x, p.x, sizeof(float) << 1);
 	}
 
 	friend PointOrVector_Float operator*(int lambda, const PointOrVector_Float& p)
@@ -103,7 +103,7 @@ struct PointOrVector
 
 	PointOrVector()
 	{
-		memset(x, 0, sizeof(unsigned short) * 2);
+		memset(x, -1, sizeof(unsigned short)<<1);				// TO-DO 注意这里改变了象棋的点默认为0,0的假设, 应该不会出问题, 在联调的时候可以注意一下
 	}
 
 	PointOrVector(unsigned x, unsigned y)
@@ -120,6 +120,16 @@ struct PointOrVector
 	short& operator[](bool index)
 	{
 		return x[index];
+	}
+
+	bool operator==(const PointOrVector& p)
+	{
+		return (*(unsigned*)this->x == *(unsigned*)(p.x));
+	}
+
+	bool operator!=(const PointOrVector& p)
+	{
+		return !(*this==p);
 	}
 
 	PointOrVector operator- (const PointOrVector& p)

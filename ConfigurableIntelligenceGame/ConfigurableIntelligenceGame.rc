@@ -197,7 +197,7 @@ END
 //
 
 IDB_BOARD_BASE          BITMAP                  "res\\大理石.bmp"
-IDB_CHESSMAN_ROUND      BITMAP                  "res\\圆棋子.bmp"
+IDB_CHESSMAN_ROUND_NAMED BITMAP                  "res\\圆棋子.bmp"
 IDB_CHESSMAN_RECTANGLE  BITMAP                  "res\\方棋子.bmp"
 
 /////////////////////////////////////////////////////////////////////////////

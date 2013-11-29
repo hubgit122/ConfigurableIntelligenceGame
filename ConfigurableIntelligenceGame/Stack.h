@@ -19,7 +19,7 @@ namespace CIG
 
 			inline void operator<<(Stack<T, INI_DEPTH, DEPTH_INCRE>& a);
 
-			inline void push(const T& E);
+			inline T* push(const T& E);
 			inline T popThenGet();
 			inline void popNoReturn();
 			inline T& top()const;
@@ -63,9 +63,9 @@ namespace CIG
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	void CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::push( const T& E )
+	T* CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::push( const T& E )
 	{
-		Array<T, INI_DEPTH, DEPTH_INCRE>::add(E);
+		return Array<T, INI_DEPTH, DEPTH_INCRE>::add(E);
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -76,7 +76,7 @@ namespace CIG
 
 	typedef Stack<Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> Action;
 	typedef Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
-	typedef	 Stack<CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
+	typedef	 Stack<CIGRuleConfig::CHESS_OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
 	typedef Stack<Action, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
 }
 

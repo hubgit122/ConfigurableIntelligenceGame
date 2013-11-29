@@ -52,29 +52,33 @@ namespace CIG
 			enum CHESSMAN_TYPES
 			{
 				NOCHESSMAN = -1,
-				KING,								//将
-				ADVISOR,							//士
-				ELEPHANT,						//象
-				HORSE,								//马
-				CHAROIT,							//车
-				CANNON,						//炮
-				PAWN,								//兵
+				CHESS,										//五子棋只有一种棋子
 				CHESSMAN_TYPE_NUM,			//总数
 			};
 
-			enum OPERATIONS
+			enum CHESS_OPERATIONS
 			{
-				BEGIN,
+				BEGIN_CHESS,
 				PICK,						//拿起
-				PUT,							//走棋
+				PUT_CHESS,				//走棋
 				CAPTURE,					//吃子
 				PROMOTION,			//升变
 				DECOVER,				//掀开
-				END,							//作为走法生成器返回的提示语: 一条搜索路径结束, 请保存结果并回退搜索.
-				NOMORE					//作为走法生成器返回的提示语: 无更多操作, 请回退搜索.
+				END_CHESS,							//作为走法生成器返回的提示语: 一条搜索路径结束, 请保存结果并回退搜索.
+				NOMORE_CHESS_OPERATION					//作为走法生成器返回的提示语: 无更多操作, 请回退搜索.
 			};
 
-			static const OPERATIONS operationGraph[NOMORE + 1][NOMORE + 1];
+			enum PLAYER_OPERATIONS
+			{
+				BEGIN_PLAYER,
+				ADD,						//增加一个棋子
+				PUT_PLAYER,
+				END_PLAYER,
+				NOMORE_PLAYER_OPERATIONS
+			};
+
+			static const CHESS_OPERATIONS chessOperationGraph[NOMORE_CHESS_OPERATION][NOMORE_CHESS_OPERATION + 1];
+			static const PLAYER_OPERATIONS playerOperationGraph[NOMORE_PLAYER_OPERATIONS][NOMORE_PLAYER_OPERATIONS+1];
 
 			enum CHESSMAN_STATUS
 			{
@@ -93,7 +97,6 @@ namespace CIG
 
 			static int INI_CHESSMAN_NUM_OF_ONE_PLAYER;
 			static bool CHESSMAN_IN_LATTICE;
-			//static const int MAX_SEARCH_DEPTH = 1024;
 			static const int INI_CHESSMAN_GROUP_SIZE = 64;
 			static const int INI_LATTICE_GROUP_SIZE = 64;
 			static const int INT_BANNED_MOTION_SIZE = 16;
@@ -106,7 +109,7 @@ namespace CIG
 
 			static const bool BOARD_RANGE[1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
 			static const CHESSMAN_TYPES INI_BOARD[PLAYER_NUM][1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
-			static const int EVALUATIONS[PLAYER_NUM][CHESSMAN_TYPE_NUM][1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
+			//static const int EVALUATIONS[PLAYER_NUM][CHESSMAN_TYPE_NUM][1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
 	};
 }
 

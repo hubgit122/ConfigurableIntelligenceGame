@@ -23,7 +23,7 @@ namespace CIG
 			inline void forceCopyFrom(const Array<T, INI_DEPTH, DEPTH_INCRE>& a);
 
 			inline bool contains(const T& e)const;
-			inline Array<T, INI_DEPTH, DEPTH_INCRE>& add(const T& element);
+			inline T* add(const T& element);
 			inline void addAt(short index, const T e);
 			inline void deleteAtNoReturn(short index);
 			inline T deleteAtThenGet(short index);
@@ -272,19 +272,11 @@ namespace CIG
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	Array<T, INI_DEPTH, DEPTH_INCRE>& CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::add( const T& element )
+	T* CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::add( const T& element )
 	{
-		// 以后不要写这样的模板代码, 很混乱的. C++无法写出来一个完美的容器.
-		// 比如拷贝, 用有的类operator=和拷贝构造函数是private的, 而拷贝构造函数又不能对基本类型使用,
-		// 直接内存拷贝是浅拷贝, 而且可能因为使用父类的指针但是父类没有虚表子类有, 导致4字节的差别.
-		// 另外还要考虑一致性问题, 比如某些类型不允许属性相同的两个实例存在, 而有些类的拷贝和析构时要求一定要有记录.
-
 		this->increaseCapacity();
-		//memset(&elements[size], 0, sizeof(T));
-		//memcpy(&elements[size], &element, sizeof(void*));
-		new(elements+(size++)) T(element);											//如何保证速度和正确性, 由T类的赋值运算决定.
-		//memcpy(this->elements + this->size++, &element, sizeof(T));			//浅拷贝不可以. 各种指针错误.
-		return *this;
+		new(elements+(size++)) T(element);
+		return elements+size-1;
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>

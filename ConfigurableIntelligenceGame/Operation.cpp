@@ -2,12 +2,12 @@
 #include "Operation.h"
 
 
-CIG::Operation::Operation() : chessmanIndex(), operation(CIGRuleConfig::NOMORE), distination(0), savedCoodinate(0)
+CIG::Operation::Operation() : chessmanIndex(), operation(CIGRuleConfig::NOMORE_CHESS_OPERATION), distination(0), savedCoodinate(0)
 {
 
 }
 
-CIG::Operation::Operation( ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist /*= 0*/ , PointOrVector pre /*= 0*/) 
+CIG::Operation::Operation( ChessmanIndex ci, CIGRuleConfig::CHESS_OPERATIONS op, PointOrVector dist /*= 0*/ , PointOrVector pre /*= 0*/) 
 	: chessmanIndex(ci), operation(op), distination(dist), savedCoodinate(pre)
 {
 }
