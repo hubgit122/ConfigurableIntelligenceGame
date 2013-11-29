@@ -18,9 +18,9 @@ namespace CIG
 
 		void operator= (const ChessmanLocationBoard& clb);
 
-		ChessmanLocation& operator[](PointOrVector p);
+		ChessmanIndex& operator[](PointOrVector p);
 
-		ChessmanLocation* content;
+		ChessmanIndex* content;
 	};
 }
 

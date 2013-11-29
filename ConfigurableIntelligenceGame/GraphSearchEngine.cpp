@@ -49,12 +49,12 @@ namespace CIG
 
 				if (vl >= beta)   // 找到一个Beta走法
 				{
-					nowBestAction = runningActionStack[i];		// TO-DO保存到历史表有什么用? 为什么是beta?
+					nowBestAction.forceCopyFrom(runningActionStack[i]);		// TO-DO保存到历史表有什么用? 为什么是beta?
 					break;            // Beta截断
 				}
 				else if (vl > alpha)   // 找到一个PV走法
 				{
-					nowBestAction = runningActionStack[i];
+					nowBestAction.forceCopyFrom(runningActionStack[i]);
 					alpha = vl;     // 缩小Alpha-Beta边界
 				}
 			}
@@ -75,7 +75,7 @@ namespace CIG
 			if (depth==rootDepth)
 			{
 				// 搜索根节点时，总是有一个最佳走法(因为全窗口搜索不会超出边界)，将这个走法保存下来
-				GraphSearchEngine::bestAction = nowBestAction;
+				GraphSearchEngine::bestAction.forceCopyFrom(nowBestAction);
 			}
 		}
 
@@ -89,24 +89,24 @@ namespace CIG
 		GraphSearchEngine::pChessboard = chessboard;
 		// TO-DO 加入历史表
 
-		for (int i=1; i<=LIMIT_DEPTH; ++i)
-		{
-			rootDepth =i; 
+		//for (int i=1; i<=LIMIT_DEPTH; ++i)
+		//{
+			rootDepth =/*i*/LIMIT_DEPTH; 
 
-			int vl = alphaBetaSearch( -Chessboard::MATE_VALUE, Chessboard::MATE_VALUE, i);
+			int vl = alphaBetaSearch( -Chessboard::MATE_VALUE, Chessboard::MATE_VALUE, /*i*/LIMIT_DEPTH);
 
-			// 搜索到杀棋，就终止搜索
-			if (vl > Chessboard::WIN_VALUE || vl < -Chessboard::WIN_VALUE)			//为了和记录深度的机制保持一致, WIN_VALUE = MATE_VALUE - 100
-			{
-				break;
-			}
+			//// 搜索到杀棋，就终止搜索
+			//if (vl > Chessboard::WIN_VALUE || vl < -Chessboard::WIN_VALUE)			//为了和记录深度的机制保持一致, WIN_VALUE = MATE_VALUE - 100
+			//{
+			//	break;
+			//}
 
-			// 超过 MAX_SEARCH_TIME，就终止搜索
-			/*if (clock() - t > MAX_SEARCH_TIME)
-			{
-				break;
-			}*/
-		}
+			//// 超过 MAX_SEARCH_TIME，就终止搜索
+			//if (clock() - t > MAX_SEARCH_TIME)
+			//{
+			//	break;
+			//}
+		//}
 		(*((Action*)action)).forceCopyFrom(bestAction);
 	}
 
@@ -114,7 +114,7 @@ namespace CIG
 
 	Chessboard* GraphSearchEngine::pChessboard = NULL;
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 3;    // 最大的搜索深度
+	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
 
 	CIG::Action GraphSearchEngine::bestAction;
 }

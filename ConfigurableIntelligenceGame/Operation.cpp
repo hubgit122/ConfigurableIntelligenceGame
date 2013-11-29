@@ -2,17 +2,17 @@
 #include "Operation.h"
 
 
-CIG::Operation::Operation() : chessmanLocation(), operation(CIGRuleConfig::NOMORE), distination(0), savedCoodinate(0)
+CIG::Operation::Operation() : chessmanIndex(), operation(CIGRuleConfig::NOMORE), distination(0), savedCoodinate(0)
 {
 
 }
 
-CIG::Operation::Operation( ChessmanLocation cl, CIGRuleConfig::OPERATIONS op, PointOrVector dist /*= 0*/ , PointOrVector pre /*= 0*/) 
-	: chessmanLocation(cl), operation(op), distination(dist), savedCoodinate(pre)
+CIG::Operation::Operation( ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist /*= 0*/ , PointOrVector pre /*= 0*/) 
+	: chessmanIndex(ci), operation(op), distination(dist), savedCoodinate(pre)
 {
 }
 
-CIG::Operation::Operation( const Operation& op ): chessmanLocation(op.chessmanLocation), operation(op.operation), distination(op.distination), savedCoodinate(op.savedCoodinate)
+CIG::Operation::Operation( const Operation& op ): chessmanIndex(op.chessmanIndex), operation(op.operation), distination(op.distination), savedCoodinate(op.savedCoodinate)
 {
 }
 

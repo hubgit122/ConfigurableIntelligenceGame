@@ -12,7 +12,7 @@
 #include "utilities.h"
 #include "MotionGenerator.h"
 
-//#define DEBUG_GENERATOR
+#define DEBUG_GENERATOR
 
 using namespace CIG;
 
@@ -29,10 +29,10 @@ CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard
 
 CConfigurableIntelligenceGameView::~CConfigurableIntelligenceGameView()
 {
+	GUI::cigView = NULL;
 	if (m_GameThread)
 	{
 		m_GameThread->PostThreadMessage(WM_QUIT, 0, 0);
-		this->workThreadOK.Lock();
 	}
 }
 
@@ -92,10 +92,15 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
 	DrawBoard();
-
 	MessageBox(_T("test"));
-
-	m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0);
+	if (abs(nowBoard.getEvaluation())>=Chessboard::WIN_VALUE)
+	{
+		MessageBox(_T("胜负已分! "));
+	}
+	else
+	{
+		m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0); 
+	}
 
 	return 0;
 }
@@ -174,6 +179,19 @@ bool yaheiInstalled()
 	return (mstr[0] != '\0');
 }
 
+void CConfigurableIntelligenceGameView::WrapChessWithFrame(CDC& dc, PointOrVector logicCoo, COLORREF color /*= RGB(255,0,0)*/, bool rectangleNotCircle/* = true*/, bool fill/* = false*/)
+{
+	PointOrVector_Float xy = GUI::getGeometryCoordination(logicCoo);
+	CBrush* oldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
+	CPen pen(PS_SOLID, GUI::latticePenWidth, color);
+	CPen* oldPen = dc.SelectObject(&pen);
+
+	dc.Rectangle(roundInt(xy.x[0] - GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2),  roundInt(xy.x[0] +GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] + GUI::chessmanRect.x[1] / 2) );
+	
+	dc.SelectObject(oldBrush);
+	dc.SelectObject(oldPen);
+}
+
 void CConfigurableIntelligenceGameView::DrawBoard()
 {
 	CClientDC dc(this);
@@ -181,7 +199,7 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 	CRect rect;
 	GetClientRect(&rect);
 
-	CDC memClientDC;
+	CDC memClientDC;			//暂存dc, 双缓冲绘图. 
 	memClientDC.CreateCompatibleDC(&dc);
 	CBitmap memBitmap;
 	memBitmap.CreateCompatibleBitmap(&dc, rect.Width(), rect.Height());
@@ -208,12 +226,11 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 
 		CFont* oldFont = memClientDC.SelectObject(&font);
 
-		for (int p = 0; p < CIGRuleConfig::PLAYER_NUM; ++p)
+		for (int p = 0; p < CIGRuleConfig::PLAYER_NUM; ++p)				//每个玩家
 		{
-
-			for (int c = nowBoard.players[p].ownedChessmans.size - 1; c >= 0; --c)
+			for (int c = nowBoard.players[p].ownedChessmans.size - 1; c >= 0; --c)		//每个棋子
 			{
-				if (nowBoard.players[p].ownedChessmans[c].status==CIGRuleConfig::CAPTURED)
+				if (nowBoard.players[p].ownedChessmans[c].status==CIGRuleConfig::CAPTURED)		//被吃不画
 				{
 					continue;
 				}
@@ -226,7 +243,7 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 				BITMAP bm;
 				chessmanBaseBitmap.GetBitmap(&bm);
 
-				TransparentBlt2(memClientDC.m_hDC, xy.x[0] - roundInt(GUI::chessmanRect.x[0] / 2), xy.x[1] - roundInt(GUI::chessmanRect.x[1] / 2), GUI::chessmanRect.x[0], GUI::chessmanRect.x[1], chessDC.m_hDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(0, 255, 0));
+				TransparentBlt2(memClientDC.m_hDC, roundInt(xy.x[0] - GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(GUI::chessmanRect.x[0]), roundInt(GUI::chessmanRect.x[1]), chessDC.m_hDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(0, 255, 0));
 
 				memClientDC.SetTextColor(GUI::playerColor[p]);
 				memClientDC.DrawText(GUI::chessmanName[nowBoard.players[p].ownedChessmans[c].chessmanType], &CRect(xy.x[0] - roundInt(GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2), roundInt(xy.x[0] + GUI::chessmanRect.x[0] / 2), xy.x[1] + GUI::chessmanRect.x[1] / 2), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
@@ -238,7 +255,17 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 		memClientDC.SelectObject(oldFont);
 	}
 
-	dc.BitBlt(0, 0, rect.Width(), rect.Height(), &memClientDC, 0, 0, SRCCOPY);
+	for (int i = actionOfLastRound.size-1; i>=0; --i)
+	{
+		if (actionOfLastRound[i].operation == CIGRuleConfig::PUT)
+		{
+			ChessmanIndex& ci = actionOfLastRound[i].chessmanIndex;
+			WrapChessWithFrame(memClientDC, actionOfLastRound[i].distination);
+			WrapChessWithFrame(memClientDC, actionOfLastRound[i].savedCoodinate);
+		}
+	}
+
+	dc.BitBlt(0, 0, rect.Width(), rect.Height(), &memClientDC, 0, 0, SRCCOPY);			//双缓冲绘图
 
 	memClientDC.SelectObject(oldMemBitmap);
 }

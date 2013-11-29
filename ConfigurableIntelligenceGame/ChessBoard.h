@@ -22,16 +22,17 @@ namespace CIG
 			virtual ~Chessboard(){};
 			void operator=(const Chessboard& cb);
 
-			/*Array<CIGRuleConfig::PLAYERS, Player, CIGRuleConfig::INI_BOARD_WIDTH_LOG2, 0>*/
 			Player players[CIGRuleConfig::PLAYER_NUM];			// TO-DO
 			unsigned int nowRound;
 			CIGRuleConfig::PLAYER_NAMES nowTurn;
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
-			Array<ChessmanLocation , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByLocation;
+			Array<ChessmanIndex , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByIndex;
 			ChessmanLocationBoard chessmanLocationBoard;
 
-			static const int MATE_VALUE = 10000000;  // 最高分值，即将死的分值
+			bool loose[CIGRuleConfig::PLAYER_NUM];					//在搜索时辅助判断是否获胜, 在防止同时杀对方将时起作用
+
+			static const int MATE_VALUE = 100000;  // 最高分值，即将死的分值
 			static const int WIN_VALUE = MATE_VALUE>>1; // 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
 			static const int ADVANCED_VALUE = 3;  // 先行权分值
 
@@ -109,10 +110,6 @@ namespace CIG
 				oss << '}\n';
 				return oss;
 			}
-			//static Array<CIGRuleConfig::Points, PointOrVector, CIGRuleConfig::INT_MARKED_POINTS_SIZE, 0> markedPoints;
-			//static const Array<CIGRuleConfig::Lines, Line, CIGRuleConfig::INT_MARKED_POINTS_SIZE, 0> additionalLines;
-			//static const bool CHESSMANES_ON_CROSS_NOT_IN_HOLES;
-			//static const HBITMAP background;
 	};
 }
 

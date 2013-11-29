@@ -29,7 +29,7 @@ namespace CIG
 			}
 			CIGRuleConfig::CHESSMAN_TYPES chessmanType;
 			struct PointOrVector coordinate;
-			ChessmanLocation chessmanLocation;
+			ChessmanIndex chessmanLocation;
 			CIGRuleConfig::CHESSMAN_STATUS status;
 			CIGRuleConfig::VISIBILITIES visibility[CIGRuleConfig::PLAYER_NUM];
 			//static const HBITMAP bitMap[CIGRuleConfig::CHESSMAN_NUM];

@@ -7,6 +7,11 @@
 
 void CIG::MotionGenerator::generateMotionsAndBoards()
 {
+	if (chessboard.loose[chessboard.nowTurn])
+	{
+		return;								//如果已经输了, 就不产生走法, 走法栈是空的. 
+	}
+
 	const Stack<Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessboard.players[chessboard.nowTurn].ownedChessmans;
 
 	Action logOperationStack;
@@ -113,6 +118,29 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 						testAndSave(s, c, dist, runningOperationStack);
 					}
 
+					if (s==CIGRuleConfig::CAPTURE)
+					{
+						for (int j = 1;; ++j)
+						{
+							PointOrVector dist =  c->coordinate + PointOrVector(0,  (c->chessmanLocation.player == CIGRuleConfig::COMPUTER) ? j : -j);
+
+							if (chessboard.beyondBoardRange(dist))
+							{
+								break;
+							}
+							else if ((chessboard[dist]) && (chessboard[dist]->chessmanType != CIGRuleConfig::KING))
+							{
+								break;
+							}
+							else
+							{
+								if(testAndSave(s,c,dist,runningOperationStack))
+								{
+									break;
+								}
+							}
+						}
+					}
 					break;
 
 				case CIGRuleConfig::ADVISOR:
