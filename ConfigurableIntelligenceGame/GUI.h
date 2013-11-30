@@ -51,9 +51,9 @@ namespace CIG
 
 			static bool roundChessman;					//棋子圆或方
 			static bool namedChessman;
-			static bool drawCross;								//是否标记点
+			static bool markCrossByCircle;								//是否标记点
 			static bool drawLineWhenDrawDot;		//是否画线(若画线, 则一定要画点, 否则点处会有空白)
-			static float dotRadias;							//棋盘点的半径
+			static float markCircleRadias;							//棋盘点的半径
 			static float additionalPointRadias;
 			static degree thetaOfXY;						//棋盘线的夹角
 			static degree thetaOfXTop;					//x轴的俯角

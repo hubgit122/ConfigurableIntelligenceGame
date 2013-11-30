@@ -113,13 +113,7 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 	DrawBoard();
 	MessageBox(_T("test"));
 
-	int looseCount=0;
-	for (int i =0; i<CIGRuleConfig::PLAYER_NUM;++i)
-	{
-		looseCount+=nowBoard.loose[i];
-	}
-
-	if (looseCount==CIGRuleConfig::PLAYER_NUM-1)
+	if (nowBoard.gameOver())
 	{
 		MessageBox(_T("胜负已分! "));
 	}
@@ -264,7 +258,6 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 				CDC chessDC;
 				chessDC.CreateCompatibleDC(&memClientDC);
 
-
 				PointOrVector_Float xy = GUI::getGeometryCoordination(nowBoard.players[p].ownedChessmans[c].coordinate);
 
 				if (GUI::namedChessman)
@@ -343,7 +336,7 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 	latticeDC.SelectStockObject(NULL_BRUSH);
 	addtionalDC.SelectStockObject(NULL_BRUSH);
 
-	if (GUI::drawCross && GUI::drawLineWhenDrawDot)
+	if (GUI::markCrossByCircle && GUI::drawLineWhenDrawDot)
 	{
 		for (int i = 0; i < (1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2); ++i)
 		{
@@ -387,7 +380,7 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 	latticeDC.BitBlt(0, 0, rect.Width(), rect.Height(), &addtionalDC, 0, 0, SRCINVERT);		//异或得到画好特殊线的棋盘
 
 	//重新覆盖点, 防止交叉点被异或
-	if (GUI::drawCross)
+	if (GUI::markCrossByCircle)
 	{
 		for (int i = 0; i < (1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2); ++i)
 		{
@@ -398,7 +391,7 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 					int x = roundInt(GUI::getGeometryCoordination(i, j).x[0]);
 					int y = roundInt(GUI::getGeometryCoordination(i, j).x[1]);			//得到几何坐标
 
-					latticeDC.Ellipse(roundInt(x - GUI::dotRadias), roundInt(y - GUI::dotRadias), roundInt(x + GUI::dotRadias), roundInt(y + GUI::dotRadias));			//画点
+					latticeDC.Ellipse(roundInt(x - GUI::markCircleRadias), roundInt(y - GUI::markCircleRadias), roundInt(x + GUI::markCircleRadias), roundInt(y + GUI::markCircleRadias));			//画点
 				}
 			}
 		}
