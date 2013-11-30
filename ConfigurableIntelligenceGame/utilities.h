@@ -122,6 +122,11 @@ struct PointOrVector
 		return x[index];
 	}
 
+	const short& operator[](bool index)const
+	{
+		return x[index];
+	}
+
 	bool operator==(const PointOrVector& p)
 	{
 		return (*(unsigned*)this->x == *(unsigned*)(p.x));
@@ -140,6 +145,13 @@ struct PointOrVector
 		temp.x[0]-=p.x[0];
 		temp.x[1]-=p.x[1];
 		return temp;
+	}
+
+	PointOrVector& operator+=(const PointOrVector& p)
+	{
+		this->x[0]+=p[0];
+		this->x[1]+=p[1];
+		return *this;
 	}
 
 	PointOrVector operator+ (const PointOrVector& p)

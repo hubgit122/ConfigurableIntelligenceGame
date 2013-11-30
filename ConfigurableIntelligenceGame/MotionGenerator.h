@@ -21,11 +21,10 @@ namespace CIG
 
 			//virtual OperationStack* nextAction();
 			virtual void generateMotionsAndBoards();
-			virtual void generateForOneChessman( Chessman* c, Action& logMotionStack, StatusStack& statusStack);
-			virtual void generateForPresentPlayer(Action& logMotionStack, StatusStack& statusStack);
-			virtual void generateForOneOp( Chessman* c, StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack );
+			virtual void generateRecursively(Action& logMotionStack, StatusStack& statusStack);
+			virtual void generateOperationsForOneStatus(StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack );
 
-			bool testAndSave( CIGRuleConfig::CHESS_OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack );
+			bool testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack );
 
 	};
 }

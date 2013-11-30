@@ -76,7 +76,7 @@ namespace CIG
 
 	typedef Stack<Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> Action;
 	typedef Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
-	typedef	 Stack<CIGRuleConfig::CHESS_OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
+	typedef	 Stack<CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
 	typedef Stack<Action, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
 }
 

@@ -4,6 +4,7 @@
 #include "Chessboard.h"
 #include "Player.h"
 #include "Chessman.h"
+#include "ChessmanLocation.h"
 
 void CIG::MotionGenerator::generateMotionsAndBoards()
 {
@@ -12,60 +13,16 @@ void CIG::MotionGenerator::generateMotionsAndBoards()
 		return;								//如果已经输了, 就不产生走法, 走法栈是空的. 
 	}
 
-	const Stack<Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessboard.players[chessboard.nowTurn].ownedChessmans;
-
 	Action logOperationStack;
 	StatusStack statusStack;
-	
-	statusStack.push(CIGRuleConfig::BEGIN_CHESS);
-	generateForPresentPlayer(logOperationStack, statusStack);
-	statusStack.popNoReturn();
 
-	for (unsigned i = 0; i < cg.size; ++i)
-	{
-		Chessman* c = const_cast<Chessman*> (&(cg.at(i)));
-		statusStack.push(CIGRuleConfig::BEGIN_CHESS);
-		generateForOneChessman(c, logOperationStack, statusStack);
-		statusStack.popNoReturn();
-	}
+	statusStack.push(CIGRuleConfig::BEGIN);
+	generateRecursively(logOperationStack, statusStack);
+	statusStack.popNoReturn();
 }
 
 CIG::MotionGenerator::MotionGenerator(Chessboard& cb)
 	: chessboard(cb), actionStack() {}
-
-void CIG::MotionGenerator::generateForPresentPlayer( Action& logMotionStack, StatusStack& statusStack )
-{
-	Action runningOperationStack;
-
-	CIGRuleConfig::CHESS_OPERATIONS op = statusStack.top();
-	int i = 0;
-
-	for (; CIGRuleConfig::chessOperationGraph[op][i] != CIGRuleConfig::NOMORE_CHESS_OPERATION; ++i)
-	{
-		statusStack.push(CIGRuleConfig::chessOperationGraph[op][i]);
-	}
-
-	for (; i > 0; --i)
-	{
-		generateForOneOp(c, statusStack, logOperationStack, runningOperationStack);
-
-		while (runningOperationStack.size > 0)
-		{
-			Operation& nowOperation = runningOperationStack.top();
-			logOperationStack.push(nowOperation);
-			chessboard.onOperationIntent(nowOperation);
-
-			generateForOneChessman(c, logOperationStack, statusStack);
-
-			chessboard.undoOperation(nowOperation);
-			logOperationStack.popNoReturn();
-
-			runningOperationStack.popNoReturn();
-		}
-
-		statusStack.popNoReturn();
-	}
-}
 
 // 过程比较复杂:
 // 对于运行中搜索的一步, 若全局状态栈非空, 取定栈顶为当前状态,
@@ -74,21 +31,21 @@ void CIG::MotionGenerator::generateForPresentPlayer( Action& logMotionStack, Sta
 // 若当前棋盘和走法运行栈空, 说明该状态没有可用走法, 状态栈弹栈, 重新取定栈顶为当前状态.
 // 若全局状态栈顶为end, 临时栈入全局栈, 状态栈弹栈, 重新取定栈顶为当前状态.
 // 初始条件配置: statusStack.push(CIGRuleConfig::BEGIN);
-void CIG::MotionGenerator::generateForOneChessman( Chessman* c , Action& logOperationStack, StatusStack& statusStack)
+void CIG::MotionGenerator::generateRecursively( Action& logOperationStack, StatusStack& statusStack )
 {
 	Action runningOperationStack;
 
-	CIGRuleConfig::CHESS_OPERATIONS op = statusStack.top();
+	CIGRuleConfig::OPERATIONS op = statusStack.top();
 	int i = 0;
 
-	for (; CIGRuleConfig::chessOperationGraph[op][i] != CIGRuleConfig::NOMORE_CHESS_OPERATION; ++i)
+	for (; CIGRuleConfig::operationGraph[op][i] != CIGRuleConfig::NOMORE; ++i)
 	{
-		statusStack.push(CIGRuleConfig::chessOperationGraph[op][i]);
+		statusStack.push(CIGRuleConfig::operationGraph[op][i]);
 	}
 
 	for (; i > 0; --i)
 	{
-		generateForOneOp(c, statusStack, logOperationStack, runningOperationStack);
+		generateOperationsForOneStatus(statusStack, logOperationStack, runningOperationStack);
 
 		while (runningOperationStack.size > 0)
 		{
@@ -96,7 +53,7 @@ void CIG::MotionGenerator::generateForOneChessman( Chessman* c , Action& logOper
 			logOperationStack.push(nowOperation);
 			chessboard.onOperationIntent(nowOperation);
 
-			generateForOneChessman(c, logOperationStack, statusStack);
+			generateRecursively(logOperationStack, statusStack);
 
 			chessboard.undoOperation(nowOperation);
 			logOperationStack.popNoReturn();
@@ -108,62 +65,39 @@ void CIG::MotionGenerator::generateForOneChessman( Chessman* c , Action& logOper
 	}
 }
 
-void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack )
+void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack )
 {
-	CIGRuleConfig::CHESS_OPERATIONS s = statusStack.top();							// TO-DO 直接使用s作为参数更好. 
+	CIGRuleConfig::OPERATIONS s = statusStack.top();							// TO-DO 直接使用s作为参数更好. 
 
 	switch (s)
 	{
-		case CIGRuleConfig::BEGIN_CHESS:
+		case CIGRuleConfig::BEGIN:
 			break;
 
-		//case CIGRuleConfig::PICK:
-		//	if (chessboard.onPickIntent(c))
-		//	{
-		//		chessboard.undoPick(c);
-		//		Operation optemp(c->chessmanLocation, CIGRuleConfig::PICK,c->coordinate);
-		//		runningOperationStack.push(optemp);
-		//	}
-
-		//	break;
 		case CIGRuleConfig::ADD:
-			for (int i=0; i< CIGRuleConfig::INI_BOARD_WIDTH_LOG2;++i)
+			for (int i=0; i< (1<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2) ;++i)
 			{
-				for (int j=0;j< CIGRuleConfig::INI_BOARD_HEIGHT_LOG2;++j)
+				for (int j=0;j< (1<<CIGRuleConfig::INI_BOARD_HEIGHT_LOG2);++j)
 				{
 					PointOrVector dist =  PointOrVector(i,j);
-					if (chessboard[dist])
+					if (chessboard[dist]||!CIGRuleConfig::BOARD_RANGE[j][i])
 					{
 						continue;
 					}
-
-					testAndSave(s, c, dist, runningOperationStack);
+					
+					testAndSave(s, NULL, dist, runningOperationStack);
 				}
 			}
 			break;
 
-		case CIGRuleConfig::PUT_CHESS:
-		//case CIGRuleConfig::CAPTURE:
-			//if (logOperationStack.top().operation==CIGRuleConfig::CAPTURE)
-			//{
-			//	PointOrVector p(c->coordinate);
-			//	if (chessboard.onPutIntent(c, logOperationStack.top().distination))
-			//	{
-			//		chessboard.undoPut(c,p);
-			//		Operation optemp(c->chessmanLocation, s, logOperationStack.top().distination, p);
-			//		runningOperationStack.push(optemp);
-			//	}
-			//	break;
-			//}
-
-			switch (c->chessmanType)				//生成象棋走法, 改变棋子的坐标.
+		case CIGRuleConfig::PUT:
 			{
-			case CIGRuleConfig::CHESS:
-				testAndSave(s, c, c->, runningOperationStack);
-				break;
+				ChessmanIndex& cl = chessboard.pickedChessmanByIndex[-1];
+				testAndSave(s, &chessboard.players[cl.player].ownedChessmans[cl.index], logOperationStack.top().distination, runningOperationStack);
 			}
-
-		case CIGRuleConfig::END_CHESS:
+			break;
+		
+		case CIGRuleConfig::END:
 			if (chessboard.onChangeTurn())
 			{
 				chessboard.undoChangeTurn();
@@ -177,7 +111,7 @@ void CIG::MotionGenerator::generateForOneOp( Chessman* c, StatusStack& statusSta
 	}
 }
 
-bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::CHESS_OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack )
+bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack )
 {
 	if (s == CIGRuleConfig::CAPTURE)
 	{
@@ -191,18 +125,24 @@ bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::CHESS_OPERATIONS s, Chess
 			return true;
 		}
 	}
-	else
+	else if (s == CIGRuleConfig::PUT)
 	{
-		PointOrVector p(c->coordinate);
+		PointOrVector preP(c->coordinate);
 		if (chessboard.onPutIntent(c, dist))
 		{
-			chessboard.undoPut(c,p);
-			Operation optemp(c->chessmanLocation, s, dist, p);
+			chessboard.undoPut(c);
+			Operation optemp(c->chessmanLocation, s, dist);
 			runningOperationStack.push(optemp);
 
 			return true;
 		}
-	}	
+	}
+	else if(s == CIGRuleConfig::ADD)
+	{
+		Operation optemp(ChessmanIndex(),CIGRuleConfig::ADD,dist);
+		runningOperationStack.push(optemp);
+		return true;
+	}
 	return false;
 }
 

@@ -59,7 +59,7 @@ namespace CIG
 			virtual bool onPromotionIntent(CIGRuleConfig::CHESSMAN_TYPES t);
 			
 			virtual void undoPick();
-			virtual void undoPut(PointOrVector& previousP);
+			virtual void undoPut();
 			virtual void undoCaptured();
 	};
 }

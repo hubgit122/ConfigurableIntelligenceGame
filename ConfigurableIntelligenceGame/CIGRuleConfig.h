@@ -56,29 +56,20 @@ namespace CIG
 				CHESSMAN_TYPE_NUM,			//总数
 			};
 
-			enum CHESS_OPERATIONS
+			enum OPERATIONS
 			{
-				BEGIN_CHESS,
+				BEGIN,
+				ADD,						//增加一个棋子
 				PICK,						//拿起
-				PUT_CHESS,				//走棋
+				PUT,							//走棋
 				CAPTURE,					//吃子
 				PROMOTION,			//升变
 				DECOVER,				//掀开
-				END_CHESS,							//作为走法生成器返回的提示语: 一条搜索路径结束, 请保存结果并回退搜索.
-				NOMORE_CHESS_OPERATION					//作为走法生成器返回的提示语: 无更多操作, 请回退搜索.
+				END,							//作为走法生成器返回的提示语: 一条搜索路径结束, 请保存结果并回退搜索.
+				NOMORE					//作为走法生成器返回的提示语: 无更多操作, 请回退搜索.
 			};
 
-			enum PLAYER_OPERATIONS
-			{
-				BEGIN_PLAYER,
-				ADD,						//增加一个棋子
-				PUT_PLAYER,
-				END_PLAYER,
-				NOMORE_PLAYER_OPERATIONS
-			};
-
-			static const CHESS_OPERATIONS chessOperationGraph[NOMORE_CHESS_OPERATION][NOMORE_CHESS_OPERATION + 1];
-			static const PLAYER_OPERATIONS playerOperationGraph[NOMORE_PLAYER_OPERATIONS][NOMORE_PLAYER_OPERATIONS+1];
+			static const OPERATIONS operationGraph[NOMORE ][NOMORE + 1];
 
 			enum CHESSMAN_STATUS
 			{

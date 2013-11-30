@@ -21,10 +21,30 @@ using namespace CIG;
 #endif
 
 
-CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(), actionOfLastRound()
+CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(),actionOfLastRound()
 {
 	//这里的初始化会乱掉. 所以还是在别处再初始化一次吧.
 
+}
+
+int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CWnd::OnCreate(lpCreateStruct) == -1)
+	{
+		return -1;
+	}
+
+	// TODO:  在此添加您专用的创建代码CIG::GUI::cigView = this;
+	m_GameThread = AfxBeginThread(CIG::GUI::runThread, this);
+	workThreadOK.Lock();
+	getAction = false;
+
+	CClientDC memDC(this);
+	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
+	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman) ? IDB_CHESSMAN_ROUND_NAMED : IDB_CHESSMAN_RECTANGLE);
+	//input = (CIGRuleConfig::PLAYER_NAMES)-1;
+
+	return 0;
 }
 
 CConfigurableIntelligenceGameView::~CConfigurableIntelligenceGameView()
@@ -69,6 +89,7 @@ BOOL CConfigurableIntelligenceGameView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CConfigurableIntelligenceGameView::OnPaint()
 {
+	CPaintDC memClientDC(this); // 用于绘制的设备上下文
 	// TODO: 在此处添加消息处理程序代码
 
 	DrawBoard();
@@ -91,7 +112,14 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 {
 	DrawBoard();
 	MessageBox(_T("test"));
-	if (abs(nowBoard.getEvaluation())>=Chessboard::WIN_VALUE)
+
+	int looseCount=0;
+	for (int i =0; i<CIGRuleConfig::PLAYER_NUM;++i)
+	{
+		looseCount+=nowBoard.loose[i];
+	}
+
+	if (looseCount==CIGRuleConfig::PLAYER_NUM-1)
 	{
 		MessageBox(_T("胜负已分! "));
 	}
@@ -106,8 +134,7 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnGetMove(WPARAM wParam, LPARAM lParam)
 {
 	getAction = true;
-	MessageBox((LPCTSTR)_T("假设已经得到走法. "));
-
+	
 	GUI::moveComplete.SetEvent();
 	return 0;
 }
@@ -216,7 +243,7 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 
 	//画棋子
 	{
-		CFont* pOldFont;
+		CFont* pOldFont = NULL;
 		CFont font;
 		if (GUI::namedChessman)
 		{
@@ -264,19 +291,20 @@ void CConfigurableIntelligenceGameView::DrawBoard()
 		//标记上次走法
 		for (int i = actionOfLastRound.size-1; i>=0; --i)
 		{
-			if (actionOfLastRound[i].operation == CIGRuleConfig::PUT_CHESS)
+			if ((actionOfLastRound[i].operation == CIGRuleConfig::PUT)||(actionOfLastRound[i].operation == CIGRuleConfig::PICK))
 			{
 				ChessmanIndex& ci = actionOfLastRound[i].chessmanIndex;
-				WrapChessWithFrame(memClientDC, actionOfLastRound[i].distination);
 				
-				if (actionOfLastRound[i].savedCoodinate != PointOrVector(-1,-1))
+				if (actionOfLastRound[i].distination != PointOrVector(-1,-1))
 				{
-					WrapChessWithFrame(memClientDC, actionOfLastRound[i].savedCoodinate);
+					WrapChessWithFrame(memClientDC, actionOfLastRound[i].distination);
 				}
 			}
 		}
-
-		memClientDC.SelectObject(pOldFont);
+		if (GUI::namedChessman)
+		{
+			memClientDC.SelectObject(pOldFont);
+		}
 	}// 画棋子
 
 	dc.BitBlt(0, 0, rect.Width(), rect.Height(), &memClientDC, 0, 0, SRCCOPY);			//双缓冲绘图
@@ -397,26 +425,6 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 	addtionalDC.SelectObject(oldAdditionalBitmap);
 }
 
-int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
-	if (CWnd::OnCreate(lpCreateStruct) == -1)
-	{
-		return -1;
-	}
-
-	// TODO:  在此添加您专用的创建代码CIG::GUI::cigView = this;
-	m_GameThread = AfxBeginThread(CIG::GUI::runThread, this);
-	workThreadOK.Lock();
-	getAction = false;
-
-	CClientDC memDC(this);
-	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
-	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman) ? IDB_CHESSMAN_ROUND_NAMED : IDB_CHESSMAN_RECTANGLE);
-	//input = (CIGRuleConfig::PLAYER_NAMES)-1;
-
-	return 0;
-}
-
 
 void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -449,8 +457,8 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 		{
 			nowBoard.onActionIntent(mg.actionStack[i]);
 			DrawBoard();
-			nowBoard.undoAction(mg.actionStack[i]);
 			MessageBox(_T("ok?"));
+			nowBoard.undoAction(mg.actionStack[i]);
 		}
 		nowBoard.onChangeTurn();
 	}

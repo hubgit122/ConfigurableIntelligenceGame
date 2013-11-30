@@ -62,10 +62,9 @@ void CIG::Chessman::undoPick()
 	this->status = CIGRuleConfig::ON_BOARD;
 }
 
-void CIG::Chessman::undoPut( PointOrVector& previousP )
+void CIG::Chessman::undoPut()
 {
 	this->status = CIGRuleConfig::OFF_BOARD;
-	this->coordinate = previousP;
 }
 
 void CIG::Chessman::undoCaptured()

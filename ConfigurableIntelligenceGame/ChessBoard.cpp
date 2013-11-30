@@ -6,6 +6,7 @@
 #include "ChessmanLocation.h"
 #include "GraphSearchEngine.h"
 
+
 namespace CIG
 {
 	// 按配置初始化很少执行, 所以可以速度慢一点.
@@ -32,11 +33,11 @@ namespace CIG
 						players[k].ownedChessmans.push(c);
 
 						chessmanLocationBoard[PointOrVector(j,i)] = ChessmanIndex((CIGRuleConfig::PLAYER_NAMES)k, players[k].ownedChessmans.size - 1);
-						//evaluations[k] += CIGRuleConfig::EVALUATIONS[k][players[k].ownedChessmans.top().chessmanType][i][j];
 					}
 				}
 			}
 		}
+		calEvaluations();
 	}
 
 	CIG::Chessboard::Chessboard( const Chessboard& cb )
@@ -84,8 +85,12 @@ namespace CIG
 	// Parameter: PointOrVector p
 	// 注意内部调用, 默认已经做过范围检查.
 	//************************************
-	CIG::Chessman* CIG::Chessboard::operator []( PointOrVector p ) const
+	CIG::Chessman* CIG::Chessboard::operator []( PointOrVector p ) const			// TO-DO 这里逻辑可以优化一下, 看看怎么检测比较好
 	{
+		if (beyondBoardRange(p))
+		{
+			return (Chessman*)(void*)-1;
+		}
 		ChessmanIndex& ci = chessmanLocationBoard.content[(p[1]<<CIGRuleConfig::INI_BOARD_WIDTH_LOG2) + p[0]];
 		return (ci.player == -1) ? NULL : &(players[ci.player].ownedChessmans[ci.index]);
 	}
@@ -93,7 +98,7 @@ namespace CIG
 	int CIG::Chessboard::getEvaluation( CIGRuleConfig::PLAYER_NAMES p ) const
 	{
 		// TO-DO 还要加入胜负, 包括平局, 判负
-		int resualt = evaluations[p];
+		int resualt = 0;
 
 		for (int i=0;i<CIGRuleConfig::PLAYER_NUM;++i)
 		{
@@ -102,6 +107,7 @@ namespace CIG
 				resualt-=evaluations[i];
 			}
 		}
+		resualt = evaluations[p]+ (resualt)/(CIGRuleConfig::PLAYER_NUM-1);
 
 		/*if ()
 		{
@@ -115,7 +121,7 @@ namespace CIG
 		return getEvaluation(nowTurn);
 	}
 
-	bool CIG::Chessboard::beyondBoardRange( PointOrVector& p )
+	bool CIG::Chessboard::beyondBoardRange( PointOrVector& p )const
 	{
 		static const unsigned mask = (~(((unsigned short)1 << CIGRuleConfig::INI_BOARD_WIDTH_LOG2) - 1) << sizeof(unsigned short) * 8) | (unsigned short) - 1 & (~(((unsigned short)1 << CIGRuleConfig::INI_BOARD_HEIGHT_LOG2) - 1));
 
@@ -133,7 +139,7 @@ namespace CIG
 		}
 	}
 
-	Chessman* Chessboard::onAddIntent(PointOrVector p)
+	Chessman* Chessboard::onAddIntent(PointOrVector p, bool refreshEvaluations)
 	{
 		Chessman* c = players[nowTurn].ownedChessmans.add(Chessman(CIGRuleConfig::CHESS, p,nowTurn, players[nowTurn].ownedChessmans.size, CIGRuleConfig::OFF_BOARD, CIGRuleConfig::ALL));
 		pickedChessmanByIndex.add(c->chessmanLocation);
@@ -141,19 +147,15 @@ namespace CIG
 	}
 
 	//穿脱原理下, 操作就是这么简单
-	void Chessboard::undoAdd()
+	void Chessboard::undoAdd(bool refreshEvaluations)
 	{
 		pickedChessmanByIndex.deleteAtNoReturn(pickedChessmanByIndex.size-1);
 		players[nowTurn].ownedChessmans.popNoReturn();
 	}
 
-	bool CIG::Chessboard::onPutIntent( Chessman* c, PointOrVector p )
+	bool CIG::Chessboard::onPutIntent( Chessman* c, PointOrVector p , bool refreshEvaluations)
 	{
-		if (beyondBoardRange(p))
-		{
-			return false;
-		}
-		else if ((*this)[p] != NULL)
+		if ((*this)[p] != NULL)
 		{
 			return false;
 		}
@@ -161,18 +163,133 @@ namespace CIG
 		{
 			chessmanLocationBoard[p] = c->chessmanLocation;
 			pickedChessmanByIndex.deleteAtNoReturn(0);
-			//evaluations[nowTurn] += CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][p.x[1]][p.x[0]];
+			if (refreshEvaluations)
+			{
+				static const int DIRECTION_NUM = 8;
+				static const PointOrVector direction[DIRECTION_NUM] = 
+				{
+					PointOrVector(1,0),
+					PointOrVector(1,1),
+					PointOrVector(0,1),
+					PointOrVector(-1,1),
+					PointOrVector(-1,0),
+					PointOrVector(-1,-1),
+					PointOrVector(0,-1),
+					PointOrVector(1,-1),
+				};
+				bool enemyOnTheEnd[DIRECTION_NUM];
+				unsigned char numOfChessman[DIRECTION_NUM];
+				unsigned char totalnumOfChessman[DIRECTION_NUM>>1];
+
+				for (int d = 0;d<DIRECTION_NUM;++d)
+				{
+					enemyOnTheEnd[d] = false;
+					numOfChessman[d] = 0;
+					PointOrVector testPoint = c->coordinate;
+
+					for (Chessman* testc = (*this)[testPoint+=direction[d]]; testc; testc = (*this)[testPoint+=direction[d]])
+					{
+						if (testc==(void*)-1)
+						{
+							enemyOnTheEnd[d] = true;
+							break;
+						}
+						else if (!testc)
+						{
+							enemyOnTheEnd[d] = false;
+							break;
+						}
+						else if (testc->chessmanLocation.player!=nowTurn)
+						{
+							enemyOnTheEnd[d] = true;
+							break;
+						}
+						else
+						{
+							++numOfChessman[d];
+						}
+					}
+				}
+
+				for (int d=0;d<(DIRECTION_NUM>>1);++d)
+				{
+					totalnumOfChessman[d]= numOfChessman[d]+numOfChessman[d+4]+1;
+					if (totalnumOfChessman[d]>=5)
+					{
+						loose[1-nowTurn] = true;
+					}
+					evaluations[nowTurn] -= GRADES[enemyOnTheEnd[d]+0][numOfChessman[d]];
+					evaluations[nowTurn] -= GRADES[enemyOnTheEnd[d+4]+0][numOfChessman[d+4]];
+					evaluations[nowTurn] +=GRADES[enemyOnTheEnd[d]+enemyOnTheEnd[d+4]][totalnumOfChessman[d]>5?5:totalnumOfChessman[d]];
+				}
+			}
 			return true;
 		}
 
 		return false;
 	}
 
-	void CIG::Chessboard::undoPut(Chessman* c, PointOrVector previousP)
+	void CIG::Chessboard::undoPut(Chessman* c , bool refreshEvaluations)
 	{
-		//evaluations[nowTurn] -= CIGRuleConfig::EVALUATIONS[nowTurn][c->chessmanType][c->coordinate[1]][c->coordinate[0]];
+		if (refreshEvaluations)
+		{
+			static const int DIRECTION_NUM = 8;
+			static const PointOrVector direction[DIRECTION_NUM] = 
+			{
+				PointOrVector(1,0),
+				PointOrVector(1,1),
+				PointOrVector(0,1),
+				PointOrVector(-1,1),
+				PointOrVector(-1,0),
+				PointOrVector(-1,-1),
+				PointOrVector(0,-1),
+				PointOrVector(1,-1),
+			};
+			bool enemyOnTheEnd[DIRECTION_NUM];
+			unsigned char numOfChessman[DIRECTION_NUM];
+			unsigned char totalnumOfChessman[DIRECTION_NUM>>1];
+
+			for (int d = 0;d<DIRECTION_NUM;++d)
+			{
+				enemyOnTheEnd[d] = false;
+				numOfChessman[d] = 0;
+				PointOrVector testPoint = c->coordinate;
+
+				for (Chessman* testc = (*this)[testPoint+=direction[d]]; testc; testc = (*this)[testPoint+=direction[d]])
+				{
+					if (testc==(void*)-1)
+					{
+						enemyOnTheEnd[d] = true;
+						break;
+					}
+					else if (!testc)
+					{
+						enemyOnTheEnd[d] = false;
+						break;
+					}
+					else if (testc->chessmanLocation.player!=nowTurn)
+					{
+						enemyOnTheEnd[d] = true;
+						break;
+					}
+					else
+					{
+						++numOfChessman[d];
+					}
+				}
+			}
+
+			for (int d=0;d<(DIRECTION_NUM>>1);++d)
+			{
+				totalnumOfChessman[d]= numOfChessman[d]+numOfChessman[d+4]+1;
+					loose[1-nowTurn] = false;			//特别注意这里, 没输, 搜索时才会调用undo, 所以清空looose. 
+				evaluations[nowTurn] += GRADES[enemyOnTheEnd[d]+0][numOfChessman[d]];
+				evaluations[nowTurn] += GRADES[enemyOnTheEnd[d+4]+0][numOfChessman[d+4]];
+				evaluations[nowTurn] -=GRADES[enemyOnTheEnd[d]+enemyOnTheEnd[d+4]][totalnumOfChessman[d]>5?5:totalnumOfChessman[d]];
+			}
+		}
 		chessmanLocationBoard[c->coordinate].clear();
-		c->undoPut(previousP);
+		c->undoPut();
 		pickedChessmanByIndex.add(c->chessmanLocation);
 	}
 
@@ -189,25 +306,25 @@ namespace CIG
 		nowRound--;
 	}
 
-	bool CIG::Chessboard::onActionIntent(Action& action)
+	bool CIG::Chessboard::onActionIntent(Action& action, bool refreshEvaluations)
 	{
 		bool result = true;
 
 		for (int i = 0; i < action.size; i++)
 		{
-			result  &= onOperationIntent(action[i]);
+			result  &= onOperationIntent(action[i], refreshEvaluations);
 		}
 
 		result &= (this->pickedChessmanByIndex.size == 0);
 		return result;
 	}
 
-	bool Chessboard::onOperationIntent( Operation& op )
+	bool Chessboard::onOperationIntent( Operation& op , bool refreshEvaluations)
 	{
 		switch (op.operation)
 		{
 		case CIGRuleConfig::ADD:
-			if (onAddIntent(op.distination))
+			if (onAddIntent(op.distination ,refreshEvaluations))
 			{
 				return true;
 			}
@@ -217,8 +334,8 @@ namespace CIG
 
 			break;
 
-		case CIGRuleConfig::PUT_CHESS:
-			if(!onPutIntent(&(this->players[op.chessmanIndex.player].ownedChessmans[op.chessmanIndex.index]),op.distination))
+		case CIGRuleConfig::PUT:
+			if(!onPutIntent(&(this->players[op.chessmanIndex.player].ownedChessmans[op.chessmanIndex.index]),op.distination, refreshEvaluations))
 			{
 				return false;
 			}
@@ -239,40 +356,40 @@ namespace CIG
 		return true;
 	}
 
-	bool CIG::Chessboard::canMakeWholeAction(Action& action)
+	bool CIG::Chessboard::canMakeWholeAction(Action& action, bool refreshEvaluations)
 	{
 		Chessboard cb(*this);
-		bool result = cb.onWholeActionIntent(action);
+		bool result = cb.onWholeActionIntent(action, refreshEvaluations);
 		return result;
 	}
 
-	void Chessboard::undoAction( Action& action )
+	void Chessboard::undoAction( Action& action , bool refreshEvaluations)
 	{
 		for (int i = action.size-1; i >=0; --i)				////应该倒着恢复!!!
 		{
-			undoOperation(action[i]);
+			undoOperation(action[i], refreshEvaluations);
 		}
 	}
 
 	// TO-DO这个函数还没有写就拿去调试了, 当然不会有好结果! 
-	void Chessboard::undoOperation( Operation& operation )
+	void Chessboard::undoOperation( Operation& operation , bool refreshEvaluations)
 	{
 		switch (operation.operation)
 		{
 		case CIGRuleConfig::ADD:
-			undoAdd();
+			undoAdd(refreshEvaluations);
 			break;
 
 		case CIGRuleConfig::PICK:
-			undoPick(&(this->players[operation.chessmanIndex.player].ownedChessmans[operation.chessmanIndex.index]));
+			undoPick(&(this->players[operation.chessmanIndex.player].ownedChessmans[operation.chessmanIndex.index]),operation.distination, refreshEvaluations);
 			break;
 
-		case CIGRuleConfig::PUT_CHESS:
-			undoPut(&(this->players[operation.chessmanIndex.player].ownedChessmans[operation.chessmanIndex.index]),operation.savedCoodinate);
+		case CIGRuleConfig::PUT:
+			undoPut(&(this->players[operation.chessmanIndex.player].ownedChessmans[operation.chessmanIndex.index]), refreshEvaluations);
 			break;
 
 		case CIGRuleConfig::CAPTURE:
-			undoCaptured(&(this->players[operation.chessmanIndex.player].ownedChessmans[operation.chessmanIndex.index]));
+			undoCaptured(&(this->players[operation.chessmanIndex.player].ownedChessmans[operation.chessmanIndex.index]), refreshEvaluations);
 			break;
 
 		default:
@@ -280,61 +397,71 @@ namespace CIG
 		}
 	}
 
-	bool Chessboard::onWholeActionIntent( Action& action )
+	bool Chessboard::onWholeActionIntent( Action& action , bool refreshEvaluations)
 	{
-		return onActionIntent(action)&&onChangeTurn();
+		return onActionIntent(action, refreshEvaluations)&&onChangeTurn();
 	}
 
-	void Chessboard::undoWholeAction( Action& action )
+	void Chessboard::undoWholeAction( Action& action , bool refreshEvaluations)
 	{
 		undoChangeTurn();				//穿脱原理
-		undoAction(action);
+		undoAction(action,refreshEvaluations);
 	}
 
-	bool CIG::Chessboard::onPickIntent( PointOrVector p )
+	bool CIG::Chessboard::onPickIntent( PointOrVector p , bool refreshEvaluations)
 	{
-		return onPickIntent((*this)[p]);
+		return onPickIntent((*this)[p], refreshEvaluations);
 	}
 
-	void CIG::Chessboard::undoPick(PointOrVector p)
+	void CIG::Chessboard::undoPick(Chessman* c , PointOrVector p, bool refreshEvaluations)
 	{
-		undoPick((*this)[p]);
-	}
-	void CIG::Chessboard::undoPick(Chessman* c )
-	{
+		c->coordinate = p;
+		c->undoPick();
+		//evaluations
 	}
 
-	void CIG::Chessboard::undoPromotion(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t)
+	void CIG::Chessboard::undoPromotion(Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t, bool refreshEvaluations)
 	{
 		//TODO
 	}
-	void CIG::Chessboard::undoPromotion(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t)
+	void CIG::Chessboard::undoPromotion(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t, bool refreshEvaluations)
 	{
 		//TODO
 	}
 
-	bool CIG::Chessboard::onCaptureIntent( Chessman* c, PointOrVector p )
+	bool CIG::Chessboard::onCaptureIntent( Chessman* c, PointOrVector p , bool refreshEvaluations)
 	{
 		return false;
 	}
 
-	bool CIG::Chessboard::onPromotionIntent( Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t )
+	bool CIG::Chessboard::onPromotionIntent( Chessman* c, CIGRuleConfig::CHESSMAN_TYPES t , bool refreshEvaluations)
 	{
 		return false;
 	}
 
-	bool CIG::Chessboard::onPickIntent( Chessman* c )
+	bool CIG::Chessboard::onPickIntent( Chessman* c , bool refreshEvaluations)
 	{
 		return false;
 	}
 
-	bool CIG::Chessboard::onPromotionIntent( PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t )
+	bool CIG::Chessboard::onPromotionIntent( PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t , bool refreshEvaluations)
 	{
-		return onPromotionIntent((*this)[p], t);
+		return onPromotionIntent((*this)[p], t, refreshEvaluations);
 	}
 
-	void Chessboard::undoCaptured( Chessman* c )
+	void Chessboard::undoCaptured( Chessman* c , bool refreshEvaluations)
 	{
 	}
 
+	void Chessboard::calEvaluations()
+	{
+
+	}
+
+	const int Chessboard::GRADES[3][6]= 
+	{
+		{0,30,100,1000,MATE_VALUE-1,MATE_VALUE},
+		{0,10,50,200,1000,MATE_VALUE},
+		{0,0,0,0,0,MATE_VALUE},
+	};
 }

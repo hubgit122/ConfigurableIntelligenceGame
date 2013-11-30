@@ -38,9 +38,9 @@ namespace CIG
 		{
 			Action& nowAction = runningActionStack[i];
 
-			nowBoard.onWholeActionIntent(nowAction);
+			nowBoard.onWholeActionIntent(nowAction,true);
 			vl = -alphaBetaSearch(-beta, -alpha, depth - 1);
-			nowBoard.undoWholeAction(nowAction);
+			nowBoard.undoWholeAction(nowAction,true);
 
 			// 5. 进行Alpha-Beta大小判断和截断
 			if (vl > vlBest)      // 找到最佳值(但不能确定是Alpha、PV还是Beta走法)
@@ -114,7 +114,7 @@ namespace CIG
 
 	Chessboard* GraphSearchEngine::pChessboard = NULL;
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 4;    // 最大的搜索深度
+	const int GraphSearchEngine::LIMIT_DEPTH = 3;    // 最大的搜索深度
 
 	CIG::Action GraphSearchEngine::bestAction;
 }
