@@ -127,17 +127,26 @@ struct PointOrVector
 		return x[index];
 	}
 
-	bool operator==(const PointOrVector& p)
+	bool operator==(const PointOrVector& p)const
 	{
 		return (*(unsigned*)this->x == *(unsigned*)(p.x));
 	}
 
-	bool operator!=(const PointOrVector& p)
+	bool operator!=(const PointOrVector& p)const
 	{
 		return !(*this==p);
 	}
 
-	PointOrVector operator- (const PointOrVector& p)
+	friend PointOrVector operator*(int lambda, const PointOrVector& p)
+	{
+		PointOrVector temp = p;
+
+		temp.x[0] *= lambda;
+		temp.x[1] *= lambda;
+
+		return temp;
+	}
+	PointOrVector operator- (const PointOrVector& p)const
 	{
 		PointOrVector temp = *this;
 
@@ -154,7 +163,7 @@ struct PointOrVector
 		return *this;
 	}
 
-	PointOrVector operator+ (const PointOrVector& p)
+	PointOrVector operator+ (const PointOrVector& p)const
 	{
 		PointOrVector temp = *this;
 

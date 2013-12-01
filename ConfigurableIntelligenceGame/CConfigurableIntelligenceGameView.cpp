@@ -111,7 +111,7 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
 	DrawBoard();
-	MessageBox(_T("test"));
+	//MessageBox(_T("test"));
 
 	if (nowBoard.gameOver())
 	{
@@ -441,17 +441,17 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 #endif // _DEBUG_POINT
 #ifdef DEBUG_GENERATOR
 
-	for (;;)
+	for (int j =0;j<CIGRuleConfig::PLAYER_NUM;++j)
 	{
 		MotionGenerator mg(nowBoard);
-		mg.generateMotionsAndBoards();
+		mg.generateActions();
 
 		for (int i = 0; i < mg.actionStack.size ; ++i)
 		{
-			nowBoard.onActionIntent(mg.actionStack[i]);
+			nowBoard.onActionIntent(mg.actionStack[i],true);
 			DrawBoard();
 			MessageBox(_T("ok?"));
-			nowBoard.undoAction(mg.actionStack[i]);
+			nowBoard.undoAction(mg.actionStack[i],true);
 		}
 		nowBoard.onChangeTurn();
 	}

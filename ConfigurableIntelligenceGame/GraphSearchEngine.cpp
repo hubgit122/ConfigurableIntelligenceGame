@@ -8,6 +8,19 @@ namespace CIG
 {
 	const float GraphSearchEngine::MAX_SEARCH_TIME = 10000;		//10s
 
+	//************************************
+	// Method:    alphaBetaSearch
+	// FullName:  CIG::GraphSearchEngine::alphaBetaSearch
+	// Access:    private static 
+	// Returns:   int
+	// Qualifier:
+	// Parameter: int alpha
+	// Parameter: int beta
+	// Parameter: int depth
+	// 这个函数的多人版, 应该是这样的:
+	// 原理是当前玩家看有限步, 得到在别的玩家也走对自己最有利的走法时, 自己所能获得的最有利的结果. 
+	// 这和最大最小搜索的最大不同在于得到当前被评估玩家走这一步之后所能得到的最好分数并不是直接由前一人取相反数得到的, 而应该直接由下级搜索返回本级的可期望评估. 
+	//************************************
 	int GraphSearchEngine::alphaBetaSearch( int alpha, int beta, int depth)
 	{
 		int vl, vlBest;
@@ -18,7 +31,7 @@ namespace CIG
 		// 1. 到达水平线，则返回局面评价值
 		if (depth == 0)
 		{
-			return nowBoard.getEvaluation();
+			return nowBoard.getEvaluation((CIGRuleConfig::PLAYER_NAMES)((nowBoard.nowTurn-1)<0?(CIGRuleConfig::PLAYER_NUM-1):nowBoard.nowTurn-1));
 		}
 
 		// 2. 初始化最佳值和最佳走法
@@ -27,7 +40,7 @@ namespace CIG
 
 		// 3. 生成全部走法，并根据历史表排序			如果被将死, 没有棋可以走.
 		MotionGenerator mg(nowBoard);
-		mg.generateMotionsAndBoards();
+		mg.generateActions();
 
 		ActionStack& runningActionStack = mg.actionStack;
 
@@ -39,7 +52,7 @@ namespace CIG
 			Action& nowAction = runningActionStack[i];
 
 			nowBoard.onWholeActionIntent(nowAction,true);
-			vl = -alphaBetaSearch(-beta, -alpha, depth - 1);
+			vl = alphaBetaSearch(-beta, -alpha, depth - 1);
 			nowBoard.undoWholeAction(nowAction,true);
 
 			// 5. 进行Alpha-Beta大小判断和截断
@@ -79,7 +92,12 @@ namespace CIG
 			}
 		}
 
-		return vlBest;
+		//return vlBest;						//通过vlBest选出最佳走法, 但是并不能返回这个值, 而是对应的前一玩家的评估值. 
+		nowBoard.onActionIntent(nowBestAction,true);
+		int preBest = nowBoard.getEvaluation((CIGRuleConfig::PLAYER_NAMES)((nowBoard.nowTurn-1)<0?(CIGRuleConfig::PLAYER_NUM-1):nowBoard.nowTurn-1));
+		nowBoard.undoAction(nowBestAction,true);
+		
+		return preBest;
 	}
 
 	void GraphSearchEngine::makeBestAction( Chessboard*chessboard, void* action )
@@ -114,7 +132,7 @@ namespace CIG
 
 	Chessboard* GraphSearchEngine::pChessboard = NULL;
 
-	const int GraphSearchEngine::LIMIT_DEPTH = 3;    // 最大的搜索深度
+	const int GraphSearchEngine::LIMIT_DEPTH = 2;    // 最大的搜索深度
 
 	CIG::Action GraphSearchEngine::bestAction;
 }

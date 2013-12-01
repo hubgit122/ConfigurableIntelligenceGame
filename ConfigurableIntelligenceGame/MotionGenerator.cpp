@@ -6,11 +6,11 @@
 #include "Chessman.h"
 #include "ChessmanLocation.h"
 
-void CIG::MotionGenerator::generateMotionsAndBoards()
+void CIG::MotionGenerator::generateActions()
 {
-	if (chessboard.loose[chessboard.nowTurn])
+	if (chessboard.loose[chessboard.nowTurn]||chessboard.win[chessboard.nowTurn])
 	{
-		return;								//如果已经输了, 就不产生走法, 走法栈是空的. 
+		return;								//如果已经输了或赢了, 就不产生走法, 走法栈是空的. 
 	}
 
 	Action logOperationStack;
@@ -90,10 +90,94 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 			}
 			break;
 
+		case CIGRuleConfig::PICK:
+			{
+				const Stack<Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessboard.players[chessboard.nowTurn].ownedChessmans;
+
+				if (logOperationStack.size==0)
+				{
+					for (unsigned i = 0; i < cg.size; ++i)
+					{
+						Chessman* c = const_cast<Chessman*> (&(cg.at(i)));
+						testAndSave(s, c, c->coordinate,runningOperationStack);
+					}
+				}
+				else
+				{
+					Chessman* c = const_cast<Chessman*> (&(cg.at(logOperationStack.top().chessmanIndex.index)));
+					
+					testAndSave(s, c, c->coordinate,runningOperationStack);
+				}
+			}
+			break;
+
 		case CIGRuleConfig::PUT:
 			{
 				ChessmanIndex& cl = chessboard.pickedChessmanByIndex[-1];
-				testAndSave(s, &chessboard.players[cl.player].ownedChessmans[cl.index], logOperationStack.top().distination, runningOperationStack);
+				Chessman* c = &chessboard.players[cl.player].ownedChessmans[cl.index];
+
+				if(logOperationStack.size>=3)
+				{
+					PointOrVector diff = (logOperationStack[-3].distination-logOperationStack[-2].distination);
+					if (abs(diff[0]|diff[1])==1)			//单跳
+					{
+						return;
+					}
+				}
+
+				for (int i=GUI::LINE_DIRECTION.size()-1; i>=0; --i)
+				{
+					for (int j=-1; j<2; j+=2)
+					{
+						PointOrVector& delt = j*GUI::LINE_DIRECTION.at(i);
+						Chessman* oneStep = chessboard[c->coordinate+delt];
+						Chessman* twoStep = chessboard[c->coordinate+2*delt];
+						PointOrVector dist;
+
+						if (logOperationStack.size==1)			//还未确定是否连跳
+						{
+							if (oneStep&&twoStep)
+							{
+								continue;
+							}
+							else if (oneStep)
+							{
+								dist = c->coordinate+2*delt;
+							}
+							else
+							{
+								dist = c->coordinate+delt;
+							}
+						}
+						else														//已经确定为连跳
+						{
+							if (oneStep&&!twoStep)
+							{
+								dist = c->coordinate + 2*delt;
+							}
+							else
+							{
+								continue;
+							}
+
+							bool flag = false;
+							for (int j=logOperationStack.size-1;j>=0;--j)
+							{
+								if (logOperationStack[j].operation==CIGRuleConfig::PICK&&logOperationStack[j].distination==dist)
+								{
+									flag = true;
+									break;
+								}
+							}
+							if (flag)
+							{
+								continue;
+							}
+						}
+
+						testAndSave(s, c, dist, runningOperationStack);
+					}
+				}
 			}
 			break;
 		
@@ -113,35 +197,62 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 
 bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack )
 {
-	if (s == CIGRuleConfig::CAPTURE)
+	switch (s)
 	{
-		Chessman* temp = chessboard[dist];
-		if (chessboard.onCaptureIntent(c, dist))
+	case CIG::CIGRuleConfig::BEGIN:
+		break;
+	case CIG::CIGRuleConfig::ADD:
 		{
-			chessboard.undoCaptured(temp);
-			Operation optemp(temp->chessmanLocation, s, dist);
+			Operation optemp(ChessmanIndex(),CIGRuleConfig::ADD,dist);
 			runningOperationStack.push(optemp);
-
 			return true;
 		}
-	}
-	else if (s == CIGRuleConfig::PUT)
-	{
-		PointOrVector preP(c->coordinate);
-		if (chessboard.onPutIntent(c, dist))
+		break;
+	case CIG::CIGRuleConfig::PICK:
 		{
-			chessboard.undoPut(c);
-			Operation optemp(c->chessmanLocation, s, dist);
-			runningOperationStack.push(optemp);
-
-			return true;
+			if (chessboard.onPickIntent(c))
+			{
+				chessboard.undoPick(c,c->coordinate);
+				Operation optemp(c->chessmanLocation, CIGRuleConfig::PICK,c->coordinate);
+				runningOperationStack.push(optemp);
+			}
 		}
-	}
-	else if(s == CIGRuleConfig::ADD)
-	{
-		Operation optemp(ChessmanIndex(),CIGRuleConfig::ADD,dist);
-		runningOperationStack.push(optemp);
-		return true;
+		break;
+	case CIG::CIGRuleConfig::PUT:
+		{
+			PointOrVector preP(c->coordinate);
+			if (chessboard.onPutIntent(c, dist))
+			{
+				chessboard.undoPut(c);
+				c->coordinate = preP;
+				Operation optemp(c->chessmanLocation, s, dist);
+				runningOperationStack.push(optemp);
+
+				return true;
+			}
+		}
+		break;
+	case CIG::CIGRuleConfig::CAPTURE:
+		{
+			Chessman* temp = chessboard[dist];
+			if (chessboard.onCaptureIntent(c, dist))
+			{
+				chessboard.undoCaptured(temp);
+				Operation optemp(temp->chessmanLocation, s, dist);
+				runningOperationStack.push(optemp);
+
+				return true;
+			}
+		}
+		break;
+	case CIG::CIGRuleConfig::PROMOTION:
+		break;
+	case CIG::CIGRuleConfig::DECOVER:
+		break;
+	case CIG::CIGRuleConfig::END:
+		break;
+	default:
+		break;
 	}
 	return false;
 }

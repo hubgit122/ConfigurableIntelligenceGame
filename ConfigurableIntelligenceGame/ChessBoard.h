@@ -28,7 +28,7 @@ namespace CIG
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
 			Array<ChessmanIndex , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByIndex;
-			ChessmanLocationBoard chessmanLocationBoard;
+			ChessmanLocationBoard chessmanIndexBoard;
 
 			bool loose[CIGRuleConfig::PLAYER_NUM];					//在搜索时辅助判断是否获胜, 在防止先后走出获胜走法时起作用
 			bool win[CIGRuleConfig::PLAYER_NUM];						//在搜索时辅助判断是否获胜, 在防止先后走出获胜走法时起作用
@@ -37,15 +37,8 @@ namespace CIG
 			static const int WIN_VALUE = MATE_VALUE>>1; // 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
 			static const int ADVANCED_VALUE = 3;  // 先行权分值
 
-			const static PointOrVector DISTAINATION[CIGRuleConfig::PLAYER_NUM] = 
-			{
-				PointOrVector(12,16),
-				PointOrVector(16,12),
-				PointOrVector(12,4),
-				PointOrVector(4,0),
-				PointOrVector(0,4),
-				PointOrVector(4,12)
-			};
+			static const PointOrVector DISTAINATION[CIGRuleConfig::PLAYER_NUM];
+
 			//************************************
 			// Method:    onXXIntent
 			// FullName:  CIG::ChessmanBoard::onXXIntent
@@ -106,7 +99,7 @@ namespace CIG
 			virtual void undoOperation(Operation& operation, bool refreshEvaluations = false);
 			virtual void undoChangeTurn();
 
-			virtual void calEvaluations();
+			virtual void refreshEvaluations();
 			virtual bool gameOver();
 
 		public:

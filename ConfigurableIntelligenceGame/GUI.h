@@ -66,7 +66,7 @@ namespace CIG
 			static CString playerName[CIGRuleConfig::PLAYER_NUM];
 			static COLORREF playerColor[CIGRuleConfig::PLAYER_NUM];
 			static float borderWidth;
-			static vector<PointOrVector_Float> LINE_DIRECTION;
+			static vector<PointOrVector> LINE_DIRECTION;
 			static float boundsOfBoardRelatively[4];
 			enum {TOP, BOTTOM, LEFT, RIGHT};
 			static void refreshBoardDisplayData();
