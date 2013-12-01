@@ -22,6 +22,7 @@ class CConfigurableIntelligenceGameView : public CWnd
 	public:
 		CWinThread* m_GameThread;
 		CEvent workThreadOK;
+		CEvent moveComplete;
 		CIG::Action actionOfLastRound;
 		CIG::Chessboard nowBoard;
 		bool getAction;

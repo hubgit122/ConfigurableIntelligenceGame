@@ -12,7 +12,7 @@
 #include "utilities.h"
 #include "MotionGenerator.h"
 
-#define DEBUG_GENERATOR
+//#define DEBUG_GENERATOR
 
 using namespace CIG;
 
@@ -21,7 +21,7 @@ using namespace CIG;
 #endif
 
 
-CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(),actionOfLastRound()
+CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(),actionOfLastRound(),moveComplete()
 {
 	//这里的初始化会乱掉. 所以还是在别处再初始化一次吧.
 
@@ -42,7 +42,6 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CClientDC memDC(this);
 	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
 	chessmanBaseBitmap.LoadBitmap((GUI::roundChessman) ? IDB_CHESSMAN_ROUND_NAMED : IDB_CHESSMAN_RECTANGLE);
-	//input = (CIGRuleConfig::PLAYER_NAMES)-1;
 
 	return 0;
 }
@@ -111,7 +110,7 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
 	DrawBoard();
-	//MessageBox(_T("test"));
+	MessageBox(_T("switchTurn"));
 
 	if (nowBoard.gameOver())
 	{
@@ -119,7 +118,7 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 	}
 	else
 	{
-		m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0); 
+		m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0);
 	}
 
 	return 0;
@@ -128,6 +127,7 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnGetMove(WPARAM wParam, LPARAM lParam)
 {
 	getAction = true;
+	moveComplete.Lock();
 	
 	GUI::moveComplete.SetEvent();
 	return 0;
@@ -427,35 +427,13 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (getAction)
 	{
-
+		MotionGenerator mg(nowBoard);
+		mg.generateActions();
 
 
 
 		getAction = false;
 	}
-
-#ifdef _DEBUG_POINT
-	ostringstream oss;
-	oss << "lp= (" << lp.x[0] << " , " << lp.x[1] << ")";
-	GUI::inform(oss.str());
-#endif // _DEBUG_POINT
-#ifdef DEBUG_GENERATOR
-
-	for (int j =0;j<CIGRuleConfig::PLAYER_NUM;++j)
-	{
-		MotionGenerator mg(nowBoard);
-		mg.generateActions();
-
-		for (int i = 0; i < mg.actionStack.size ; ++i)
-		{
-			nowBoard.onActionIntent(mg.actionStack[i],true);
-			DrawBoard();
-			MessageBox(_T("ok?"));
-			nowBoard.undoAction(mg.actionStack[i],true);
-		}
-		nowBoard.onChangeTurn();
-	}
-#endif // DEBUG_GENERATOR
 
 	CWnd::OnLButtonDown(nFlags, point);
 }

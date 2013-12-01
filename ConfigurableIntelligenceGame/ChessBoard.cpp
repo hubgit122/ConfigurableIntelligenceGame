@@ -22,9 +22,9 @@ namespace CIG
 	// 按配置初始化很少执行, 所以可以速度慢一点.
 	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByIndex(), currentBannedMotions(),chessmanIndexBoard()
 	{
-		players[0] = Player(CIGRuleConfig::A, GraphSearchEngine::makeBestAction, this);
+		players[0] = Player(CIGRuleConfig::A, GUI::askForAction, this);												//测试. 
 		players[1] = Player(CIGRuleConfig::B, GraphSearchEngine::makeBestAction, this);
-		players[2] = Player(CIGRuleConfig::C, GraphSearchEngine::makeBestAction, this);
+		players[2] = Player(CIGRuleConfig::C, GUI::askForAction, this);
 		players[3] = Player(CIGRuleConfig::D, GraphSearchEngine::makeBestAction, this);
 		players[4] = Player(CIGRuleConfig::E, GraphSearchEngine::makeBestAction, this);
 		players[5] = Player(CIGRuleConfig::F, GraphSearchEngine::makeBestAction, this);			// TO-DO  应该是智能引擎实例而不是player类实例.
