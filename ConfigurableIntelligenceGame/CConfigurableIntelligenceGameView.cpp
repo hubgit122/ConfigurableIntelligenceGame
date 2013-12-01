@@ -422,6 +422,11 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
+#ifdef _DEBUG_WIN_EVAL
+	ostringstream oss;
+	oss<<nowBoard.evaluations[4];
+	GUI::inform(oss.str());
+#endif // _DEBUG_WIN_EVAL
 
 	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
 

@@ -17,7 +17,6 @@ namespace CIG
 		PointOrVector(12,16),
 		PointOrVector(16,12),
 		PointOrVector(12,4),
-
 	};
 	// 按配置初始化很少执行, 所以可以速度慢一点.
 	CIG::Chessboard::Chessboard() : nowRound(0), nowTurn((CIGRuleConfig::PLAYER_NAMES)0), pickedChessmanByIndex(), currentBannedMotions(),chessmanIndexBoard()
@@ -186,7 +185,7 @@ namespace CIG
 				int distDistance = ((distVector[0]^distVector[1])>=0)? max(abs(distVector[0]), abs(distVector[1]) ) : (abs(distVector[0])+abs(distVector[1]));
 
 				evaluations[nowTurn] += srcDistance*srcDistance - distDistance*distDistance;
-				win[nowTurn] = (evaluations[nowTurn] == 132);
+				win[nowTurn] = (evaluations[nowTurn] == 1920);			//调试输出得出的结果. 
 			}
 			chessmanIndexBoard[p] = c->chessmanLocation;
 			if(!c->onPutIntent(p))
