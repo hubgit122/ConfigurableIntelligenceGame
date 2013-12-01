@@ -430,14 +430,45 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
 
+	static Action as;
+	static StatusStack statusStack;
+	statusStack.push(CIGRuleConfig::BEGIN);
+
 	if (getAction)
 	{
-		MotionGenerator mg(nowBoard);
-		mg.generateActions();
+		bool breakFlag = true;
+		do
+		{
+			switch (statusStack.top())
+			{
+			case CIG::CIGRuleConfig::BEGIN:
+				breakFlag = false;
+				statusStack.push(CIGRuleConfig::PICK);
+				break;
 
+			case CIG::CIGRuleConfig::ADD:
+				break;
 
+			case CIG::CIGRuleConfig::PICK:
+				breakFlag = true;
+				Chessman* test = nowBoard[lp];
+				if ((test!=NULL)&&(test!=(Chessman*)-1)&&(test->chessmanIndex.player == nowBoard.nowTurn))
+				{
+					as.add(Operation(test->chessmanIndex,CIGRuleConfig::PICK,test->coordinate));
+					if (nowBoard.onPickIntent(test))
+					{
+						status = CIGRuleConfig::PUT;
+						DrawBoard();
+					}
+					else
+					{
+						as.popNoReturn();
+					}
+				}
+				break;
 
-		getAction = false;
+			}
+		}while(!breakFlag);
 	}
 
 	CWnd::OnLButtonDown(nFlags, point);

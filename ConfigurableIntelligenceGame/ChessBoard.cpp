@@ -158,7 +158,7 @@ namespace CIG
 	Chessman* Chessboard::onAddIntent(PointOrVector p, bool refreshEvaluations)
 	{
 		Chessman* c = players[nowTurn].ownedChessmans.add(Chessman(CIGRuleConfig::CHESS, p,nowTurn, players[nowTurn].ownedChessmans.size, CIGRuleConfig::OFF_BOARD, CIGRuleConfig::ALL));
-		pickedChessmanByIndex.add(c->chessmanLocation);
+		pickedChessmanByIndex.add(c->chessmanIndex);
 		return c;
 	}
 
@@ -175,7 +175,7 @@ namespace CIG
 		{
 			return false;
 		}
-		else if ((pickedChessmanByIndex.size>0)&&(pickedChessmanByIndex[0] == c->chessmanLocation))
+		else if ((pickedChessmanByIndex.size>0)&&(pickedChessmanByIndex[0] == c->chessmanIndex))
 		{
 			if (refreshEvaluations)
 			{
@@ -187,7 +187,7 @@ namespace CIG
 				evaluations[nowTurn] += srcDistance*srcDistance - distDistance*distDistance;
 				win[nowTurn] = (evaluations[nowTurn] == 1920);			//调试输出得出的结果. 
 			}
-			chessmanIndexBoard[p] = c->chessmanLocation;
+			chessmanIndexBoard[p] = c->chessmanIndex;
 			if(!c->onPutIntent(p))
 			{
 				GUI::inform("走法错误, 请重新设计. ");
@@ -203,7 +203,7 @@ namespace CIG
 	{
 		chessmanIndexBoard[c->coordinate].clear();
 		c->undoPut();
-		pickedChessmanByIndex.add(c->chessmanLocation);
+		pickedChessmanByIndex.add(c->chessmanIndex);
 	}
 
 	bool CIG::Chessboard::onChangeTurn()
@@ -344,7 +344,7 @@ namespace CIG
 			evaluations[nowTurn] += srcDistance*srcDistance - distDistance*distDistance;
 		}
 		pickedChessmanByIndex.deleteAtNoReturn(pickedChessmanByIndex.size-1);
-		chessmanIndexBoard[p] = c->chessmanLocation;
+		chessmanIndexBoard[p] = c->chessmanIndex;
 		c->coordinate = p;
 		c->undoPick();
 	}
@@ -370,9 +370,9 @@ namespace CIG
 
 	bool CIG::Chessboard::onPickIntent( Chessman* c , bool refreshEvaluations)
 	{
-		if ((c->chessmanLocation.player == nowTurn) && (pickedChessmanByIndex.size == 0) && (c->onPickIntent()))
+		if ((c->chessmanIndex.player == nowTurn) && (pickedChessmanByIndex.size == 0) && (c->onPickIntent()))
 		{
-			pickedChessmanByIndex.add(c->chessmanLocation);
+			pickedChessmanByIndex.add(c->chessmanIndex);
 			chessmanIndexBoard[c->coordinate].clear();
 			
 			return true;

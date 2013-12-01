@@ -16,6 +16,7 @@ namespace CIG
 			Operation(ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist = 0);
 			virtual ~Operation();
 			void operator=(const Operation& op);
+			bool operator==(const Operation& op)const;
 
 			friend std::ostringstream& operator<<(std::ostringstream& oss, const Operation& op)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{

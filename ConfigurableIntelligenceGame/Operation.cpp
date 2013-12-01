@@ -26,3 +26,8 @@ void CIG::Operation::operator=( const Operation& op )
 {
 	memcpy(this, &op, sizeof(Operation));
 }
+
+bool CIG::Operation::operator==( const Operation& op ) const
+{
+	return (this->chessmanIndex.player==op.chessmanIndex.player)&&(this->chessmanIndex.index==op.chessmanIndex.index)&&(this->distination==op.distination)&&(this->operation==op.operation);
+}

@@ -35,6 +35,7 @@ namespace CIG
 			static void postMessage( UINT msg, WPARAM wp, LPARAM  lp);
 
 			static void askForAction(Chessboard*cb, void* op);
+			static void GUI::getPoint(PointOrVector&dist);
 
 			/*************************************************************************
 				设置棋盘绘制参数

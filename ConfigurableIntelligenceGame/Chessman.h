@@ -20,7 +20,7 @@ namespace CIG
 				memcpy(this, &c, sizeof(Chessman));
 			};
 			inline Chessman(CIGRuleConfig::CHESSMAN_TYPES t, const PointOrVector& c, CIGRuleConfig::PLAYER_NAMES p, int index, CIGRuleConfig::CHESSMAN_STATUS s, CIGRuleConfig::VISIBILITIES v)
-				: chessmanType(t), coordinate(c), chessmanLocation(p, index), status(s)
+				: chessmanType(t), coordinate(c), chessmanIndex(p, index), status(s)
 			{
 				for (int i = 0 ; i < CIGRuleConfig::PLAYER_NUM; ++i)
 				{
@@ -29,7 +29,7 @@ namespace CIG
 			}
 			CIGRuleConfig::CHESSMAN_TYPES chessmanType;
 			struct PointOrVector coordinate;
-			ChessmanIndex chessmanLocation;
+			ChessmanIndex chessmanIndex;
 			CIGRuleConfig::CHESSMAN_STATUS status;
 			CIGRuleConfig::VISIBILITIES visibility[CIGRuleConfig::PLAYER_NUM];
 			//static const HBITMAP bitMap[CIGRuleConfig::CHESSMAN_NUM];
@@ -39,7 +39,7 @@ namespace CIG
 			friend std::ostringstream& operator<<(std::ostringstream& oss, const Chessman& c)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
 				oss << "Chessman::\n" << "\tchessmanType: " << c.chessmanType << "\n\tcoordinate: ";
-				oss << c.coordinate << "\nchessmanLocation.player: " << c.chessmanLocation.player << '\n';
+				oss << c.coordinate << "\nchessmanLocation.player: " << c.chessmanIndex.player << '\n';
 				return oss;
 			}
 			//************************************

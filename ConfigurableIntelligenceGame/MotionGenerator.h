@@ -20,8 +20,8 @@ namespace CIG
 			Chessboard& chessboard;				//每个ChesssBoard有一个MotionGenerator实例.
 
 			//virtual OperationStack* nextAction();
-			virtual void generateActions();
-			virtual void generateRecursively(Action& logMotionStack, StatusStack& statusStack);
+			virtual void generateActions(bool guiInput = false);
+			virtual void generateRecursively(Action& logMotionStack, StatusStack& statusStack, bool guiInput = false);
 			virtual void generateOperationsForOneStatus(StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack );
 
 			bool testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack );

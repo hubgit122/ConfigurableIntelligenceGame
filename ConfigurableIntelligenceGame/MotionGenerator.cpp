@@ -6,18 +6,18 @@
 #include "Chessman.h"
 #include "ChessmanLocation.h"
 
-void CIG::MotionGenerator::generateActions()
+void CIG::MotionGenerator::generateActions( bool guiInput )
 {
 	if (chessboard.loose[chessboard.nowTurn]||chessboard.win[chessboard.nowTurn])
 	{
 		return;								//如果已经输了或赢了, 就不产生走法, 走法栈是空的. 
 	}
 
-	Action logOperationStack;
+	Action logMotionStack;
 	StatusStack statusStack;
 
 	statusStack.push(CIGRuleConfig::BEGIN);
-	generateRecursively(logOperationStack, statusStack);
+	generateRecursively(logMotionStack, statusStack);
 	statusStack.popNoReturn();
 }
 
@@ -31,9 +31,9 @@ CIG::MotionGenerator::MotionGenerator(Chessboard& cb)
 // 若当前棋盘和走法运行栈空, 说明该状态没有可用走法, 状态栈弹栈, 重新取定栈顶为当前状态.
 // 若全局状态栈顶为end, 临时栈入全局栈, 状态栈弹栈, 重新取定栈顶为当前状态.
 // 初始条件配置: statusStack.push(CIGRuleConfig::BEGIN);
-void CIG::MotionGenerator::generateRecursively( Action& logOperationStack, StatusStack& statusStack )
+void CIG::MotionGenerator::generateRecursively( Action& logMotionStack, StatusStack& statusStack, bool guiInput /*= false*/ )
 {
-	Action runningOperationStack;
+	Action runningMotionStack;
 
 	CIGRuleConfig::OPERATIONS op = statusStack.top();
 	int i = 0;
@@ -45,27 +45,89 @@ void CIG::MotionGenerator::generateRecursively( Action& logOperationStack, Statu
 
 	for (; i > 0; --i)
 	{
-		generateOperationsForOneStatus(statusStack, logOperationStack, runningOperationStack);
+		generateOperationsForOneStatus(statusStack, logMotionStack, runningMotionStack);
 
-		while (runningOperationStack.size > 0)
+		if (guiInput)
 		{
-			Operation& nowOperation = runningOperationStack.top();
-			logOperationStack.push(nowOperation);
-			chessboard.onOperationIntent(nowOperation);
+			PointOrVector dist;
+			Operation optemp;
+			if (runningMotionStack.size==0)//END
+			{
+				statusStack.popNoReturn();
+				continue;
+			}
+			else if (runningMotionStack.size==1)
+			{
+				optemp = runningMotionStack.top();
+			}
+			else
+			{
+				GUI::getPoint(dist);				//可能需要点击多次才会有响应. 
+				for (int i=0; i<runningMotionStack.size; ++i)
+				{
+					if (runningMotionStack[i].distination == dist )
+					{
+						optemp = runningMotionStack[i];
+						break;
+					}
+				}
+			}
 
-			generateRecursively(logOperationStack, statusStack);
+			if (optemp==Operation())
+			{
+				for (--i; (i > 0)&&(optemp==Operation()); --i)
+				{
+					statusStack.popNoReturn();
+					generateOperationsForOneStatus(statusStack, logMotionStack, runningMotionStack);
+					for (int j=0; j<runningMotionStack.size; ++j)
+					{
+						if (runningMotionStack[j].distination == dist )
+						{
+							optemp = runningMotionStack[j];
+							break;
+						}
+					}
+				}
+			}
 
-			chessboard.undoOperation(nowOperation);
-			logOperationStack.popNoReturn();
-			
-			runningOperationStack.popNoReturn();
+			if (optemp==Operation())
+			{
+				//说明输入有错误, 自动返回上一层
+			}
+			else
+			{
+				logMotionStack.push(optemp);
+				chessboard.onOperationIntent(optemp);
+
+				generateRecursively(logMotionStack, statusStack);
+
+				chessboard.undoOperation(optemp);
+				logMotionStack.popNoReturn();
+				runningMotionStack.clear();
+			}
+		} 
+		else
+		{
+			while (runningMotionStack.size > 0)
+			{
+				Operation& nowOperation = runningMotionStack.top();
+				logMotionStack.push(nowOperation);
+				chessboard.onOperationIntent(nowOperation);
+	
+				generateRecursively(logMotionStack, statusStack);
+	
+				chessboard.undoOperation(nowOperation);
+				logMotionStack.popNoReturn();
+				
+				runningMotionStack.popNoReturn();
+			}
 		}
 
 		statusStack.popNoReturn();
 	}
 }
 
-void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack )
+void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusStack, Action& logMotionStack, Action& runningMotionStack )
 {
 	CIGRuleConfig::OPERATIONS s = statusStack.top();							// TO-DO 直接使用s作为参数更好. 
 
@@ -85,7 +147,7 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 						continue;
 					}
 					
-					testAndSave(s, NULL, dist, runningOperationStack);
+					testAndSave(s, NULL, dist, runningMotionStack);
 				}
 			}
 			break;
@@ -94,19 +156,19 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 			{
 				const Stack<Chessman, CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0>& cg = chessboard.players[chessboard.nowTurn].ownedChessmans;
 
-				if (logOperationStack.size==0)
+				if (logMotionStack.size==0)
 				{
 					for (unsigned i = 0; i < cg.size; ++i)
 					{
 						Chessman* c = const_cast<Chessman*> (&(cg.at(i)));
-						testAndSave(s, c, c->coordinate,runningOperationStack);
+						testAndSave(s, c, c->coordinate,runningMotionStack);
 					}
 				}
 				else
 				{
-					Chessman* c = const_cast<Chessman*> (&(cg.at(logOperationStack.top().chessmanIndex.index)));
+					Chessman* c = const_cast<Chessman*> (&(cg.at(logMotionStack.top().chessmanIndex.index)));
 					
-					testAndSave(s, c, c->coordinate,runningOperationStack);
+					testAndSave(s, c, c->coordinate,runningMotionStack);
 				}
 			}
 			break;
@@ -116,9 +178,9 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 				ChessmanIndex& cl = chessboard.pickedChessmanByIndex[-1];
 				Chessman* c = &chessboard.players[cl.player].ownedChessmans[cl.index];
 
-				if(logOperationStack.size>=3)
+				if(logMotionStack.size>=3)
 				{
-					PointOrVector diff = (logOperationStack[-3].distination-logOperationStack[-2].distination);
+					PointOrVector diff = (logMotionStack[-3].distination-logMotionStack[-2].distination);
 					if (abs(diff[0]|diff[1])==1)			//单跳
 					{
 						return;
@@ -134,7 +196,7 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 						Chessman* twoStep = chessboard[c->coordinate+2*delt];
 						PointOrVector dist;
 
-						if (logOperationStack.size==1)			//还未确定是否连跳
+						if (logMotionStack.size==1)			//还未确定是否连跳
 						{
 							if (oneStep&&twoStep)
 							{
@@ -161,9 +223,9 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 							}
 
 							bool flag = false;
-							for (int j=logOperationStack.size-1;j>=0;--j)
+							for (int j=logMotionStack.size-1;j>=0;--j)
 							{
-								if (logOperationStack[j].operation==CIGRuleConfig::PICK&&logOperationStack[j].distination==dist)
+								if (logMotionStack[j].operation==CIGRuleConfig::PICK&&logMotionStack[j].distination==dist)
 								{
 									flag = true;
 									break;
@@ -175,7 +237,7 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 							}
 						}
 
-						testAndSave(s, c, dist, runningOperationStack);
+						testAndSave(s, c, dist, runningMotionStack);
 					}
 				}
 			}
@@ -185,7 +247,7 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 			if (chessboard.onChangeTurn())
 			{
 				chessboard.undoChangeTurn();
-				actionStack.push(logOperationStack);
+				actionStack.push(logMotionStack);
 			}
 
 			break;
@@ -195,7 +257,7 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 	}
 }
 
-bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack )
+bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningMotionStack )
 {
 	switch (s)
 	{
@@ -204,7 +266,7 @@ bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c
 	case CIG::CIGRuleConfig::ADD:
 		{
 			Operation optemp(ChessmanIndex(),CIGRuleConfig::ADD,dist);
-			runningOperationStack.push(optemp);
+			runningMotionStack.push(optemp);
 			return true;
 		}
 		break;
@@ -213,8 +275,8 @@ bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c
 			if (chessboard.onPickIntent(c))
 			{
 				chessboard.undoPick(c,c->coordinate);
-				Operation optemp(c->chessmanLocation, CIGRuleConfig::PICK,c->coordinate);
-				runningOperationStack.push(optemp);
+				Operation optemp(c->chessmanIndex, CIGRuleConfig::PICK,c->coordinate);
+				runningMotionStack.push(optemp);
 			}
 		}
 		break;
@@ -225,8 +287,8 @@ bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c
 			{
 				chessboard.undoPut(c);
 				c->coordinate = preP;
-				Operation optemp(c->chessmanLocation, s, dist);
-				runningOperationStack.push(optemp);
+				Operation optemp(c->chessmanIndex, s, dist);
+				runningMotionStack.push(optemp);
 
 				return true;
 			}
@@ -238,8 +300,8 @@ bool CIG::MotionGenerator::testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c
 			if (chessboard.onCaptureIntent(c, dist))
 			{
 				chessboard.undoCaptured(temp);
-				Operation optemp(temp->chessmanLocation, s, dist);
-				runningOperationStack.push(optemp);
+				Operation optemp(temp->chessmanIndex, s, dist);
+				runningMotionStack.push(optemp);
 
 				return true;
 			}
