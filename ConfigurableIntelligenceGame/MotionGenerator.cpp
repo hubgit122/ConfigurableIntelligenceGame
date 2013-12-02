@@ -17,7 +17,7 @@ void CIG::MotionGenerator::generateActions( bool guiInput )
 	StatusStack statusStack;
 
 	statusStack.push(CIGRuleConfig::BEGIN);
-	generateRecursively(logMotionStack, statusStack);
+	generateRecursively(logMotionStack, statusStack, guiInput);
 	statusStack.popNoReturn();
 }
 
@@ -51,12 +51,12 @@ void CIG::MotionGenerator::generateRecursively( Action& logMotionStack, StatusSt
 		{
 			PointOrVector dist;
 			Operation optemp;
-			if (runningMotionStack.size==0)//END
+			if (runningMotionStack.size==0)				//END
 			{
 				statusStack.popNoReturn();
 				continue;
 			}
-			else if (runningMotionStack.size==1)
+			else if (runningMotionStack.size==1)		//默认操作自动完成
 			{
 				optemp = runningMotionStack.top();
 			}
@@ -73,7 +73,7 @@ void CIG::MotionGenerator::generateRecursively( Action& logMotionStack, StatusSt
 				}
 			}
 
-			if (optemp==Operation())
+			if (optemp==Operation())			//该状态下没有找到匹配该位置的操作
 			{
 				for (--i; (i > 0)&&(optemp==Operation()); --i)
 				{
@@ -90,23 +90,25 @@ void CIG::MotionGenerator::generateRecursively( Action& logMotionStack, StatusSt
 				}
 			}
 
-			if (optemp==Operation())
+			if (optemp==Operation())			//本层状态均不匹配该位置
 			{
-				//说明输入有错误, 自动返回上一层
+				//说明输入有错误, 自动退出循环返回上一层
 			}
 			else
 			{
 				logMotionStack.push(optemp);
 				chessboard.onOperationIntent(optemp);
+				GUI::drawBoard(&chessboard);
 
-				generateRecursively(logMotionStack, statusStack);
+				generateRecursively(logMotionStack, statusStack, guiInput);			//输入正确, 进入下一级
 
 				chessboard.undoOperation(optemp);
 				logMotionStack.popNoReturn();
 				runningMotionStack.clear();
+				i=0;			//使循环退出
 			}
 		} 
-		else
+		else					//不由GUI输入走法
 		{
 			while (runningMotionStack.size > 0)
 			{

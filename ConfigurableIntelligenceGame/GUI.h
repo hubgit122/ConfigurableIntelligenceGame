@@ -28,7 +28,7 @@ namespace CIG
 			static CEvent drawComplete;
 			static CEvent moveComplete;
 			static CConfigurableIntelligenceGameView* cigView;
-			static void drawBoard();
+			static void drawBoard(Chessboard* cb = NULL);
 			static void inform(const string& messsage, bool exit = false);
 			static void exit();
 			static UINT runThread(LPVOID pParam);
@@ -80,6 +80,8 @@ namespace CIG
 			static vector<Line> addtionalLines;
 			static vector<PointOrVector> addtionalPoints;
 			static int latticePenWidth;
+			static PointOrVector guiPoint;
+			static CEvent pointGot;
 			//判断任意棋盘的边界比较难, 不做了.
 			//static int borderPenColor[3];
 	};

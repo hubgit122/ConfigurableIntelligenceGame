@@ -33,7 +33,7 @@ class CConfigurableIntelligenceGameView : public CWnd
 
 		// ²Ù×÷
 	public:
-		void DrawBoard();
+		void DrawBoard(Chessboard* cb= NULL);
 		void WrapChessWithFrame(CDC& dc, PointOrVector logicCoo, COLORREF color = RGB(255,0,0), bool rectangleNotCircle = true, bool fill = false);
 
 		void GenerateBoardBaseDC(CDC& boardBaseDC, CBitmap* pBoardBaseDCBmpOld);
