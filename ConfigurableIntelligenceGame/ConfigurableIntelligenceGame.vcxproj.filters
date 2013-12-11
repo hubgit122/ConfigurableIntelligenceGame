@@ -81,10 +81,10 @@
     <ClInclude Include="utilities.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ChessmanLocation.h">
+    <ClInclude Include="ChessmanIndex.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ChessmanLocationBoard.h">
+    <ClInclude Include="ChessmanIndexBoard.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -131,13 +131,13 @@
     <ClCompile Include="utilities.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ChessmanLocation.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GraphSearchEngine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ChessmanLocationBoard.cpp">
+    <ClCompile Include="ChessmanIndex.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessmanIndexBoard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -33,7 +33,7 @@ class CConfigurableIntelligenceGameView : public CWnd
 
 		// ²Ù×÷
 	public:
-		void DrawBoard(Chessboard* cb= NULL);
+		void DrawBoard(Chessboard* cb= NULL, Action* action = NULL);
 		void WrapChessWithFrame(CDC& dc, PointOrVector logicCoo, COLORREF color = RGB(255,0,0), bool rectangleNotCircle = true, bool fill = false);
 
 		void GenerateBoardBaseDC(CDC& boardBaseDC, CBitmap* pBoardBaseDCBmpOld);
@@ -62,5 +62,7 @@ class CConfigurableIntelligenceGameView : public CWnd
 		afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 		afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 		//		afx_msg void OnClose();
+		afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+		afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 

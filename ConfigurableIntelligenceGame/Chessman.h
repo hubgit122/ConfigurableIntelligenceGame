@@ -4,7 +4,7 @@
 
 #include "utilities.h"
 #include "CIGRuleConfig.h"
-#include "ChessmanLocation.h"
+#include "ChessmanIndex.h"
 #include "CIGObject.h"
 
 namespace CIG
@@ -39,7 +39,7 @@ namespace CIG
 			friend std::ostringstream& operator<<(std::ostringstream& oss, const Chessman& c)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
 			{
 				oss << "Chessman::\n" << "\tchessmanType: " << c.chessmanType << "\n\tcoordinate: ";
-				oss << c.coordinate << "\nchessmanLocation.player: " << c.chessmanIndex.player << '\n';
+				oss << c.coordinate << "\nChessmanIndex.player: " << c.chessmanIndex.player << '\n';
 				return oss;
 			}
 			//************************************

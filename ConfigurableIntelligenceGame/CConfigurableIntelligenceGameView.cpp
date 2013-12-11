@@ -65,6 +65,8 @@ BEGIN_MESSAGE_MAP(CConfigurableIntelligenceGameView, CWnd)
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_CHAR()
 END_MESSAGE_MAP()
 
 
@@ -210,13 +212,14 @@ void CConfigurableIntelligenceGameView::WrapChessWithFrame(CDC& dc, PointOrVecto
 	dc.SelectObject(oldPen);
 }
 
-void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/ )
+void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Action* action /*= NULL*/ )
 {
 	CClientDC dc(this);
 
 	CRect rect;
 	GetClientRect(&rect);
 	Chessboard& boardToDraw = cb?(*cb):this->nowBoard;
+	Action& actionToDraw = action?(*action):this->actionOfLastRound;
 
 	CDC memClientDC;			//暂存dc, 双缓冲绘图. 
 	memClientDC.CreateCompatibleDC(&dc);
@@ -282,15 +285,15 @@ void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/ )
 		}
 
 		//标记上次走法
-		for (int i = actionOfLastRound.size-1; i>=0; --i)
+		for (int i = actionToDraw.size-1; i>=0; --i)
 		{
-			if ((actionOfLastRound[i].operation == CIGRuleConfig::PUT)||(actionOfLastRound[i].operation == CIGRuleConfig::PICK))
+			if ((actionToDraw[i].operation == CIGRuleConfig::PUT)||(actionToDraw[i].operation == CIGRuleConfig::PICK))
 			{
-				ChessmanIndex& ci = actionOfLastRound[i].chessmanIndex;
+				ChessmanIndex& ci = actionToDraw[i].chessmanIndex;
 
-				if (actionOfLastRound[i].distination != PointOrVector(-1,-1))
+				if (actionToDraw[i].distination != PointOrVector(-1,-1))
 				{
-					WrapChessWithFrame(memClientDC, actionOfLastRound[i].distination);
+					WrapChessWithFrame(memClientDC, actionToDraw[i].distination);
 				}
 			}
 		}
@@ -428,8 +431,39 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (getAction)
 	{
 		GUI::guiPoint = lp;
-		GUI::pointGot.SetEvent();
+		GUI::msg = CIG_POINT;
+		GUI::inputGot.SetEvent();
 	}
 
 	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void CConfigurableIntelligenceGameView::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	if (getAction)
+	{
+		GUI::guiPoint = PointOrVector();
+		GUI::msg = CIG_UNDO;
+		GUI::inputGot.SetEvent();
+	}
+
+	CWnd::OnRButtonDown(nFlags, point);
+}
+
+
+void CConfigurableIntelligenceGameView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	if (getAction)
+	{
+		GUI::guiPoint = PointOrVector();
+		GUI::msg = CIG_END;
+		GUI::inputGot.SetEvent();
+	}
+
+	CWnd::OnChar(nChar, nRepCnt, nFlags);
 }

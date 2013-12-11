@@ -207,8 +207,8 @@
     <ClInclude Include="CConfigurableIntelligenceGameView.h" />
     <ClInclude Include="ChessBoard.h" />
     <ClInclude Include="Chessman.h" />
-    <ClInclude Include="ChessmanLocation.h" />
-    <ClInclude Include="ChessmanLocationBoard.h" />
+    <ClInclude Include="ChessmanIndex.h" />
+    <ClInclude Include="ChessmanIndexBoard.h" />
     <ClInclude Include="CIG.h" />
     <ClInclude Include="CIGObject.h" />
     <ClInclude Include="CIGRuleConfig.h" />
@@ -240,11 +240,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ChessmanLocation.cpp">
+    <ClCompile Include="ChessmanIndex.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ChessmanLocationBoard.cpp" />
+    <ClCompile Include="ChessmanIndexBoard.cpp" />
     <ClCompile Include="CIGRuleConfig.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

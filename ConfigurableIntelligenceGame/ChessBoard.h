@@ -8,9 +8,9 @@
 #include "CIGRuleConfig.h"
 #include "Chessman.h"
 #include "utilities.h"
-#include "ChessmanLocation.h"
+#include "ChessmanIndex.h"
 #include "Player.h"
-#include "ChessmanLocationBoard.h"
+#include "ChessmanIndexBoard.h"
 
 namespace CIG
 {
@@ -28,7 +28,7 @@ namespace CIG
 			int evaluations[CIGRuleConfig::PLAYER_NUM];
 			Array<Operation, CIGRuleConfig::INT_BANNED_MOTION_SIZE, 0> currentBannedMotions;
 			Array<ChessmanIndex , CIGRuleConfig::INI_CHESSMAN_GROUP_SIZE, 0> pickedChessmanByIndex;
-			ChessmanLocationBoard chessmanIndexBoard;
+			ChessmanIndexBoard chessmanIndexBoard;
 
 			bool loose[CIGRuleConfig::PLAYER_NUM];					//在搜索时辅助判断是否获胜, 在防止先后走出获胜走法时起作用
 			bool win[CIGRuleConfig::PLAYER_NUM];						//在搜索时辅助判断是否获胜, 在防止先后走出获胜走法时起作用

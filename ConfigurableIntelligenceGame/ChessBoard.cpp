@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "Array.h"
 #include "Chessman.h"
-#include "ChessmanLocation.h"
+#include "ChessmanIndex.h"
 #include "GraphSearchEngine.h"
 
 

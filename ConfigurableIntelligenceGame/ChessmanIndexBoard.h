@@ -2,21 +2,21 @@
 #ifndef __CHESSMAN_LOCATION_BOARD__
 #define __CHESSMAN_LOCATION_BOARD__
 
-#include "ChessmanLocation.h"
+#include "ChessmanIndex.h"
 #include "CIGRuleConfig.h"
 #include "GUI.h"
 #include "utilities.h"
 
 namespace CIG
 {
-	class ChessmanLocationBoard
+	class ChessmanIndexBoard
 	{
 	public:
-		ChessmanLocationBoard();
-		ChessmanLocationBoard(const ChessmanLocationBoard& clb);
-		~ChessmanLocationBoard();
+		ChessmanIndexBoard();
+		ChessmanIndexBoard(const ChessmanIndexBoard& clb);
+		~ChessmanIndexBoard();
 
-		void operator= (const ChessmanLocationBoard& clb);
+		void operator= (const ChessmanIndexBoard& clb);
 
 		ChessmanIndex& operator[](PointOrVector p);
 

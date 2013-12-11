@@ -14,6 +14,10 @@
 #define WM_GET_MOVE 		(WM_USER+2)
 #define WM_MOVE_COMPLETE (WM_USER+3)
 
+#define CIG_END			0
+#define  CIG_UNDO		1
+#define CIG_POINT		2
+
 class CConfigurableIntelligenceGameView;
 namespace CIG
 {
@@ -28,14 +32,14 @@ namespace CIG
 			static CEvent drawComplete;
 			static CEvent moveComplete;
 			static CConfigurableIntelligenceGameView* cigView;
-			static void drawBoard(Chessboard* cb = NULL);
+			static void drawBoard(Chessboard* cb = NULL, void* action =NULL);
 			static void inform(const string& messsage, bool exit = false);
 			static void exit();
 			static UINT runThread(LPVOID pParam);
 			static void postMessage( UINT msg, WPARAM wp, LPARAM  lp);
 
 			static void askForAction(Chessboard*cb, void* op);
-			static void GUI::getPoint(PointOrVector&dist);
+			static void GUI::getInput(PointOrVector&dist, UINT& msg);
 
 			/*************************************************************************
 				设置棋盘绘制参数
@@ -81,7 +85,8 @@ namespace CIG
 			static vector<PointOrVector> addtionalPoints;
 			static int latticePenWidth;
 			static PointOrVector guiPoint;
-			static CEvent pointGot;
+			static CEvent inputGot;
+			static UINT msg;
 			//判断任意棋盘的边界比较难, 不做了.
 			//static int borderPenColor[3];
 	};

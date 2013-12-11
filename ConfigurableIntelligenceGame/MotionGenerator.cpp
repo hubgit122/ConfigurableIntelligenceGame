@@ -4,7 +4,7 @@
 #include "Chessboard.h"
 #include "Player.h"
 #include "Chessman.h"
-#include "ChessmanLocation.h"
+#include "ChessmanIndex.h"
 
 void CIG::MotionGenerator::generateActions( bool guiInput )
 {
@@ -13,12 +13,20 @@ void CIG::MotionGenerator::generateActions( bool guiInput )
 		return;								//如果已经输了或赢了, 就不产生走法, 走法栈是空的. 
 	}
 
-	Action logMotionStack;
-	StatusStack statusStack;
+	bool result;
+	do 
+	{
+		if (guiInput)
+		{
+			GUI::inform("请走棋！");
+		}
+		Action logMotionStack;
+		StatusStack statusStack;
 
-	statusStack.push(CIGRuleConfig::BEGIN);
-	generateRecursively(logMotionStack, statusStack, guiInput);
-	statusStack.popNoReturn();
+		statusStack.push(CIGRuleConfig::BEGIN);
+		result = generateRecursively(logMotionStack, statusStack, guiInput);
+		//statusStack.popNoReturn();
+	} while (!result);
 }
 
 CIG::MotionGenerator::MotionGenerator(Chessboard& cb)
@@ -31,105 +39,150 @@ CIG::MotionGenerator::MotionGenerator(Chessboard& cb)
 // 若当前棋盘和走法运行栈空, 说明该状态没有可用走法, 状态栈弹栈, 重新取定栈顶为当前状态.
 // 若全局状态栈顶为end, 临时栈入全局栈, 状态栈弹栈, 重新取定栈顶为当前状态.
 // 初始条件配置: statusStack.push(CIGRuleConfig::BEGIN);
-void CIG::MotionGenerator::generateRecursively( Action& logMotionStack, StatusStack& statusStack, bool guiInput /*= false*/ )
+bool CIG::MotionGenerator::generateRecursively( Action& logMotionStack, StatusStack& statusStack, bool guiInput /*= false*/ )
 {
-	Action runningMotionStack;
-
-	CIGRuleConfig::OPERATIONS op = statusStack.top();
-	int i = 0;
-
-	for (; CIGRuleConfig::operationGraph[op][i] != CIGRuleConfig::NOMORE; ++i)
+	//根据输入选择当前的操作. 
+	if (guiInput)
 	{
-		statusStack.push(CIGRuleConfig::operationGraph[op][i]);
-	}
+		bool result;
 
-	for (; i > 0; --i)
-	{
-		generateOperationsForOneStatus(statusStack, logMotionStack, runningMotionStack);
+		PointOrVector dist;
+		UINT msg;
 
-		if (guiInput)
+		GUI::drawBoard(&chessboard,&logMotionStack);
+		GUI::getInput(dist, msg);
+
+		switch (msg)
 		{
-			PointOrVector dist;
-			Operation optemp;
-			if (runningMotionStack.size==0)				//END
+		case CIG_END:
+			if (chessboard.onChangeTurn())
 			{
-				statusStack.popNoReturn();
-				continue;
-			}
-			else if (runningMotionStack.size==1)		//默认操作自动完成
-			{
-				optemp = runningMotionStack.top();
+				chessboard.undoChangeTurn();
+				actionStack.push(logMotionStack);
+				return true;			//已经在actionStack里了. 
 			}
 			else
 			{
-				GUI::getPoint(dist);				//可能需要点击多次才会有响应. 
-				for (int i=0; i<runningMotionStack.size; ++i)
+				result = false;
+			}
+			break;
+
+		case CIG_UNDO:
+				return false;
+			break;
+
+		case CIG_POINT:
+			{
+				Action runningMotionStack;
+
+				CIGRuleConfig::OPERATIONS op = statusStack.top();
+				int i = 0;
+
+				for (; CIGRuleConfig::operationGraph[op][i] != CIGRuleConfig::NOMORE; ++i)
 				{
-					if (runningMotionStack[i].distination == dist )
+					statusStack.push(CIGRuleConfig::operationGraph[op][i]);
+				}
+
+				Operation optemp;
+
+				//在tempMotionStack里生成所有动作, 如果有END, 保存在actionStack里
+				Action tempMotionStack = runningMotionStack;
+				StatusStack tempStatusStack = statusStack;
+				int j = i;
+				for (; j > 0; --j)
+				{
+					generateMotionsForOneStatus(tempStatusStack, logMotionStack, tempMotionStack, guiInput);			//在runnningMotionStack和ActionStack中保存了下一步所有的可能结果. 
+					tempStatusStack.popNoReturn();
+				}
+
+				int count = 0;
+				for (int j=0; j<tempMotionStack.size; ++j)
+				{
+					if (tempMotionStack[j].distination == dist )
 					{
-						optemp = runningMotionStack[i];
-						break;
+						optemp = tempMotionStack[j];
+						count++;
 					}
 				}
-			}
 
-			if (optemp==Operation())			//该状态下没有找到匹配该位置的操作
-			{
-				for (--i; (i > 0)&&(optemp==Operation()); --i)
+				if (count==0)
 				{
-					statusStack.popNoReturn();
-					generateOperationsForOneStatus(statusStack, logMotionStack, runningMotionStack);
-					for (int j=0; j<runningMotionStack.size; ++j)
+					result = false;
+					break;
+				}
+				else if (count>1)
+				{
+					;//让玩家自己选择
+					//optemp = 
+				}
+
+				result = false;
+				for (; i > 0; --i)
+				{
+					generateMotionsForOneStatus(statusStack, logMotionStack, runningMotionStack, guiInput);
+					while (runningMotionStack.size > 0)
 					{
-						if (runningMotionStack[j].distination == dist )
+						if (runningMotionStack.top()==optemp)
 						{
-							optemp = runningMotionStack[j];
-							break;
+							Operation& nowOperation = optemp;
+							logMotionStack.push(nowOperation);
+							chessboard.onOperationIntent(nowOperation);
+
+							result = generateRecursively(logMotionStack, statusStack, guiInput);
+
+							chessboard.undoOperation(nowOperation);
+							logMotionStack.popNoReturn();
 						}
+						runningMotionStack.popNoReturn();
 					}
+
+					statusStack.popNoReturn();
 				}
 			}
 
-			if (optemp==Operation())			//本层状态均不匹配该位置
-			{
-				//说明输入有错误, 自动退出循环返回上一层
-			}
-			else
-			{
-				logMotionStack.push(optemp);
-				chessboard.onOperationIntent(optemp);
-				GUI::drawBoard(&chessboard);
+			break;
+		default:
+			break;
+		}
+		
+		return result;
+	}
+	else
+	{
+		Action runningMotionStack;
 
-				generateRecursively(logMotionStack, statusStack, guiInput);			//输入正确, 进入下一级
+		CIGRuleConfig::OPERATIONS op = statusStack.top();
+		int i = 0;
 
-				chessboard.undoOperation(optemp);
-				logMotionStack.popNoReturn();
-				runningMotionStack.clear();
-				i=0;			//使循环退出
-			}
-		} 
-		else					//不由GUI输入走法
+		for (; CIGRuleConfig::operationGraph[op][i] != CIGRuleConfig::NOMORE; ++i)
 		{
+			statusStack.push(CIGRuleConfig::operationGraph[op][i]);
+		}
+
+		for (; i > 0; --i)
+		{
+			generateMotionsForOneStatus(statusStack, logMotionStack, runningMotionStack);
 			while (runningMotionStack.size > 0)
 			{
 				Operation& nowOperation = runningMotionStack.top();
 				logMotionStack.push(nowOperation);
 				chessboard.onOperationIntent(nowOperation);
-	
+
 				generateRecursively(logMotionStack, statusStack);
-	
+
 				chessboard.undoOperation(nowOperation);
 				logMotionStack.popNoReturn();
-				
+
 				runningMotionStack.popNoReturn();
 			}
-		}
 
-		statusStack.popNoReturn();
+			statusStack.popNoReturn();
+		}
+		return true;
 	}
 }
 
-void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusStack, Action& logMotionStack, Action& runningMotionStack )
+void CIG::MotionGenerator::generateMotionsForOneStatus( StatusStack& statusStack, Action& logMotionStack, Action& runningMotionStack, bool guiInput /*= false */ )
 {
 	CIGRuleConfig::OPERATIONS s = statusStack.top();							// TO-DO 直接使用s作为参数更好. 
 
@@ -246,10 +299,13 @@ void CIG::MotionGenerator::generateOperationsForOneStatus(StatusStack& statusSta
 			break;
 		
 		case CIGRuleConfig::END:
-			if (chessboard.onChangeTurn())
+			if (!guiInput)
 			{
-				chessboard.undoChangeTurn();
-				actionStack.push(logMotionStack);
+				if (chessboard.onChangeTurn())
+				{
+					chessboard.undoChangeTurn();
+					actionStack.push(logMotionStack);
+				}
 			}
 
 			break;
