@@ -21,8 +21,8 @@ namespace CIG
 
 			//virtual OperationStack* nextMove();
 			virtual void generateMoves(bool guiInput = false);
-			virtual bool generateRecursively(MotionStack& logMotionStack, OperationStatusStack& statusStack, bool guiInput = false);
-			virtual void generateMotionsForOneStatus(OperationStatusStack& statusStack, MotionStack& logOperationStack, MotionStack& runningOperationStack, bool guiInput = false);
+			virtual bool generateRecursively(MotionStack& logMotionStack, CIGRuleConfig::OPERATIONS lastOperation, bool guiInput = false);
+			virtual void generateMotionsForOneStatus(CIGRuleConfig::OPERATIONS lastOperation, MotionStack& logOperationStack, MotionStack& runningOperationStack, bool guiInput = false);
 
 			bool testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, MotionStack& runningOperationStack );
 
