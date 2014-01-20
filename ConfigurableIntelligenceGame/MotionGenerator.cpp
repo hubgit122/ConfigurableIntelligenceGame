@@ -57,7 +57,7 @@ bool CIG::MotionGenerator::generateRecursively( MotionStack& logMotionStack, CIG
 	{
 		generateMotionsForOneStatus(runningOperationStack.top(), logMotionStack, runningMotionStack);
 
-		while (runningMotionStack.size > 0)
+		while (runningMotionStack.size > 0) 
 		{
 			Motion& nowMotion = runningMotionStack.top();
 			logMotionStack.push(nowMotion);
@@ -65,7 +65,7 @@ bool CIG::MotionGenerator::generateRecursively( MotionStack& logMotionStack, CIG
 
 			generateRecursively(logMotionStack, runningOperationStack.top());
 
-			chessboard.undoMotion(nowMotion,runningMotionStack);
+			chessboard.undoMotion(nowMotion,logMotionStack);
 			logMotionStack.popNoReturn();
 
 			runningMotionStack.popNoReturn();
@@ -77,11 +77,9 @@ bool CIG::MotionGenerator::generateRecursively( MotionStack& logMotionStack, CIG
 	return true;
 }
 
-void CIG::MotionGenerator::generateMotionsForOneStatus( CIGRuleConfig::OPERATIONS lastOperation, MotionStack& logMotionStack, MotionStack& runningMotionStack, bool guiInput /*= false*/ )
+void CIG::MotionGenerator::generateMotionsForOneStatus( CIGRuleConfig::OPERATIONS op, MotionStack& logMotionStack, MotionStack& runningMotionStack, bool guiInput /*= false*/ )
 {
-	CIGRuleConfig::OPERATIONS s = lastOperation;							// TO-DO 直接使用s作为参数更好.
-
-	switch (s)
+	switch (op)
 	{
 		case CIGRuleConfig::BEGIN:
 			break;
@@ -98,7 +96,7 @@ void CIG::MotionGenerator::generateMotionsForOneStatus( CIGRuleConfig::OPERATION
 						continue;
 					}
 
-					testAndSave(s, NULL, dist, runningMotionStack);
+					testAndSave(op, NULL, dist, runningMotionStack);
 				}
 			}
 
@@ -113,14 +111,14 @@ void CIG::MotionGenerator::generateMotionsForOneStatus( CIGRuleConfig::OPERATION
 				for (unsigned i = 0; i < cg.size; ++i)
 				{
 					Chessman* c = const_cast<Chessman*> (&(cg.at(i)));
-					testAndSave(s, c, c->coordinate, runningMotionStack);
+					testAndSave(op, c, c->coordinate, runningMotionStack);
 				}
 			}
 			else
 			{
 				Chessman* c = const_cast<Chessman*> (&(cg.at(logMotionStack.top().chessmanIndex.index)));
 
-				testAndSave(s, c, c->coordinate, runningMotionStack);
+				testAndSave(op, c, c->coordinate, runningMotionStack);
 			}
 		}
 		break;
@@ -192,7 +190,7 @@ void CIG::MotionGenerator::generateMotionsForOneStatus( CIGRuleConfig::OPERATION
 						}
 					}
 
-					testAndSave(s, c, dist, runningMotionStack);
+					testAndSave(op, c, dist, runningMotionStack);
 				}
 			}
 		}

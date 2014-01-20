@@ -229,7 +229,7 @@ namespace CIG
 	{
 		bool result = true;
 
-		for (int i = 0; i < action.size; i++)
+		for (int i = 0; i < action.size; ++i)
 		{
 			result  &= onMotionIntent(action[i], refreshEvaluations);
 		}
@@ -289,16 +289,16 @@ namespace CIG
 		return result;
 	}
 
-	void Chessboard::undoMove( MotionStack& action , bool refreshEvaluations)
+	void Chessboard::undoMove( Move& move , bool refreshEvaluations)
 	{
-		for (int i = action.size - 1; i >= 0; --i)				////应该倒着恢复!!!
+		for (int i = move.size - 1; i >= 0; --i)				////应该倒着恢复!!!
 		{
-			undoMotion(action[i], action, refreshEvaluations);
+			undoMotion(move[i], move, refreshEvaluations);
 		}
 	}
 
 	// TO-DO这个函数还没有写就拿去调试了, 当然不会有好结果!
-	void Chessboard::undoMotion( Motion& motion, MotionStack& action , bool refreshEvaluations /*= false*/ )
+	void Chessboard::undoMotion( Motion& motion, MotionStack& nowMotionStack , bool refreshEvaluations /*= false*/ )
 	{
 		switch (motion.operation)
 		{
@@ -312,13 +312,13 @@ namespace CIG
 
 			case CIGRuleConfig::PUT:
 				{
-					int i=action.size-1;
+					int i=nowMotionStack.size-1;
 					PointOrVector p;
 					//在undoPut的时候已经有了add或pick动作. 
-					for (; (i>=0)&&(action[i].operation!=CIGRuleConfig::PUT)&&(action[i].operation!=CIGRuleConfig::ADD);--i);
+					for (; (i>=0)&&(nowMotionStack[i].operation!=CIGRuleConfig::PUT)&&(nowMotionStack[i].operation!=CIGRuleConfig::ADD);--i);
 					if (i>=0)		//说明有put或add
 					{
-						p=action[i].distination;
+						p=nowMotionStack[i].distination;
 					}
 					undoPut(&(this->players[motion.chessmanIndex.player].ownedChessmans[motion.chessmanIndex.index]), p, refreshEvaluations);
 					break;

@@ -96,7 +96,7 @@ namespace CIG
 			virtual void undoPromotion(PointOrVector p, CIGRuleConfig::CHESSMAN_TYPES t, bool refreshEvaluations = false);
 			virtual void undoMove(MotionStack& action, bool refreshEvaluations = false);
 			virtual void undoWholeMove(MotionStack& action, bool refreshEvaluations = false);
-			virtual void undoMotion(Motion& motion, MotionStack& action , bool refreshEvaluations = false);
+			virtual void undoMotion(Motion& motion, MotionStack& nowMotionStack , bool refreshEvaluations = false);
 			virtual void undoChangeTurn();
 
 			virtual void refreshEvaluations();
