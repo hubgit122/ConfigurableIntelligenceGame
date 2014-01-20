@@ -15,7 +15,6 @@ namespace CIG
 			GUI::inform(oss.str(), true);
 			return false;
 		}
-
 		return true;
 	}
 
@@ -172,15 +171,15 @@ namespace CIG
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
 	};
 
-	char* CIGRuleConfig::NAME_OF_OPERATIONS[END]=
+	char* CIGRuleConfig::OPERATION_NAME[END]=
 	{
-		"NOMORE",					//作为走法生成器返回的提示语: 无更多操作, 请回退搜索.
+		"NOMORE",			
 		"BEGIN",
-		"ADD",						//增加一个棋子
-		"PICK",						//拿起
-		"PUT",							//走棋
-		"CAPTURE",					//吃子
-		"PROMOTION",			//升变
-		"DECOVER"				//掀开
+		"ADD",					
+		"PICK",					
+		"PUT",						
+		"CAPTURE",				
+		"PROMOTION",		
+		"DECOVER",			
 	};
 }

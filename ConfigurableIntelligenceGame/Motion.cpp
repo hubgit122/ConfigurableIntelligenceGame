@@ -7,7 +7,7 @@ CIG::Motion::Motion() : chessmanIndex(), operation(CIGRuleConfig::NOMORE), disti
 
 }
 
-CIG::Motion::Motion( ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist /*= 0*/ )
+CIG::Motion::Motion( ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist /*= 0*/ ) 
 	: chessmanIndex(ci), operation(op), distination(dist)
 {
 }
@@ -29,5 +29,5 @@ void CIG::Motion::operator=( const Motion& op )
 
 bool CIG::Motion::operator==( const Motion& op ) const
 {
-	return (this->chessmanIndex.player == op.chessmanIndex.player) && (this->chessmanIndex.index == op.chessmanIndex.index) && (this->distination == op.distination) && (this->operation == op.operation);
+	return (this->chessmanIndex.player==op.chessmanIndex.player)&&(this->chessmanIndex.index==op.chessmanIndex.index)&&(this->distination==op.distination)&&(this->operation==op.operation);
 }

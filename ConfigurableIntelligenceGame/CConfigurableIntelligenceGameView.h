@@ -23,7 +23,7 @@ class CConfigurableIntelligenceGameView : public CWnd
 		CWinThread* m_GameThread;
 		CEvent workThreadOK;
 		CEvent moveComplete;
-		CIG::MotionStack actionOfLastRound;
+		CIG::Move moveOfLastRound;
 		CIG::Chessboard nowBoard;
 		bool getMove;
 		int nBoardBaseDC;
@@ -33,8 +33,8 @@ class CConfigurableIntelligenceGameView : public CWnd
 
 		// ²Ù×÷
 	public:
-		void DrawBoard(Chessboard* cb = NULL, MotionStack* action = NULL);
-		void WrapChessWithFrame(CDC& dc, PointOrVector logicCoo, COLORREF color = RGB(255, 0, 0), bool rectangleNotCircle = true, bool fill = false);
+		void DrawBoard(Chessboard* cb= NULL, Move* move = NULL);
+		void WrapChessWithFrame(CDC& dc, PointOrVector logicCoo, COLORREF color = RGB(255,0,0), bool rectangleNotCircle = true, bool fill = false);
 
 		void GenerateBoardBaseDC(CDC& boardBaseDC, CBitmap* pBoardBaseDCBmpOld);
 
@@ -65,6 +65,6 @@ class CConfigurableIntelligenceGameView : public CWnd
 		afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 		afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 protected:
-	afx_msg LRESULT OnStatusMessage(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnStatusText(WPARAM wParam, LPARAM lParam);
 };
 

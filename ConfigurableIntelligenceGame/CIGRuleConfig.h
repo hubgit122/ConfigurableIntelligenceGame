@@ -67,9 +67,8 @@ namespace CIG
 				DECOVER,				//掀开
 				END,							//作为走法生成器返回的提示语: 一条搜索路径结束, 请保存结果并回退搜索.
 			};
-			static char* NAME_OF_OPERATIONS[END];
-
-			static const OPERATIONS operationGraph[END][END + 1];
+			static char* OPERATION_NAME[END];
+			static const OPERATIONS operationGraph[END][END+ 1];
 
 			enum CHESSMAN_STATUS
 			{
