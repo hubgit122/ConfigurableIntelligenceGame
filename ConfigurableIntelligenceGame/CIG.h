@@ -9,6 +9,6 @@
 #include "Array.h"
 #include "Stack.h"
 #include "Chessboard.h"
-#include "Operation.h"
+#include "Motion.h"
 #include "Game.h"
 #endif //__CIG_H__

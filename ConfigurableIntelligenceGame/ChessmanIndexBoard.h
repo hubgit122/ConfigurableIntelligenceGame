@@ -11,16 +11,16 @@ namespace CIG
 {
 	class ChessmanIndexBoard
 	{
-	public:
-		ChessmanIndexBoard();
-		ChessmanIndexBoard(const ChessmanIndexBoard& clb);
-		~ChessmanIndexBoard();
+		public:
+			ChessmanIndexBoard();
+			ChessmanIndexBoard(const ChessmanIndexBoard& clb);
+			~ChessmanIndexBoard();
 
-		void operator= (const ChessmanIndexBoard& clb);
+			void operator= (const ChessmanIndexBoard& clb);
 
-		ChessmanIndex& operator[](PointOrVector p);
+			ChessmanIndex& operator[](PointOrVector p);
 
-		ChessmanIndex* content;
+			ChessmanIndex* content;
 	};
 }
 

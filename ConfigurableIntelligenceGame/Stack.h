@@ -8,7 +8,7 @@
 namespace CIG
 {
 	class Chessboard;
-	class Operation;
+	class Motion;
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	class Stack: public Array< T, INI_DEPTH, DEPTH_INCRE>
 	{
@@ -69,15 +69,16 @@ namespace CIG
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
-	Stack<T, INI_DEPTH, DEPTH_INCRE>::Stack(){}
+	Stack<T, INI_DEPTH, DEPTH_INCRE>::Stack() {}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	CIG::Stack<T, INI_DEPTH, DEPTH_INCRE>::Stack( const Stack& s ): Array(s) {}
 
-	typedef Stack<Operation, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> Action;
+	typedef Stack<Motion, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> MotionStack;
+	typedef Stack<Motion, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> Move;
 	typedef Stack<Chessboard, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ChessboardStack;
-	typedef	 Stack<CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> StatusStack;
-	typedef Stack<Action, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> ActionStack;
+	typedef	 Stack<CIGRuleConfig::OPERATIONS, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> OperationStatusStack;
+	typedef Stack<Move, CIGRuleConfig::INT_BOARD_HISTORY_STACK_SIZE, 0> MoveStack;
 }
 
 #endif /*__STACK_H_*/

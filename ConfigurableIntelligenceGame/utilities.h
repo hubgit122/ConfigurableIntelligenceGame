@@ -103,7 +103,7 @@ struct PointOrVector
 
 	PointOrVector()
 	{
-		memset(x, -1, sizeof(unsigned short)<<1);				// TO-DO 注意这里改变了象棋的点默认为0,0的假设, 应该不会出问题, 在联调的时候可以注意一下
+		memset(x, -1, sizeof(unsigned short) << 1);				// TO-DO 注意这里改变了象棋的点默认为0,0的假设, 应该不会出问题, 在联调的时候可以注意一下
 	}
 
 	PointOrVector(unsigned x, unsigned y)
@@ -134,7 +134,7 @@ struct PointOrVector
 
 	bool operator!=(const PointOrVector& p)const
 	{
-		return !(*this==p);
+		return !(*this == p);
 	}
 
 	friend PointOrVector operator*(int lambda, const PointOrVector& p)
@@ -150,16 +150,16 @@ struct PointOrVector
 	{
 		PointOrVector temp = *this;
 
-		//*(unsigned*)temp.x -= *(unsigned*)(p.x);				//涉及到进位时这样计算失败. 
-		temp.x[0]-=p.x[0];
-		temp.x[1]-=p.x[1];
+		//*(unsigned*)temp.x -= *(unsigned*)(p.x);				//涉及到进位时这样计算失败.
+		temp.x[0] -= p.x[0];
+		temp.x[1] -= p.x[1];
 		return temp;
 	}
 
 	PointOrVector& operator+=(const PointOrVector& p)
 	{
-		this->x[0]+=p[0];
-		this->x[1]+=p[1];
+		this->x[0] += p[0];
+		this->x[1] += p[1];
 		return *this;
 	}
 
@@ -167,10 +167,10 @@ struct PointOrVector
 	{
 		PointOrVector temp = *this;
 
-		temp.x[0]+=p.x[0];
-		temp.x[1]+=p.x[1];
+		temp.x[0] += p.x[0];
+		temp.x[1] += p.x[1];
 
-		//*(unsigned*)temp.x += *(unsigned*)(p.x);			//在低位有负数的时候这种加法失败. 
+		//*(unsigned*)temp.x += *(unsigned*)(p.x);			//在低位有负数的时候这种加法失败.
 		return temp;
 	}
 

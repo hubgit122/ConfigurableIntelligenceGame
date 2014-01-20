@@ -14,7 +14,7 @@ namespace CIG
 			inline Array();
 			inline Array(const Array& a);
 			inline virtual ~Array();
-			
+
 			T* elements;
 			unsigned short size;
 			unsigned short capacity;
@@ -63,12 +63,14 @@ namespace CIG
 	{
 		size = a.size;
 		capacity = a.capacity;
+
 		if (elements)
 		{
 			free(elements);
 		}
+
 		memAlloc();
-		memcpy(elements, a.elements, size*sizeof(T));
+		memcpy(elements, a.elements, size * sizeof(T));
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -84,11 +86,12 @@ namespace CIG
 			index += this->size;
 		}
 
-		(elements+index)->~T();
+		(elements + index)->~T();
+
 		for (unsigned short i = index; i  < size - 1; ++i)
 		{
-			new(elements+i) T(elements[1+i]);
-			(elements+i+1)->~T();
+			new(elements + i) T(elements[1 + i]);
+			(elements + i + 1)->~T();
 		}
 
 		size--;
@@ -104,7 +107,7 @@ namespace CIG
 
 		for (int i = 0; i < size; ++i)
 		{
-			new(elements+i) T(a.elements[i]);
+			new(elements + i) T(a.elements[i]);
 		}
 	}
 
@@ -128,9 +131,9 @@ namespace CIG
 	{
 		if (elements)
 		{
-			for (int i=0; i<size;++i)
+			for (int i = 0; i < size; ++i)
 			{
-				(elements+i)->~T();
+				(elements + i)->~T();
 			}
 
 			free(elements);
@@ -161,13 +164,15 @@ namespace CIG
 
 		if (elements)
 		{
-			for (int i=0; i<size; ++i)
+			for (int i = 0; i < size; ++i)
 			{
-				new(temp+i) T(elements[i]);
+				new(temp + i) T(elements[i]);
 				elements[i].~T();
 			}
-			free(elements);											///忘了这句话, 真是失败. 
+
+			free(elements);											///忘了这句话, 真是失败.
 		}
+
 		elements = temp;
 	}
 
@@ -234,11 +239,12 @@ namespace CIG
 
 		T temp(this->elements[index]);
 
-		(elements+index)->~T();
+		(elements + index)->~T();
+
 		for (unsigned short i = index; i + 1 < this->size; ++i)
 		{
-			new(elements+i) T(elements[1+i]);
-			(elements+i+1)->~T();
+			new(elements + i) T(elements[1 + i]);
+			(elements + i + 1)->~T();
 		}
 
 		this->size--;
@@ -263,11 +269,11 @@ namespace CIG
 
 		for (unsigned short i = this->size - 1; i >= index; --i)
 		{
-			new(elements+i+1) T(elements[i]);
-			(elements+i)->~T();
+			new(elements + i + 1) T(elements[i]);
+			(elements + i)->~T();
 		}
 
-		new(elements+index) T(e);
+		new(elements + index) T(e);
 		size++;
 	}
 
@@ -275,8 +281,8 @@ namespace CIG
 	T* CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::add( const T& element )
 	{
 		this->increaseCapacity();
-		new(elements+(size++)) T(element);
-		return elements+size-1;
+		new(elements + (size++)) T(element);
+		return elements + size - 1;
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
@@ -293,13 +299,13 @@ namespace CIG
 
 		for (int i = 0; i < size; ++i)
 		{
-			new (elements+i) T(a.elements[i]);
+			new (elements + i) T(a.elements[i]);
 		}
 	}
 
 	template <class T, unsigned short INI_DEPTH, unsigned short DEPTH_INCRE>
 	CIG::Array<T, INI_DEPTH, DEPTH_INCRE>::Array()
-		:size(0), capacity(INI_DEPTH), elements(NULL)
+		: size(0), capacity(INI_DEPTH), elements(NULL)
 	{
 		memAlloc();
 	}

@@ -11,8 +11,10 @@
 #include "Chessboard.h"
 #include "utilities.h"
 #include "MotionGenerator.h"
+#include "MainFrm.h"
 
-//#define DEBUG_GENERATOR
+//#define DEBUG_GENERATOR			//调试开关
+#define _DEBUG_STATUS
 
 using namespace CIG;
 
@@ -21,7 +23,7 @@ using namespace CIG;
 #endif
 
 
-CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(),actionOfLastRound(),moveComplete()
+CConfigurableIntelligenceGameView::CConfigurableIntelligenceGameView(): nowBoard(), actionOfLastRound(), moveComplete()
 {
 	//这里的初始化会乱掉. 所以还是在别处再初始化一次吧.
 
@@ -37,7 +39,7 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  在此添加您专用的创建代码CIG::GUI::cigView = this;
 	m_GameThread = AfxBeginThread(CIG::GUI::runThread, this);
 	workThreadOK.Lock();
-	getAction = false;
+	getMove = false;
 
 	CClientDC memDC(this);
 	boardBaseBitmap.LoadBitmap(IDB_BOARD_BASE);
@@ -49,6 +51,7 @@ int CConfigurableIntelligenceGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 CConfigurableIntelligenceGameView::~CConfigurableIntelligenceGameView()
 {
 	GUI::cigView = NULL;
+
 	if (m_GameThread)
 	{
 		m_GameThread->PostThreadMessage(WM_QUIT, 0, 0);
@@ -67,6 +70,7 @@ BEGIN_MESSAGE_MAP(CConfigurableIntelligenceGameView, CWnd)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_RBUTTONDOWN()
 	ON_WM_CHAR()
+	ON_MESSAGE(WM_STATUS_MESSAGE, &CConfigurableIntelligenceGameView::OnStatusMessage)
 END_MESSAGE_MAP()
 
 
@@ -83,7 +87,7 @@ BOOL CConfigurableIntelligenceGameView::PreCreateWindow(CREATESTRUCT& cs)
 	cs.dwExStyle |= WS_EX_CLIENTEDGE;
 	cs.style &= ~WS_BORDER;
 	cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,
-		::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
+									   ::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
 
 	return TRUE;
 }
@@ -95,12 +99,16 @@ void CConfigurableIntelligenceGameView::OnPaint()
 
 	DrawBoard();
 
-	GUI::drawComplete.SetEvent();
+	GUI::viewThreadComplete.SetEvent();
 }
 
 void CConfigurableIntelligenceGameView::OnGameNew()
 {
 	// TODO: 在此添加命令处理程序代码
+	
+#ifdef _DEBUG_STATUS
+	PostMessage(WM_STATUS_MESSAGE);
+#endif // _DEBUG_STATUS
 
 	m_GameThread->PostThreadMessage(WM_RESTART, 0, 0);
 	workThreadOK.Lock();
@@ -111,7 +119,7 @@ void CConfigurableIntelligenceGameView::OnGameNew()
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
-	getAction = false;
+	getMove = false;
 	DrawBoard();
 	MessageBox(_T("switchTurn"));
 
@@ -123,13 +131,12 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam,
 	{
 		m_GameThread->PostThreadMessage(WM_GET_MOVE, 0, 0);
 	}
-
 	return 0;
 }
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnGetMove(WPARAM wParam, LPARAM lParam)
 {
-	getAction = true;
+	getMove = true;
 
 	return 0;
 }
@@ -152,12 +159,12 @@ void TransparentBlt2( HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidt
 	if (nWidthDest == nWidthSrc && nHeightDest == nHeightSrc)
 	{
 		BitBlt(hImageDC, 0, 0, nWidthDest, nHeightDest,
-			hdcSrc, nXOriginSrc, nYOriginSrc, SRCCOPY);
+			   hdcSrc, nXOriginSrc, nYOriginSrc, SRCCOPY);
 	}
 	else
 	{
 		StretchBlt(hImageDC, 0, 0, nWidthDest, nHeightDest,
-			hdcSrc, nXOriginSrc, nYOriginSrc, nWidthSrc, nHeightSrc, SRCCOPY);
+				   hdcSrc, nXOriginSrc, nYOriginSrc, nWidthSrc, nHeightSrc, SRCCOPY);
 	}
 
 	SetBkColor(hImageDC, crTransparent);
@@ -168,9 +175,9 @@ void TransparentBlt2( HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidt
 	SetBkColor(hdcDest, RGB(255, 255, 255));
 	SetTextColor(hdcDest, RGB(0, 0, 0));
 	BitBlt(hdcDest, nXOriginDest, nYOriginDest, nWidthDest, nHeightDest,
-		hMaskDC, 0, 0, SRCAND);
+		   hMaskDC, 0, 0, SRCAND);
 	BitBlt(hdcDest, nXOriginDest, nYOriginDest, nWidthDest, nHeightDest,
-		hImageDC, 0, 0, SRCPAINT);
+		   hImageDC, 0, 0, SRCPAINT);
 
 	SelectObject(hImageDC, hOldImageBMP);
 	DeleteDC(hImageDC);
@@ -188,8 +195,8 @@ bool yaheiInstalled()
 	DWORD   count =   256;
 	byte   mstr[256] = "";
 	ires = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-		_T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts"),
-		0, KEY_READ, &hMyKey);
+						_T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts"),
+						0, KEY_READ, &hMyKey);
 
 	if(ERROR_SUCCESS == ires)
 	{
@@ -206,22 +213,34 @@ void CConfigurableIntelligenceGameView::WrapChessWithFrame(CDC& dc, PointOrVecto
 	CPen pen(PS_SOLID, GUI::latticePenWidth, color);
 	CPen* oldPen = dc.SelectObject(&pen);
 
-	dc.Rectangle(roundInt(xy.x[0] - GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2),  roundInt(xy.x[0] +GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] + GUI::chessmanRect.x[1] / 2) );
+	dc.Rectangle(roundInt(xy.x[0] - GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] - GUI::chessmanRect.x[1] / 2),  roundInt(xy.x[0] + GUI::chessmanRect.x[0] / 2), roundInt(xy.x[1] + GUI::chessmanRect.x[1] / 2) );
 
 	dc.SelectObject(oldBrush);
 	dc.SelectObject(oldPen);
 }
 
-void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Action* action /*= NULL*/ )
+void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, MotionStack* action /*= NULL*/ )
 {
 	CClientDC dc(this);
+	
+	//更新状态栏
+	if (action)
+	{
+		ostringstream oss;
+		for (int i =action->size-1; i>=0; --i)
+		{
+			oss<<"<-"<<CIGRuleConfig::NAME_OF_OPERATIONS[(*action)[i].operation]<<' ';
+			oss<<(*action)[i].distination;
+		}
+		GUI::statusInform(oss.str());
+	}
 
 	CRect rect;
 	GetClientRect(&rect);
-	Chessboard& boardToDraw = cb?(*cb):this->nowBoard;
-	Action& actionToDraw = action?(*action):this->actionOfLastRound;
+	Chessboard& boardToDraw = cb ? (*cb) : this->nowBoard;
+	MotionStack& actionToDraw = action ? (*action) : this->actionOfLastRound;
 
-	CDC memClientDC;			//暂存dc, 双缓冲绘图. 
+	CDC memClientDC;			//暂存dc, 双缓冲绘图.
 	memClientDC.CreateCompatibleDC(&dc);
 	CBitmap memBitmap;
 	memBitmap.CreateCompatibleBitmap(&dc, rect.Width(), rect.Height());
@@ -242,22 +261,25 @@ void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Act
 	{
 		CFont* pOldFont = NULL;
 		CFont font;
+
 		if (GUI::namedChessman)
 		{
 			font.CreatePointFont(roundInt(0.5 * 10 * min(GUI::chessmanRect.x[0], GUI::chessmanRect.x[1])), _T("华文行楷"), NULL);
 			pOldFont = memClientDC.SelectObject(&font);
 			memClientDC.SetStretchBltMode(COLORONCOLOR);			// 调整像素模式, 让贴图好看一点
 		}
+
 		memClientDC.SetBkMode(TRANSPARENT);
 
 		for (int p = 0; p < CIGRuleConfig::PLAYER_NUM; ++p)				//每个玩家
 		{
 			for (int c = boardToDraw.players[p].ownedChessmans.size - 1; c >= 0; --c)		//每个棋子
 			{
-				if (boardToDraw.players[p].ownedChessmans[c].status==CIGRuleConfig::CAPTURED)		//被吃不画
+				if (boardToDraw.players[p].ownedChessmans[c].status == CIGRuleConfig::CAPTURED)		//被吃不画
 				{
 					continue;
 				}
+
 				CDC chessDC;
 				chessDC.CreateCompatibleDC(&memClientDC);
 
@@ -285,18 +307,19 @@ void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Act
 		}
 
 		//标记上次走法
-		for (int i = actionToDraw.size-1; i>=0; --i)
+		for (int i = actionToDraw.size - 1; i >= 0; --i)
 		{
-			if ((actionToDraw[i].operation == CIGRuleConfig::PUT)||(actionToDraw[i].operation == CIGRuleConfig::PICK))
+			if ((actionToDraw[i].operation == CIGRuleConfig::PUT) || (actionToDraw[i].operation == CIGRuleConfig::PICK))
 			{
 				ChessmanIndex& ci = actionToDraw[i].chessmanIndex;
 
-				if (actionToDraw[i].distination != PointOrVector(-1,-1))
+				if (actionToDraw[i].distination != PointOrVector(-1, -1))
 				{
 					WrapChessWithFrame(memClientDC, actionToDraw[i].distination);
 				}
 			}
 		}
+
 		if (GUI::namedChessman)
 		{
 			memClientDC.SelectObject(pOldFont);
@@ -327,14 +350,14 @@ void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CB
 	latticeBitmap.CreateCompatibleBitmap(&boardBaseDC, rect.Width(), rect.Height());
 	addtionalBitmap.CreateCompatibleBitmap(&boardBaseDC, rect.Width(), rect.Height());
 	CBitmap* oldLatticeBitmap = latticeDC.SelectObject(&latticeBitmap),
-		*oldAdditionalBitmap = addtionalDC.SelectObject(&addtionalBitmap);
+			 *oldAdditionalBitmap = addtionalDC.SelectObject(&addtionalBitmap);
 
 	latticeDC.StretchBlt(0, 0, rect.Width(), rect.Height(), NULL, 0, 0, 0, 0, BLACKNESS);		//纯黑
 	addtionalDC.StretchBlt(0, 0, rect.Width(), rect.Height(), NULL, 0, 0, 0, 0, BLACKNESS);		//纯黑
 
 	CPen pen(PS_SOLID, GUI::latticePenWidth, RGB(255, 255, 255));					//用于画格点的画笔.
 	CPen* oldLatticePen = latticeDC.SelectObject(&pen),
-		*oldAdditionalPen = addtionalDC.SelectObject(&pen);
+		  *oldAdditionalPen = addtionalDC.SelectObject(&pen);
 
 	latticeDC.SelectStockObject(NULL_BRUSH);
 	addtionalDC.SelectStockObject(NULL_BRUSH);
@@ -428,26 +451,25 @@ void CConfigurableIntelligenceGameView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	PointOrVector lp = GUI::getLogicalCoordination(point.x, point.y);
 
-	if (getAction)
+	if (getMove)
 	{
 		GUI::guiPoint = lp;
 		GUI::msg = CIG_POINT;
-		GUI::inputGot.SetEvent();
+		GUI::viewThreadComplete.SetEvent();
 	}
 
 	CWnd::OnLButtonDown(nFlags, point);
 }
 
-
 void CConfigurableIntelligenceGameView::OnRButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 
-	if (getAction)
+	if (getMove)
 	{
 		GUI::guiPoint = PointOrVector();
 		GUI::msg = CIG_UNDO;
-		GUI::inputGot.SetEvent();
+		GUI::viewThreadComplete.SetEvent();
 	}
 
 	CWnd::OnRButtonDown(nFlags, point);
@@ -458,12 +480,21 @@ void CConfigurableIntelligenceGameView::OnChar(UINT nChar, UINT nRepCnt, UINT nF
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 
-	if (getAction)
+	if (getMove)
 	{
 		GUI::guiPoint = PointOrVector();
 		GUI::msg = CIG_END;
-		GUI::inputGot.SetEvent();
+		GUI::viewThreadComplete.SetEvent();
 	}
 
 	CWnd::OnChar(nChar, nRepCnt, nFlags);
+}
+
+afx_msg LRESULT CConfigurableIntelligenceGameView::OnStatusMessage(WPARAM wParam, LPARAM lParam)
+{
+	CMainFrame *pMain=(CMainFrame *)AfxGetApp()->m_pMainWnd;
+	CStatusBar& sb= pMain->m_wndStatusBar;
+	sb.SetPaneText(0, (LPCWSTR)wParam);
+	GUI::viewThreadComplete.SetEvent();
+	return 0;
 }

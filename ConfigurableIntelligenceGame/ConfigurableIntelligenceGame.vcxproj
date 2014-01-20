@@ -219,7 +219,7 @@
     <ClInclude Include="IntellegenceEngine.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MotionGenerator.h" />
-    <ClInclude Include="Operation.h" />
+    <ClInclude Include="Motion.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Stack.h" />
@@ -277,7 +277,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Operation.cpp">
+    <ClCompile Include="Motion.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>

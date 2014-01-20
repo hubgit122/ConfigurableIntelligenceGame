@@ -69,9 +69,6 @@
     <ClInclude Include="MotionGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Operation.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -87,6 +84,9 @@
     <ClInclude Include="ChessmanIndexBoard.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Motion.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConfigurableIntelligenceGame.cpp">
@@ -99,9 +99,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CConfigurableIntelligenceGameView.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Operation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
@@ -138,6 +135,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ChessmanIndexBoard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Motion.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

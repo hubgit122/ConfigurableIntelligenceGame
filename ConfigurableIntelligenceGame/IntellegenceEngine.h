@@ -4,14 +4,14 @@
 
 namespace CIG
 {
-	//纯接口. 
+	//纯接口.
 	class IntellegenceEngine
 	{
 		public:
 			//IntellegenceEngine(CIGRuleConfig::PLAYER_NAMES p = CIGRuleConfig::PLAYER_NAMES(-1) , Chessboard* cb = NULL);
 			//IntellegenceEngine(const IntellegenceEngine& ie);
 			//virtual ~IntellegenceEngine();
-			
+
 	};
 }
 

@@ -2,7 +2,7 @@
 #ifndef __GRAPHSEARCHENGINE_H__
 #define __GRAPHSEARCHENGINE_H__
 
-#include "Operation.h"
+#include "Motion.h"
 #include "Stack.h"
 #include "IntellegenceEngine.h"
 
@@ -11,7 +11,7 @@ namespace CIG
 	class GraphSearchEngine
 	{
 		public:
-			static void makeBestAction(Chessboard*cb, void* op);
+			static void makeBestMove(Chessboard* cb, void* op);
 
 			static const float MAX_SEARCH_TIME;
 			static const int LIMIT_DEPTH;
@@ -21,7 +21,7 @@ namespace CIG
 			//HashTable<Motion> historyList;
 			static int rootDepth;
 			static Chessboard* pChessboard;
-			static Action bestAction;
+			static MotionStack bestMove;
 	};
 }
 

@@ -13,18 +13,18 @@ namespace CIG
 			MotionGenerator();
 		public:
 			MotionGenerator(Chessboard& cb);
-			virtual ~MotionGenerator(){};
+			virtual ~MotionGenerator() {};
 			//void operator=(const MotionGenerator&mg);
 
-			ActionStack actionStack;
+			MoveStack actionStack;
 			Chessboard& chessboard;				//每个ChesssBoard有一个MotionGenerator实例.
 
-			//virtual OperationStack* nextAction();
-			virtual void generateActions(bool guiInput = false);
-			virtual bool generateRecursively(Action& logMotionStack, StatusStack& statusStack, bool guiInput = false);
-			virtual void generateMotionsForOneStatus(StatusStack& statusStack, Action& logOperationStack, Action& runningOperationStack, bool guiInput = false);
+			//virtual OperationStack* nextMove();
+			virtual void generateMoves(bool guiInput = false);
+			virtual bool generateRecursively(MotionStack& logMotionStack, OperationStatusStack& statusStack, bool guiInput = false);
+			virtual void generateMotionsForOneStatus(OperationStatusStack& statusStack, MotionStack& logOperationStack, MotionStack& runningOperationStack, bool guiInput = false);
 
-			bool testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, Action &runningOperationStack );
+			bool testAndSave( CIGRuleConfig::OPERATIONS s, Chessman* c, PointOrVector dist, MotionStack& runningOperationStack );
 
 	};
 }

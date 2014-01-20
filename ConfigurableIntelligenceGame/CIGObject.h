@@ -13,9 +13,9 @@ namespace CIG
 	class CIGObject
 	{
 		public:
-			inline CIGObject(){};
-			inline CIGObject(const CIGObject& o){};
-			inline virtual ~CIGObject(){};
+			inline CIGObject() {};
+			inline CIGObject(const CIGObject& o) {};
+			inline virtual ~CIGObject() {};
 
 			inline virtual void informError(const string& str)const
 			{

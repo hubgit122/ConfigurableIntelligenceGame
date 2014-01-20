@@ -4,7 +4,7 @@
 namespace CIG
 {
 	//CIG::IntellegenceEngine::IntellegenceEngine( CIGRuleConfig::PLAYER_NAMES p /*= CIGRuleConfig::PLAYER_NAMES(-1) */, Chessboard* cb /*= NULL*/)
-	//	: Player(p,cb) 
+	//	: Player(p,cb)
 	//{
 	//}
 
