@@ -8,21 +8,23 @@
 
 namespace CIG
 {
-	class GraphSearchEngine
-	{
-		public:
-			static void makeBestMove(Chessboard*cb, void* op);
+    class GraphSearchEngine
+    {
+        public:
+            static void makeBestMove(Chessboard *cb, void *op);
+            static void setTimeOut(unsigned long t);
+            static void setLimitDepth(int d);
 
-			static const float MAX_SEARCH_TIME;
-			static const int LIMIT_DEPTH;
-
-		private:
-			static int alphaBetaSearch(int alpha, int beta, int depth);
-			//HashTable<Motion> historyList;
-			static int rootDepth;
-			static Chessboard* pChessboard;
-			static Move bestMove;
-	};
+        private:
+            static int alphaBetaSearch(int alpha, int beta, int depth);
+            //HashTable<Motion> historyList;
+            static int limitDepth;
+            static int rootDepth;
+            static unsigned long beginTime;
+            static unsigned long timeout;
+            static Chessboard *pChessboard;
+            static Move bestMove;
+    };
 }
 
 #endif /*__GRAPHSEARCHENGINE_H_*/

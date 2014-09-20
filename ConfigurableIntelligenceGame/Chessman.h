@@ -32,11 +32,10 @@ namespace CIG
 			ChessmanIndex chessmanIndex;
 			CIGRuleConfig::CHESSMAN_STATUS status;
 			CIGRuleConfig::VISIBILITIES visibility[CIGRuleConfig::PLAYER_NUM];
-			//static const HBITMAP bitMap[CIGRuleConfig::CHESSMAN_NUM];
 			//ChessmanGroup& chessmanGroup;
 			void operator = (const Chessman& c);
 
-			friend std::ostringstream& operator<<(std::ostringstream& oss, const Chessman& c)						///不加引用符号, 就会调用拷贝构造函数, id管理得乱七八糟.
+			friend std::ostringstream& operator<<(std::ostringstream& oss, const Chessman& c)
 			{
 				oss << "Chessman::\n" << "\tchessmanType: " << c.chessmanType << "\n\tcoordinate: ";
 				oss << c.coordinate << "\nChessmanIndex.player: " << c.chessmanIndex.player << '\n';
@@ -59,7 +58,7 @@ namespace CIG
 			virtual bool onPromotionIntent(CIGRuleConfig::CHESSMAN_TYPES t);
 
 			virtual void undoPick();
-			virtual void undoPut(PointOrVector p = PointOrVector());
+			virtual void undoPut();
 			virtual void undoCaptured();
 	};
 }

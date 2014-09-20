@@ -24,27 +24,28 @@ namespace CIG
 				管理全局类型id及名字
 			**************************************************************************/
 		public:
-			enum CLASS_TYPES
-			{
-				GAME_CLASS,
-				PLAYER,
-				PLAYERS,
-				CHESSMAN_OPERATIONS,
-				OPERATION_STACK,
-				CHESSMAN_MOTION_STACK,
-				MOTION_STATUS,
-				POINTS,
-				LINES,
-				CHESSMAN,
-				CHESSMAN_MOTION,
-				CHESSMAN_GROUP,
-				CHESSBOARD_STACK,
-				LATTICE_GROUP
-			};
+			//enum CLASS_TYPES
+			//{
+			//	GAME_CLASS,
+			//	PLAYER,
+			//	PLAYERS,
+			//	CHESSMAN_OPERATIONS,
+			//	OPERATION_STACK,
+			//	CHESSMAN_MOTION_STACK,
+			//	MOTION_STATUS,
+			//	POINTS,
+			//	LINES,
+			//	CHESSMAN,
+			//	CHESSMAN_MOTION,
+			//	CHESSMAN_GROUP,
+			//	CHESSBOARD_STACK,
+			//	LATTICE_GROUP
+			//};
 
 			enum PLAYER_NAMES
 			{
-				A, B, C, D, E, F,
+				HUMAN,
+				COMPUTER,
 				PLAYER_NUM,				//用种类来定颜色是不正确的, 调试完了要改进.
 			};
 
@@ -67,8 +68,10 @@ namespace CIG
 				DECOVER,				//掀开
 				END,							//作为走法生成器返回的提示语: 一条搜索路径结束, 请保存结果并回退搜索.
 			};
+
 			static char* OPERATION_NAME[END];
-			static const OPERATIONS operationGraph[END][END+ 1];
+
+			static const OPERATIONS operationGraph[END][END + 1];
 
 			enum CHESSMAN_STATUS
 			{
@@ -85,6 +88,9 @@ namespace CIG
 				ALLY,
 			};
 
+			static const int INI_BOARD_WIDTH_LOG2 = 4;				// TO-DO
+			static const int INI_BOARD_HEIGHT_LOG2 = 4;			// TO-DO
+
 			static int INI_CHESSMAN_NUM_OF_ONE_PLAYER;
 			static bool CHESSMAN_IN_LATTICE;
 			static const int INI_CHESSMAN_GROUP_SIZE = 64;
@@ -92,14 +98,11 @@ namespace CIG
 			static const int INT_BANNED_MOTION_SIZE = 16;
 			static const int INT_MARKED_POINTS_SIZE = 32;
 			static const int INT_BOARD_HISTORY_STACK_SIZE = 32;
-			static const int INI_BOARD_WIDTH_LOG2 = 5;
-			static const int INI_BOARD_HEIGHT_LOG2 = 5;
 			static const int ROUND_LIMIT = -1;
 			static const float TIME_LIMIT;
 
 			static const bool BOARD_RANGE[1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
 			static const CHESSMAN_TYPES INI_BOARD[PLAYER_NUM][1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
-			//static const int EVALUATIONS[PLAYER_NUM][CHESSMAN_TYPE_NUM][1 << INI_BOARD_HEIGHT_LOG2][1 << INI_BOARD_WIDTH_LOG2];
 	};
 }
 

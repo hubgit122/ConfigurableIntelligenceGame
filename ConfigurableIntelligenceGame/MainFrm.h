@@ -34,7 +34,7 @@ class CMainFrame : public CFrameWnd
 
 	public:  // 控件条嵌入成员
 		//CToolBar          m_wndToolBar;
-		CStatusBar        m_wndStatusBar;
+		CStatusBar        m_wndOperationBar;
 		CConfigurableIntelligenceGameView    m_wndView;
 
 		// 生成的消息映射函数
@@ -43,7 +43,6 @@ class CMainFrame : public CFrameWnd
 		afx_msg void OnSetFocus(CWnd* pOldWnd);
 		DECLARE_MESSAGE_MAP()
 
-//		afx_msg LRESULT OnStatusText(WPARAM wParam, LPARAM lParam);
 };
 
 

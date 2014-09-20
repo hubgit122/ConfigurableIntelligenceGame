@@ -45,25 +45,16 @@
     <ClInclude Include="Chessman.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CIG.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CIGObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CIGRuleConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="GraphSearchEngine.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GUI.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="IntellegenceEngine.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MotionGenerator.h">
@@ -78,10 +69,10 @@
     <ClInclude Include="utilities.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ChessmanIndex.h">
+    <ClInclude Include="ChessmanIndexBoard.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ChessmanIndexBoard.h">
+    <ClInclude Include="ChessmanIndex.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Motion.h">
@@ -113,13 +104,7 @@
     <ClCompile Include="CIGRuleConfig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GUI.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="IntellegenceEngine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MotionGenerator.cpp">
@@ -131,13 +116,13 @@
     <ClCompile Include="GraphSearchEngine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ChessmanIndex.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ChessmanIndexBoard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Motion.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessmanIndex.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include "CIGObject.h"
 #include "CIGRuleConfig.h"
 #include "Chessman.h"
+#include "ChessmanIndex.h"
 
 namespace CIG
 {
@@ -13,7 +14,7 @@ namespace CIG
 		public:
 			Motion();
 			Motion(const Motion& op);
-			Motion(ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist = 0);
+			Motion(ChessmanIndex ci, CIGRuleConfig::OPERATIONS op, PointOrVector dist = 0, PointOrVector pre = 0);
 			virtual ~Motion();
 			void operator=(const Motion& op);
 			bool operator==(const Motion& op)const;
@@ -26,8 +27,9 @@ namespace CIG
 			}
 
 			CIGRuleConfig::OPERATIONS operation;			//操作类型
-			ChessmanIndex chessmanIndex;				//棋子所属的玩家号和在玩家手中的索引号
+			ChessmanIndex chessmanIndex;						//棋子所属的玩家号和在玩家手中的索引号
 			PointOrVector distination;								//事件的位置
+			PointOrVector savedCoodinate;						//为了事件的恢复, 保存初始位置
 	};
 }
 

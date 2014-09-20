@@ -18,7 +18,6 @@ IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
 	ON_WM_SETFOCUS()
-//	ON_MESSAGE(WM_STATUS_TEXT, &CMainFrame::OnStatusText)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -61,13 +60,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//	return -1;      // 未能创建
 	//}
 
-	if (!m_wndStatusBar.Create(this))
+	if (!m_wndOperationBar.Create(this))
 	{
 		TRACE0("未能创建状态栏\n");
 		return -1;      // 未能创建
 	}
 
-	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
+	m_wndOperationBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 
 	//// TODO: 如果不需要可停靠工具栏，则删除这三行
 	//m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -140,3 +139,4 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 	// 否则，执行默认处理
 	return CFrameWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
+

@@ -112,7 +112,6 @@ class CAboutDlg : public CDialogEx
 		DECLARE_MESSAGE_MAP()
 	public:
 	protected:
-//		afx_msg LRESULT OnStatusText(WPARAM wParam, LPARAM lParam);
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -125,7 +124,6 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-//	ON_MESSAGE(WM_STATUS_TEXT, &CAboutDlg::OnStatusText)
 END_MESSAGE_MAP()
 
 // 用于运行对话框的应用程序命令
@@ -136,5 +134,3 @@ void CConfigurableIntelligenceGameApp::OnAppAbout()
 }
 
 // CConfigurableIntelligenceGameApp 消息处理程序
-
-
