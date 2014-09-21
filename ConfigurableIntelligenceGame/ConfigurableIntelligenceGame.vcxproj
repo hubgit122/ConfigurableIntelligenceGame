@@ -288,10 +288,9 @@
   <ItemGroup>
     <Image Include="res\ConfigurableIntelligenceGame.ico" />
     <Image Include="res\Toolbar.bmp" />
-    <Image Include="res\圆棋子.bmp" />
-    <Image Include="res\大理石.bmp" />
+    <Image Include="res\圆棋子.jpg" />
     <Image Include="res\方棋子.bmp" />
-    <Image Include="res\木头.bmp" />
+    <Image Include="res\木头.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

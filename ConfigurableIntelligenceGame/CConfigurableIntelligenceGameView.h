@@ -30,15 +30,14 @@ class CConfigurableIntelligenceGameView : public CWnd
 		int nChessmanDC[CIGRuleConfig::PLAYER_NUM][CIGRuleConfig::CHESSMAN_TYPE_NUM];
 		CBitmap boardBaseBitmap;
 		CBitmap chessmanBaseBitmap;
+        Stack<Move, 20, 0> history;
 
 		// ²Ù×÷
 	public:
-		void DrawBoard(Chessboard* cb = NULL, Move* move = NULL);
+		void DrawBoard();
 		void WrapChessWithFrame(CDC& dc, PointOrVector logicCoo, COLORREF color = RGB(255, 0, 0), bool rectangleNotCircle = true, bool fill = false);
 
 		void GenerateBoardBaseDC(CDC& boardBaseDC, CBitmap* pBoardBaseDCBmpOld);
-
-		void GenerateChessmanDC(CDC& chessmanDC, CBitmap* pChessmanDCBmpOld);
 
 		// ÖØÐ´
 	protected:
@@ -66,5 +65,8 @@ class CConfigurableIntelligenceGameView : public CWnd
 		afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	protected:
 		afx_msg LRESULT OnOperationText(WPARAM wParam, LPARAM lParam);
+//        afx_msg LRESULT OnDrawBoard(WPARAM wParam, LPARAM lParam);
+    public:
+    afx_msg void OnEditUndo();
 };
 

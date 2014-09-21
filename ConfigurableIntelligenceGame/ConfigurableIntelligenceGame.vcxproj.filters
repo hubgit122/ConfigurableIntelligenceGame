@@ -143,16 +143,13 @@
     <Image Include="res\Toolbar.bmp">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="res\大理石.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\木头.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\圆棋子.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="res\方棋子.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\圆棋子.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\木头.jpg">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

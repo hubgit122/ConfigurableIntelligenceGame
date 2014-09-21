@@ -20,7 +20,7 @@ void CIG::MotionGenerator::generateMoves(bool guiInput)
         Move logMotionStack;
         OperationStack operationStack;
         operationStack.push(CIGRuleConfig::BEGIN);
-        logMotionStack.push(Motion(ChessmanIndex(), CIGRuleConfig::BEGIN));
+        logMotionStack.push(Motion(ChessmanIndex(chessboard.nowTurn,-1), CIGRuleConfig::BEGIN, PointOrVector(-1,-1)));
         result = generateRecursively(logMotionStack, operationStack, guiInput);
         //operationStack.popNoReturn();
     }
@@ -39,13 +39,30 @@ CIG::MotionGenerator::MotionGenerator(Chessboard &cb)
 // 初始条件配置: operationStack.push(CIGRuleConfig::BEGIN);
 bool CIG::MotionGenerator::generateRecursively(Move &logMotionStack, OperationStack &operationStack, bool guiInput /*= false*/)
 {
-    //根据输入选择当前的操作.
+    //根据输入选择当前的操作
     if(guiInput)
     {
+        if (CIGRuleConfig::operationGraph[logMotionStack.top().operation][0] == CIGRuleConfig::END && CIGRuleConfig::operationGraph[logMotionStack.top().operation][1] == CIGRuleConfig::NOMORE)
+        {
+            if (chessboard.onChangeTurn())
+            {
+                chessboard.undoChangeTurn();
+                moveStack.push(logMotionStack);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         bool result;
         PointOrVector dist;
         UINT msg;
-        GUI::drawBoard(&chessboard, &logMotionStack);
+        if (logMotionStack.top().operation!=CIGRuleConfig::BEGIN)
+        {
+            GUI::drawBoard(&chessboard, &logMotionStack);
+        }
         GUI::getInput(dist, msg);
 
         switch(msg)
@@ -84,6 +101,20 @@ bool CIG::MotionGenerator::generateRecursively(Move &logMotionStack, OperationSt
                 for(; CIGRuleConfig::operationGraph[op][i] != CIGRuleConfig::NOMORE; ++i)
                 {
                     operationStack.push(CIGRuleConfig::operationGraph[op][i]);
+
+                    if (CIGRuleConfig::operationGraph[op][i] == CIGRuleConfig::END && logMotionStack.top().distination==dist)
+                    {
+                        if (chessboard.onChangeTurn())
+                        {
+                            chessboard.undoChangeTurn();
+                            moveStack.push(logMotionStack);
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
                 }
 
                 Motion tmpMotion;
@@ -279,9 +310,13 @@ bool CIG::MotionGenerator::testAndSave(CIGRuleConfig::OPERATIONS s, Chessman *c,
 
         case CIG::CIGRuleConfig::ADD:
         {
-            Motion tmpMotion(ChessmanIndex(), CIGRuleConfig::ADD, dist);
-            runningMotionStack.push(tmpMotion);
-            return true;
+            if (chessboard.onAddIntent(dist))
+            {
+                chessboard.undoAdd(dist);
+                Motion tmpMotion(ChessmanIndex(), CIGRuleConfig::ADD, dist);
+                runningMotionStack.push(tmpMotion);
+                return true;
+            }
         }
         break;
 

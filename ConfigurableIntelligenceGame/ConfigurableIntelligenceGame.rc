@@ -52,8 +52,8 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
-    "#include ""res\\ConfigurableIntelligenceGame.rc2""  // 非 Microsoft Visual C++ 编辑的资源\r\n"
-    "#include ""l.CHS\\afxres.rc""      // 标准组件\r\n"
+    "#include ""res\\ConfigurableIntelligenceGame.rc2""  // ?¤? Microsoft Visual C++ ?à¨¤?-|ì??á¨o???\r\n"
+    "#include ""l.CHS\\afxres.rc""      // ?à¨o?á??á¨|?t\r\n"
     "#endif\r\n"
     "\0"
 END
@@ -84,8 +84,8 @@ BEGIN
     END
     POPUP "编辑(&E)"
     BEGIN
-        MENUITEM "撤消(&U)\tCtrl+Z",              ID_EDIT_UNDO
-        MENUITEM "重做(&R)",                      ID_EDIT_REDO
+        MENUITEM "悔棋(&U)\tCtrl+Z",              ID_EDIT_UNDO
+        MENUITEM "复盘(&R)\tCtrl+Y",              ID_EDIT_REDO
         MENUITEM SEPARATOR
     END
     POPUP "帮助(&H)"
@@ -110,9 +110,10 @@ BEGIN
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_GAME_NEW,            VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    "N",            ID_GAME_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -196,7 +197,7 @@ END
 // Bitmap
 //
 
-IDB_BOARD_BASE          BITMAP                  "res\\大理石.bmp"
+IDB_BOARD_BASE          BITMAP                  "res\\木头.bmp"
 IDB_CHESSMAN_ROUND_NAMED BITMAP                  "res\\圆棋子.bmp"
 IDB_CHESSMAN_RECTANGLE  BITMAP                  "res\\方棋子.bmp"
 
@@ -297,8 +298,8 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
-#include "res\ConfigurableIntelligenceGame.rc2"  // 非 Microsoft Visual C++ 编辑的资源
-#include "l.CHS\afxres.rc"      // 标准组件
+#include "res\ConfigurableIntelligenceGame.rc2"  // ·? Microsoft Visual C++ ±à?-μ?×ê?′
+#include "l.CHS\afxres.rc"      // ±ê×?×é?t
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

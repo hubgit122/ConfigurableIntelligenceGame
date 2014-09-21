@@ -12,6 +12,7 @@
 #include "utilities.h"
 #include "MotionGenerator.h"
 #include "MainFrm.h"
+#include "GraphSearchEngine.h"
 
 //#define DEBUG_GENERATOR
 using namespace CIG;
@@ -69,6 +70,7 @@ BEGIN_MESSAGE_MAP(CConfigurableIntelligenceGameView, CWnd)
 	ON_WM_RBUTTONDOWN()
 	ON_WM_CHAR()
 	ON_MESSAGE(WM_STATUS_TEXT, &CConfigurableIntelligenceGameView::OnOperationText)
+    ON_COMMAND(ID_EDIT_UNDO, &CConfigurableIntelligenceGameView::OnEditUndo)
 END_MESSAGE_MAP()
 
 // CConfigurableIntelligenceGameView 消息处理程序
@@ -101,16 +103,20 @@ void CConfigurableIntelligenceGameView::OnPaint()
 void CConfigurableIntelligenceGameView::OnGameNew()
 {
 	// TODO: 在此添加命令处理程序代码
-
-	m_GameThread->PostThreadMessage(WM_RESTART, 0, 0);
-	workThreadOK.Lock();
-
-	PostMessage(WM_PAINT, 0, 0);
+    nowBoard = Chessboard();
+    GraphSearchEngine::setTimeOut(20000);
+    GraphSearchEngine::setLimitDepth(2);
+    /*
+        m_GameThread->PostThreadMessage(WM_RESTART, 0, 0);
+        workThreadOK.Lock();
+        */
+    DrawBoard();
 	m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&moveOfLastRound, (LPARAM)&nowBoard);
 }
 
 afx_msg LRESULT CConfigurableIntelligenceGameView::OnMoveComplete(WPARAM wParam, LPARAM lParam)
 {
+    history.push(moveOfLastRound);
 	getMove = false;
 	DrawBoard();
 
@@ -211,14 +217,14 @@ void CConfigurableIntelligenceGameView::WrapChessWithFrame(CDC& dc, PointOrVecto
 	dc.SelectObject(oldPen);
 }
 
-void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Move* move /*= NULL*/ )
+void CConfigurableIntelligenceGameView::DrawBoard()
 {
 	CClientDC dc(this);
 
 	CRect rect;
 	GetClientRect(&rect);
-	Chessboard& boardToDraw = cb ? (*cb) : this->nowBoard;
-	Move& moveToDraw = move ? (*move) : this->moveOfLastRound;
+	Chessboard& boardToDraw = this->nowBoard;
+	Move& moveToDraw = this->moveOfLastRound;
 
 	CDC memClientDC;			//暂存dc, 双缓冲绘图.
 	memClientDC.CreateCompatibleDC(&dc);
@@ -230,7 +236,13 @@ void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Mov
 	{
 		ostringstream oss;
 
-		oss << "当前玩家: " << GUI::playerName[boardToDraw.nowTurn] << ". ";
+        oss << "Round " << nowBoard.nowRound;
+        for (int i = 0; i < CIGRuleConfig::PLAYER_NUM; ++i)
+        {
+            oss << " " <<nowBoard.getEvaluation((CIGRuleConfig::PLAYER_NAMES)i);
+        }
+
+		oss << " 当前玩家: " << GUI::playerName[boardToDraw.nowTurn] << ". ";
 
 		if (boardToDraw.players[boardToDraw.nowTurn].makeBestMove == GUI::askForMove)
 		{
@@ -322,15 +334,10 @@ void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Mov
 		//标记上次走法
 		for (int i = moveToDraw.size - 1; i >= 0; --i)
 		{
-			if ((moveToDraw[i].operation == CIGRuleConfig::PUT) || (moveToDraw[i].operation == CIGRuleConfig::PICK))
-			{
-				ChessmanIndex& ci = moveToDraw[i].chessmanIndex;
-
-				if (moveToDraw[i].distination != PointOrVector(-1, -1))
-				{
-					WrapChessWithFrame(memClientDC, moveToDraw[i].distination);
-				}
-			}
+            if (moveToDraw[i].distination != PointOrVector(-1, -1))
+            {
+                WrapChessWithFrame(memClientDC, moveToDraw[i].distination);
+            }
 		}
 
 		if (GUI::namedChessman)
@@ -342,10 +349,6 @@ void CConfigurableIntelligenceGameView::DrawBoard( Chessboard* cb/*= NULL*/, Mov
 	dc.BitBlt(0, 0, rect.Width(), rect.Height(), &memClientDC, 0, 0, SRCCOPY);			//双缓冲绘图
 
 	memClientDC.SelectObject(oldMemBitmap);
-}
-
-void CConfigurableIntelligenceGameView::GenerateChessmanDC(CDC& chessmanDC, CBitmap* pChessmanDCBmpOld)
-{
 }
 
 void CConfigurableIntelligenceGameView::GenerateBoardBaseDC(CDC& boardBaseDC, CBitmap* pBoardBaseDCBmpOld)
@@ -530,4 +533,21 @@ afx_msg LRESULT CConfigurableIntelligenceGameView::OnOperationText(WPARAM wParam
 	CStatusBar& sb = w->m_wndOperationBar;
 	sb.SetPaneText(0, (LPCTSTR)wParam);
 	return 0;
+}
+
+void CConfigurableIntelligenceGameView::OnEditUndo()
+{
+    // TODO:  在此添加命令处理程序代码
+    
+    if (this->history.size)
+    {
+        while (nowBoard.players[history.top()[0].chessmanIndex.player].makeBestMove != GUI::askForMove)
+        {
+            nowBoard.undoWholeMove(history.top());
+            history.popNoReturn();
+        }
+
+        DrawBoard();
+        m_GameThread->PostThreadMessage(WM_GET_MOVE, (WPARAM)&moveOfLastRound, (LPARAM)&nowBoard);
+    }
 }

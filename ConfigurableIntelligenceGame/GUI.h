@@ -14,6 +14,7 @@
 #define WM_GET_MOVE 		(WM_USER+2)
 #define WM_MOVE_COMPLETE (WM_USER+3)
 #define  WM_STATUS_TEXT (WM_USER+4)
+#define WM_REGERT (WM_USER+5)
 
 #define CIG_END			0
 #define  CIG_UNDO		1
@@ -39,6 +40,10 @@ namespace CIG
 			static UINT runThread(LPVOID pParam);
 			static void postMessage( UINT msg, WPARAM wp, LPARAM  lp);
 
+            /****************************
+            askForMove 调用使用GUI输入的走法生成器, 在走法生成器内调用 getInput 函数得到输入
+            在getInput函数中阻塞, 等待鼠标或者键盘的操作. 
+             *****************************/
 			static void askForMove(Chessboard* cb, void* op);
 			static void GUI::getInput(PointOrVector& dist, UINT& msg);
 
